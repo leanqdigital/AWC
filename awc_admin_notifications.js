@@ -201,14 +201,14 @@ function createNotificationCard(notification, isRead) {
     }
 
     if (type === "Comment" || type === "Post") {
-      window.location.href = `https://courses.writerscentre.com.au/teacher/class/${notification.Class_Unique_ID}?selectedTab=chats?current-post-id=${notification.Post_ID}`;
+      window.location.href = `https://courses.writerscentre.com.au/admin/class/${notification.Class_Unique_ID}?selectedTab=chats?current-post-id=${notification.Post_ID}`;
     } else if (type === "Submissions") {
       openIframeModal(
         notification.Submissions_AWC_Teacher_s_Portal_Student_s_Submission_Details_Page_URL
       );
       //window.location.href = `https://courses.writerscentre.com.au/teacher/class/${notification.Class_Unique_ID}`;
     } else {
-      window.location.href = `https://courses.writerscentre.com.au/teacher/class/${notification.Class_Unique_ID}?selectedTab=announcements?data-announcement-template-id=${notification.ID}`;
+      window.location.href = `https://courses.writerscentre.com.au/admin/class/${notification.Class_Unique_ID}?selectedTab=announcements?data-announcement-template-id=${notification.ID}`;
     }
   });
 
