@@ -39,12 +39,12 @@ function timeAgo(unixTimestamp) {
 
 async function fetchClassIds() {
   const query = `
-    query calcClasses {
-      calcClasses {
-        ID: field(arg: ["id"])
-      }
-    }
-    `;
+query calcClasses {
+  calcClasses{
+    ID: field(arg: ["id"])
+  }
+}
+`;
 
   try {
     const response = await fetch(HTTP_ENDPOINT, {
@@ -68,14 +68,14 @@ async function fetchClassIds() {
 }
 
 async function initializeSocket() {
-  const classIds = await fetchClassIds();
+  const classIds = await fetchClassIds(); // Fetch all class IDs
 
   if (!classIds || classIds.length === 0) {
     return;
   }
 
   classIds.forEach((classId) => {
-    const socket = new WebSocket(WS_ENDPOINT, "vitalstats");
+    const socket = new WebSocket(WS_ENDPOINT, "vitalstats"); // ✅ Open a new WebSocket per class ID
     let keepAliveInterval;
 
     socket.onopen = () => {
@@ -164,29 +164,33 @@ async function initializeSocket() {
   });
 }
 
+// ✅ Call once
+initializeSocket();
+
+// ✅ Create notification card
 function createNotificationCard(notification, isRead) {
   const card = document.createElement("div");
   card.className = "notification-card cursor-pointer";
   card.innerHTML = `
-        <div class="p-2  items-start gap-2 rounded justify-between notification-content w-full ${
-          isRead ? "bg-white" : "bg-unread"
-        } ${notification.Status === "Draft" ? "hidden" : "flex"}">
-            <div class="flex flex-col gap-1">
-                <div class="text-[#414042] text-xs font-semibold">${
-                  notification.Title
-                }</div>
-                <div class="extra-small-text text-dark line-clamp-2">“${
-                  notification.Content
-                }”-(${notification.Class_Class_Name})</div>
-                <div class="text-[#586A80] extra-small-text">${
-                  notification.Course_Course_Name
-                }</div>
-            </div>
-            <div class="extra-small-text text-[#586A80] text-nowrap">${timeAgo(
-              notification.Date_Added
-            )}</div>
+    <div class="p-2  items-start gap-2 rounded justify-between notification-content w-full ${
+      isRead ? "bg-white" : "bg-unread"
+    } ${notification.Status === "Draft" ? "hidden" : "flex"}">
+        <div class="flex flex-col gap-1">
+            <div class="text-[#414042] text-xs font-semibold">${
+              notification.Title
+            }</div>
+            <div class="extra-small-text text-dark line-clamp-2">“${
+              notification.Content
+            }”-(${notification.Class_Class_Name})</div>
+            <div class="text-[#586A80] extra-small-text">${
+              notification.Course_Course_Name
+            }</div>
         </div>
-    `;
+        <div class="extra-small-text text-[#586A80] text-nowrap">${timeAgo(
+          notification.Date_Added
+        )}</div>
+    </div>
+`;
   card.addEventListener("click", async function () {
     const id = Number(notification.ID);
     const type = notification.Type;
@@ -243,6 +247,7 @@ function processNotification(notification) {
   updateNoNotificationMessagesSec();
 }
 
+// ✅ Update read status UI
 function updateNotificationReadStatus() {
   cardMap.forEach((cards, id) => {
     if (readAnnouncements.has(id)) {
@@ -282,6 +287,7 @@ function updateMarkAllReadVisibility() {
   }
 }
 
+// ✅ Mark a single notification as read
 async function markAsRead(announcementId) {
   if (
     pendingAnnouncements.has(announcementId) ||
@@ -325,6 +331,7 @@ async function markAsRead(announcementId) {
   }
 }
 
+// ✅ Mark all unread notifications as read
 function markAllAsRead() {
   let hasUnread = false;
 
@@ -341,6 +348,7 @@ function markAllAsRead() {
   updateNoNotificationMessagesSec();
 }
 
+// ✅ Attach event listener to your existing "Mark All Read" button
 document.addEventListener("DOMContentLoaded", () => {
   const markAllBtn = document.getElementById("markEveryAsRead");
   if (markAllBtn) {
@@ -348,7 +356,6 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
   }
 });
-
 function fetchReadDataForClass(classId) {
   fetch(HTTP_ENDPOINT, {
     method: "POST",
@@ -399,6 +406,7 @@ function updateNoNotificationMessages() {
   noAnnouncementsMessage.classList.add("hidden");
 }
 
+// ✅ Also move this function outside DOMContentLoaded
 function updateNoNotificationMessagesSec() {
   const noAllMessageSec = document.getElementById("noAllMessageSec");
   const noAnnouncementsMessageSec = document.getElementById(
@@ -412,6 +420,7 @@ function updateNoNotificationMessagesSec() {
   noAnnouncementsMessageSec.classList.add("hidden");
 }
 
+// ✅ Filter announcements only
 document.addEventListener("DOMContentLoaded", function () {
   const onlySeeBtn = document.getElementById("OnlyseeAnnouncements");
   const noAllMessage = document.getElementById("noAllMessage");
@@ -536,6 +545,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 });
 
+//for View All Notification
 document.addEventListener("DOMContentLoaded", function () {
   const onlySeeBtnSec = document.getElementById("OnlyseeAnnouncementsSec");
   const noAllMessageSec = document.getElementById("noAllMessageSec");
@@ -689,5 +699,326 @@ document.addEventListener("DOMContentLoaded", function () {
   updateNoNotificationMessagesSec();
 });
 
-// ✅ Call once
+initializeSocket();
+
+function updateNoNotificationMessages() {
+  const noAllMessage = document.getElementById("noAllMessage");
+  const noAnnouncementsMessage = document.getElementById(
+    "noAnnouncementsMessage"
+  );
+  if (!noAllMessage || !noAnnouncementsMessage) return; // Ensure elements exist
+
+  const visibleCards = [...cardMap.values()].filter(
+    ({ original }) => original && !original.classList.contains("hidden")
+  );
+  const hasNotifications = visibleCards.length > 0;
+  noAllMessage.classList.toggle("hidden", hasNotifications);
+  noAnnouncementsMessage.classList.add("hidden");
+}
+
+// ✅ Also move this function outside DOMContentLoaded
+function updateNoNotificationMessagesSec() {
+  const noAllMessageSec = document.getElementById("noAllMessageSec");
+  const noAnnouncementsMessageSec = document.getElementById(
+    "noAnnouncementsMessageSec"
+  );
+  if (!noAllMessageSec || !noAnnouncementsMessageSec) return; // Ensure elements exist
+  const hasVisible = [...cardMap.values()].some(
+    ({ clone }) => clone && !clone.classList.contains("hidden")
+  );
+  noAllMessageSec.classList.toggle("hidden", hasVisible);
+  noAnnouncementsMessageSec.classList.add("hidden");
+}
+
+// ✅ Filter announcements only
+document.addEventListener("DOMContentLoaded", function () {
+  const onlySeeBtn = document.getElementById("OnlyseeAnnouncements");
+  const noAllMessage = document.getElementById("noAllMessage");
+  const showAllBtn = document.getElementById("allAnnouncements");
+  const noAnnouncementsMessage = document.getElementById(
+    "noAnnouncementsMessage"
+  );
+  const showUnreadAnnounceBtn = document.getElementById(
+    "showUnreadAnnouncement"
+  );
+  const showUnreadAllNotification = document.getElementById(
+    "showUnreadAllNotification"
+  );
+
+  let showUnreadMode = false;
+  let showUnreadAllMode = false;
+
+  //function updateNoNotificationMessages() {
+  //   const visibleCards = [...cardMap.values()].filter(({ original }) => original && !original.classList.contains("hidden"));
+  //   noAllMessage.classList.toggle("hidden", visibleCards.length > 0);
+  //   noAnnouncementsMessage.classList.toggle("hidden", visibleCards.length > 0);
+  //}
+
+  function toggleVisibilityAll() {
+    let hasData = false;
+
+    showUnreadAllMode = false;
+    showUnreadMode = false;
+
+    cardMap.forEach(({ original }) => {
+      if (original) {
+        original.classList.remove("hidden");
+        hasData = true; // ✅ Mark as having data
+      }
+    });
+
+    // ✅ Hide "No Announcements" message, only show "No Messages" if no notifications exist
+    noAllMessage.classList.toggle("hidden", hasData);
+    noAnnouncementsMessage.classList.add("hidden"); // Hide announcement message when viewing all
+  }
+
+  function toggleVisibilityByType(type) {
+    let hasAnnouncements = false;
+
+    showUnreadAllMode = false;
+    showUnreadMode = false;
+
+    cardMap.forEach(({ original }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      const shouldShow = notification.Type === type;
+      if (original) {
+        original.classList.toggle("hidden", !shouldShow);
+      }
+
+      if (shouldShow) hasAnnouncements = true;
+    });
+
+    // ✅ Hide "No Messages" when viewing announcements, only show "No Announcements" if empty
+    noAnnouncementsMessage.classList.toggle("hidden", hasAnnouncements);
+    noAllMessage.classList.add("hidden"); // Hide general "No Messages" when viewing only announcements
+  }
+
+  function toggleUnreadAnnouncements() {
+    showUnreadMode = !showUnreadMode;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ original }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      if (notification.Type === "Announcement") {
+        const isUnread = original
+          .querySelector(".notification-content")
+          .classList.contains("bg-unread");
+
+        if (original) {
+          original.classList.toggle("hidden", showUnreadMode && !isUnread);
+          if (!original.classList.contains("hidden")) {
+            hasVisible = true;
+          }
+        }
+
+        if (isUnread) hasUnread = true;
+      }
+    });
+
+    // ✅ Show/Hide "No Announcements" correctly
+    noAnnouncementsMessage.classList.toggle("hidden", hasVisible);
+    noAllMessage.classList.add("hidden"); // Hide general "No Messages" when viewing announcements
+  }
+
+  function toggleUnreadNotifications() {
+    showUnreadAllMode = !showUnreadAllMode;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ original }) => {
+      const isUnread = original
+        .querySelector(".notification-content")
+        .classList.contains("bg-unread");
+
+      if (original) {
+        original.classList.toggle("hidden", showUnreadAllMode && !isUnread);
+        if (!original.classList.contains("hidden")) {
+          hasVisible = true;
+        }
+      }
+
+      if (isUnread) hasUnread = true;
+    });
+
+    // ✅ Show/Hide "No Messages" correctly
+    noAllMessage.classList.toggle("hidden", hasVisible);
+    noAnnouncementsMessage.classList.add("hidden"); // Hide "No Announcements" when viewing all
+  }
+
+  onlySeeBtn.addEventListener("click", () =>
+    toggleVisibilityByType("Announcement")
+  );
+  showAllBtn.addEventListener("click", toggleVisibilityAll);
+  showUnreadAnnounceBtn.addEventListener("click", toggleUnreadAnnouncements);
+  showUnreadAllNotification.addEventListener(
+    "click",
+    toggleUnreadNotifications
+  );
+});
+
+//for View All Notification
+document.addEventListener("DOMContentLoaded", function () {
+  const onlySeeBtnSec = document.getElementById("OnlyseeAnnouncementsSec");
+  const noAllMessageSec = document.getElementById("noAllMessageSec");
+  const showAllBtnSec = document.getElementById("allAnnouncementsSec");
+  const noAnnouncementsMessageSec = document.getElementById(
+    "noAnnouncementsMessageSec"
+  );
+  const showUnreadAnnounceBtnSec = document.getElementById(
+    "showUnreadAnnouncementSec"
+  );
+  const showUnreadAllNotificationSec = document.getElementById(
+    "showUnreadAllNotificationSec"
+  );
+
+  let showUnreadModeSec = false;
+  let showUnreadAllModeSec = false;
+
+  // ✅ Function to check if notifications are visible and update the "No Messages" display
+  // function updateNoNotificationMessagesSec() {
+  //     const hasVisible = [...cardMap.values()].some(({ clone }) => clone && !clone.classList.contains("hidden"));
+
+  //     noAllMessageSec.classList.toggle("hidden", hasVisible);
+  //     noAnnouncementsMessageSec.classList.toggle("hidden", hasVisible);
+  // }
+
+  // ✅ Show only Announcements (Secondary)
+  function toggleVisibilityByTypeSec(type) {
+    let hasAnnouncements = false;
+
+    showUnreadAllModeSec = false;
+    showUnreadModeSec = false;
+
+    cardMap.forEach(({ clone }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      const shouldShow = notification.Type === type;
+      if (clone) {
+        clone.classList.toggle("hidden", !shouldShow);
+      }
+
+      if (shouldShow) hasAnnouncements = true;
+    });
+
+    // ✅ Correctly toggle "No Announcements" message
+    noAnnouncementsMessageSec.classList.toggle("hidden", hasAnnouncements);
+    noAllMessageSec.classList.add("hidden"); // Hide "No Messages" when viewing announcements
+  }
+
+  // ✅ Show all notifications (Secondary)
+  function toggleVisibilityAllSec() {
+    let hasData = false;
+
+    showUnreadAllModeSec = false;
+    showUnreadModeSec = false;
+
+    cardMap.forEach(({ clone }) => {
+      if (clone) {
+        clone.classList.remove("hidden");
+        hasData = true;
+      }
+    });
+
+    // ✅ Correctly toggle "No Messages" message
+    noAllMessageSec.classList.toggle("hidden", hasData);
+    noAnnouncementsMessageSec.classList.add("hidden"); // Hide "No Announcements" when viewing all
+  }
+
+  // ✅ Toggle Unread Announcements (Secondary)
+  function toggleUnreadAnnouncementsSec() {
+    showUnreadModeSec = !showUnreadModeSec;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ clone }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      if (notification.Type === "Announcement") {
+        const isUnread = clone
+          ?.querySelector(".notification-content")
+          ?.classList.contains("bg-unread");
+
+        if (clone) {
+          clone.classList.toggle("hidden", showUnreadModeSec && !isUnread);
+          if (!clone.classList.contains("hidden")) {
+            hasVisible = true;
+          }
+        }
+
+        if (isUnread) hasUnread = true;
+      }
+    });
+
+    // ✅ Correctly toggle "No Announcements" message
+    noAnnouncementsMessageSec.classList.toggle("hidden", hasVisible);
+    noAllMessageSec.classList.add("hidden"); // Hide "No Messages" when viewing announcements
+  }
+
+  // ✅ Toggle Unread Notifications (Secondary)
+  function toggleUnreadNotificationsSec() {
+    showUnreadAllModeSec = !showUnreadAllModeSec;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ clone }) => {
+      const isUnread = clone
+        ?.querySelector(".notification-content")
+        ?.classList.contains("bg-unread");
+
+      if (clone) {
+        clone.classList.toggle("hidden", showUnreadAllModeSec && !isUnread);
+        if (!clone.classList.contains("hidden")) {
+          hasVisible = true;
+        }
+      }
+
+      if (isUnread) hasUnread = true;
+    });
+
+    // ✅ Correctly toggle "No Messages" message
+    noAllMessageSec.classList.toggle("hidden", hasVisible);
+    noAnnouncementsMessageSec.classList.add("hidden"); // Hide "No Announcements" when viewing all
+  }
+
+  // ✅ Attach event listeners for Secondary filtering
+  // onlySeeBtnSec.addEventListener("click", () => toggleVisibilityByTypeSec("Announcement"));
+  // showAllBtnSec.addEventListener("click", toggleVisibilityAllSec);
+  // showUnreadAnnounceBtnSec.addEventListener("click", toggleUnreadAnnouncementsSec);
+  // showUnreadAllNotificationSec.addEventListener("click", toggleUnreadNotificationsSec);
+
+  if (onlySeeBtnSec) {
+    onlySeeBtnSec.addEventListener("click", () =>
+      toggleVisibilityByTypeSec("Announcement")
+    );
+  }
+  if (showAllBtnSec) {
+    showAllBtnSec.addEventListener("click", toggleVisibilityAllSec);
+  }
+  if (showUnreadAnnounceBtnSec) {
+    showUnreadAnnounceBtnSec.addEventListener(
+      "click",
+      toggleUnreadAnnouncementsSec
+    );
+  }
+  if (showUnreadAllNotificationSec) {
+    showUnreadAllNotificationSec.addEventListener(
+      "click",
+      toggleUnreadNotificationsSec
+    );
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  updateMarkAllReadVisibility(); // ✅ Check on page load
+  updateNoNotificationMessages();
+  updateNoNotificationMessagesSec();
+});
+
 initializeSocket();
