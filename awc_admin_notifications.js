@@ -165,7 +165,7 @@ async function initializeSocket() {
 }
 
 // ✅ Call once
-//initializeSocket();
+// 
 
 // ✅ Create notification card
 function createNotificationCard(notification, isRead) {
@@ -699,7 +699,7 @@ document.addEventListener("DOMContentLoaded", function () {
   updateNoNotificationMessagesSec();
 });
 
-initializeSocket();
+ 
 
 function updateNoNotificationMessages() {
   const noAllMessage = document.getElementById("noAllMessage");
