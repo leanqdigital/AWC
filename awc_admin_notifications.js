@@ -165,7 +165,7 @@ async function initializeSocket() {
 }
 
 // ✅ Call once
-initializeSocket();
+//initializeSocket();
 
 // ✅ Create notification card
 function createNotificationCard(notification, isRead) {
