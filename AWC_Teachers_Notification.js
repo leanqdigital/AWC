@@ -173,7 +173,7 @@ async function initializeSocket() {
 }
 
 // ✅ Call once
-initializeSocket();
+
 
 // ✅ Create notification card
 function createNotificationCard(notification, isRead) {
