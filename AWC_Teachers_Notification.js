@@ -669,7 +669,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-initializeSocket();
+//initializeSocket();
 
 
 function updateNoNotificationMessages() {
