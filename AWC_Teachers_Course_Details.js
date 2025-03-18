@@ -15,19 +15,17 @@ async function fetchGraphQL(query) {
         const result = await response.json();
         return result?.data || {};
     } catch (error) {
-        console.error("Error fetching data:", error);
+       
         return {};
     }
 }
 
-// Function to convert Unix timestamp to a readable date format
 function formatDate(unixTimestamp) {
     if (!unixTimestamp) return "Invalid Date";
     const date = new Date(unixTimestamp * 1000);
     return date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-// Function to fetch customisation data for a module
 async function fetchModuleCustomisation(moduleID) {
     const customisationQuery = `
         query {
@@ -68,7 +66,6 @@ async function fetchLessonCustomisation(lessonID) {
     return response?.calcClassCustomisations?.[0] || null;
 }
 
-// Function to calculate the next Sunday from a given date
 function getUpcomingSunday(startDateUnix, weeksOffset = 0) {
     const startDate = new Date(startDateUnix * 1000);
     let nextSunday = new Date(startDate);
@@ -76,7 +73,6 @@ function getUpcomingSunday(startDateUnix, weeksOffset = 0) {
     return Math.floor(nextSunday.getTime() / 1000);
 }
 
-// Function to determine due date for Assessments only
 async function determineAssessmentDueDate(lesson, moduleStartDateUnix) {
     const lessonID = lesson.LessonsID;
     const dueWeek = lesson.Assessment_Due_End_of_Week;
@@ -116,7 +112,6 @@ async function determineAssessmentDueDate(lesson, moduleStartDateUnix) {
     return { dueDateUnix, dueDateText };
 }
 
-// Function to combine modules and lessons
 async function combineModulesAndLessons() {
     const modulesResponse = await fetchGraphQL(getModulesQuery);
     const lessonsResponse = await fetchGraphQL(getLessonsQuery);
@@ -125,23 +120,17 @@ async function combineModulesAndLessons() {
     const lessonsData = lessonsResponse?.calcLessons || [];
 
     if (!Array.isArray(modules) || !Array.isArray(lessonsData)) {
-        console.error("Modules or Lessons Data is not an array:", modules, lessonsData);
+        
         return [];
     }
-
     const modulesMap = {};
-
-    // Populate modulesMap
     for (const module of modules) {
         modulesMap[module.ID] = {
             ...module,
             Lessons: []
         };
     }
-
-    // Track unique lesson IDs
     const uniqueLessonsSet = new Set();
-
     for (const lesson of lessonsData) {
         let moduleId = lesson.Module_ID;
 
@@ -152,8 +141,6 @@ async function combineModulesAndLessons() {
             if (lesson.Type === "Assessment") {
                 dueDateInfo = await determineAssessmentDueDate(lesson, modulesMap[moduleId].Class_Start_Date);
             }
-
-            // Push lesson into the module
  modulesMap[moduleId].Lessons.push({
                 ...lesson,
                 Lessons_Unique_ID:lesson.Unique_ID,
@@ -184,15 +171,12 @@ async function combineModulesAndLessons() {
             });
         }
     }
-
-    // Sort modules by order
     let sortedModules = Object.values(modulesMap);
     sortedModules.sort((a, b) => a.Order - b.Order);
 
     return sortedModules;
 }
 
-// Function to render modules using JsRender
 async function renderModules() {
     const skeletonHTML = `
         <div class="skeleton-container">
@@ -210,7 +194,7 @@ async function renderModules() {
     const modules = await combineModulesAndLessons();
 
     if (!Array.isArray(modules)) {
-        console.error("Modules is not an array after processing:", modules);
+       
         return;
     }
 
@@ -224,7 +208,7 @@ async function renderModules() {
     $("#progressModulesContainer").html(progressOutput);
 }
 
-// Run renderModules() when the DOM is fully loaded
+
 document.addEventListener("DOMContentLoaded", async () => {
     await renderModules();
 });
