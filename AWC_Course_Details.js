@@ -63,8 +63,6 @@
 
 const API_KEY = "mMzQezxyIwbtSc85rFPs3";
 const GRAPHQL_ENDPOINT = "https://awc.vitalstats.app/api/v1/graphql";
-
-// Function to fetch GraphQL Data
 async function fetchGraphQL(query) {
     try {
         const response = await fetch(GRAPHQL_ENDPOINT, {
@@ -83,15 +81,11 @@ async function fetchGraphQL(query) {
         return {};
     }
 }
-
-// Function to convert Unix timestamp to a readable date format
 function formatDate(unixTimestamp) {
     if (!unixTimestamp) return "Invalid Date";
     const date = new Date(unixTimestamp * 1000);
     return date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
 }
-
-// Function to fetch customisation data for a module
 async function fetchModuleCustomisation(moduleID) {
     const customisationQuery = `
         query {
@@ -109,15 +103,10 @@ async function fetchModuleCustomisation(moduleID) {
         }
     `;
     const response = await fetchGraphQL(customisationQuery);
-    const customisation = response?.calcClassCustomisations?.[0] || null;
-    
-   
-    
+    const customisation = response?.calcClassCustomisations?.[0] || null;    
     return customisation;
 }
 async function fetchLessonCustomisation(lessonID) {
-   
-
     const customisationQuery = `
         query {
             calcClassCustomisations(
@@ -142,20 +131,16 @@ async function fetchLessonCustomisation(lessonID) {
             }
         }
     `;
-
     const response = await fetchGraphQL(customisationQuery);
     const customisation = response?.calcClassCustomisations?.[0] || null;   
     return customisation;
 }
-// Function to calculate the next Sunday from a given date
 function getUpcomingSunday(startDateUnix, weeksOffset = 0) {
     const startDate = new Date(startDateUnix * 1000);
     let nextSunday = new Date(startDate);
     nextSunday.setDate(nextSunday.getDate() + (7 - nextSunday.getDay()) + (weeksOffset * 7));
     return Math.floor(nextSunday.getTime() / 1000);
 }
-
-// Function to determine due date for Assessments only
 async function determineAssessmentDueDate(lesson, moduleStartDateUnix) {
     const lessonID = lesson.ID;
     const dueWeek = lesson.Assessment_Due_End_of_Week;
@@ -167,9 +152,7 @@ async function determineAssessmentDueDate(lesson, moduleStartDateUnix) {
             dueDateUnix = customisation.Specific_Date > 9999999999
                 ? Math.floor(customisation.Specific_Date / 1000)
                 : customisation.Specific_Date;
-
             dueDateText = `Due on ${formatDate(dueDateUnix)}`;
-           
         } else if (customisation.Days_to_Offset !== null) {
             if (customisation.Days_to_Offset === 0) {
                 dueDateUnix = moduleStartDateUnix;
@@ -196,10 +179,6 @@ async function determineAssessmentDueDate(lesson, moduleStartDateUnix) {
     }
     return { dueDateUnix, dueDateText };
 }
-
-
-
-// Function to determine module availability
 function determineAvailability(startDateUnix, weeks, customisation) {
     if (!startDateUnix) {
         return { isAvailable: false, openDateText: "No Start Date" };
@@ -208,17 +187,14 @@ function determineAvailability(startDateUnix, weeks, customisation) {
     let openDateText;
 
     if (!customisation) {
-        // Default logic when no customization exists
         openDateUnix = startDateUnix + (weeks * 7 * 24 * 60 * 60);
         openDateText = `Unlocks on ${formatDate(openDateUnix)}`;
    
     } else {
         if (customisation.Specific_Date) {
-            // Convert Specific Date (Detect if it's in milliseconds or seconds)
             openDateUnix = customisation.Specific_Date > 9999999999 
-                ? Math.floor(customisation.Specific_Date / 1000)  // Convert from ms to s
-                : customisation.Specific_Date;  // Already in seconds
-
+                ? Math.floor(customisation.Specific_Date / 1000)  
+                : customisation.Specific_Date;  
             openDateText = `Unlocks on ${formatDate(openDateUnix)}`;
         } else if (customisation.Days_to_Offset !== null) {
             openDateUnix = startDateUnix + (customisation.Days_to_Offset * 24 * 60 * 60);
@@ -228,41 +204,31 @@ function determineAvailability(startDateUnix, weeks, customisation) {
             openDateText = `Unlocks on ${formatDate(openDateUnix)}`;
         }
     }
-
     const todayUnix = Math.floor(Date.now() / 1000);
     const isAvailable = openDateUnix >= todayUnix;
     return { isAvailable, openDateText };
 }
-// Function to fetch lesson statuses
 async function fetchLessonStatuses() {
     const completedLessons = await fetchGraphQL(completedQuery);
     const inProgressLessons = await fetchGraphQL(inProgressQuery);
-
     const completedSet = new Set(
         completedLessons?.calcOEnrolmentLessonCompletionLessonCompletions?.map(lesson => Number(lesson.Lesson_Completion_ID)) || []
     );
     const inProgressSet = new Set(
         inProgressLessons?.calcOLessonInProgressLessonEnrolmentinProgresses?.map(lesson => Number(lesson.Lesson_In_Progress_ID)) || []
     );
-
     return { completedSet, inProgressSet };
 }
 async function combineModulesAndLessons() {
     const modulesResponse = await fetchGraphQL(getModulesQuery);
     const lessonsResponse = await fetchGraphQL(getLessonsQuery);
     const lessonStatuses = await fetchLessonStatuses(studentID);
-
     const modules = modulesResponse?.calcModules || [];
-    const lessonsData = lessonsResponse?.calcLessons || []; // ✅ Use correct source
-
-    if (!Array.isArray(modules) || !Array.isArray(lessonsData)) {
-       
+    const lessonsData = lessonsResponse?.calcLessons || [];
+    if (!Array.isArray(modules) || !Array.isArray(lessonsData)) { 
         return [];
     }
-
     const modulesMap = {};
-
-    // Populate modulesMap
     for (const module of modules) {
         const customisation = await fetchModuleCustomisation(module.ID);
         const { isAvailable, openDateText } = determineAvailability(
@@ -270,7 +236,6 @@ async function combineModulesAndLessons() {
             module.Week_Open_from_Start_Date,
             customisation
         );
-
         modulesMap[module.ID] = {
             ...module,
             Lessons: [],
@@ -278,35 +243,23 @@ async function combineModulesAndLessons() {
             isAvailable: isAvailable,
         };
     }
-
-    // Track unique lesson IDs
     const uniqueLessonsSet = new Set();
-    
-    // Process lessons
     const assessmentPromises = [];
-
     for (const lesson of lessonsData) {
         let moduleId = lesson.Module_ID;
-        
         if (modulesMap[moduleId] && lesson.Lesson_Name && !uniqueLessonsSet.has(lesson.ID)) {
             uniqueLessonsSet.add(lesson.ID);
-
             let status = "NotStarted";
             const lessonID = lesson.ID;
-
             if (lessonStatuses.completedSet.has(lessonID)) {
                 status = "Completed";
             } else if (lessonStatuses.inProgressSet.has(lessonID)) {
                 status = "InProgress";
             }
-
-            // Placeholder for due date (if assessment)
             let dueDateInfo = { dueDateUnix: null, dueDateText: "No Due Date" };
             if (lesson.Type === "Assessment") {
                 dueDateInfo = await determineAssessmentDueDate(lesson, modulesMap[moduleId].Class_Start_Date);
             }
-
-            // Push lesson into the module
             modulesMap[moduleId].Lessons.push({
                 ...lesson,
                 Lessons_Unique_ID:lesson.Unique_ID,
@@ -319,8 +272,8 @@ async function combineModulesAndLessons() {
                 Lessons_Lesson_Learning_Outcome: lesson.Lesson_Learning_Outcome,
                 LessonsID: lesson.ID,
                 LessonsType: lesson.Type,
-                Due_Date_Text: dueDateInfo.dueDateText, // Will be updated later
-                Status: status, // ✅ From lesson status
+                Due_Date_Text: dueDateInfo.dueDateText,
+                Status: status, 
                 Lessons_Your_Next_Step: lesson.Your_Next_Step,
                 Lessons_Join_Your_New_Community: lesson.Join_Your_New_Community,
                 Lessons_Give_Us_Your_Feedback: lesson.Give_Us_Your_Feedback,
@@ -341,19 +294,11 @@ async function combineModulesAndLessons() {
             });
         }
     }
-
-    // Wait for all assessments' due dates to be determined
     await Promise.all(assessmentPromises);
-
-    // Sort modules by order
     let sortedModules = Object.values(modulesMap);
     sortedModules.sort((a, b) => a.Order - b.Order);
-
     return sortedModules;
 }
-
-
-// Function to render modules using JsRender
 async function renderModules() {
     const skeletonHTML = `
         <div class="skeleton-container">
@@ -364,36 +309,27 @@ async function renderModules() {
             <div class="skeleton-card skeleton-shimmer"></div>
         </div>
     `;
-
     $("#modulesContainer").html(skeletonHTML);
     $("#progressModulesContainer").html(skeletonHTML);
-
     const modules = await combineModulesAndLessons();
-
     if (!Array.isArray(modules)) {
-       
         return;
     }
-
     const template = $.templates("#modulesTemplate");
     const htmlOutput = template.render({ modules });
-
     const progressTemplate = $.templates("#progressModulesTemplate");
     const progressOutput = progressTemplate.render({ modules });
-
     $("#modulesContainer").html(htmlOutput);
     $("#progressModulesContainer").html(progressOutput);
 }
-
 function addEventListenerIfExists(id, event, handler) {
     const element = document.getElementById(id);
     if (element) {
         element.addEventListener(event, async () => {
-            await handler();  // ✅ Fixed async execution
+            await handler(); 
         });
     }
 }
-
 addEventListenerIfExists("fetchModulesLessons", "click", renderModules);
 addEventListenerIfExists("fetchProgressModulesLessons", "click", renderModules);
 addEventListenerIfExists("finalMessageButton", "click", renderModules);
