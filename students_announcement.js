@@ -2,11 +2,6 @@
     //==========GLOBAL VARIABLE STARTS HERE====================//
     const apiUrl = "https://awc.vitalstats.app/api/v1/graphql";
     const apiKey = "mMzQezxyIwbtSc85rFPs3";
-    const classID = "[Page//Active Class//ID]";
-    const LOGGED_IN_USER_IMAGE = "[Visitor//Profile Image ##link]";
-    const LOGGED_IN_USER_ID = "[Visitor//Contact ID]";
-    const LOGGED_IN_USER_FIRST_NAME = "[Visitor//First Name]";
-    const LOGGED_IN_USER_LAST_NAME = "[Visitor//Last Name]";
     let userVotesMap = {};
     window.voteCountMap = {};
     let replyUserVotesMap = {};
