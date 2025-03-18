@@ -3,18 +3,13 @@ const displayedNotifications = new Set();
 const readAnnouncements = new Set();
 const pendingAnnouncements = new Set();
 const cardMap = new Map();
-const notificationIDs = new Set(); // Store all notification IDs
+const notificationIDs = new Set(); 
 const notificationData = [];
-
-// Function to get URL parameters
 function getQueryParamss(param) {
 const urlParams = new URLSearchParams(window.location.search);
 return urlParams.get(param);
 }
-
-// Get the 'eid' parameter from the current URL
 const enrollID = getQueryParamss('eid');
-
 function timeAgo(unixTimestamp) {
 const now = new Date();
 const date = new Date(unixTimestamp * 1000);
@@ -31,7 +26,6 @@ interval = Math.floor(seconds / 60);
 if (interval >= 1) return interval + " min" + (interval > 1 ? "s" : "") + " ago";
 return "Just now";
 }
-
 async function fetchClassIds() {
 const query = `
 query calcEnrolments {
@@ -40,7 +34,6 @@ calcEnrolments(query: [{ where: { student_id: ${CONTACTss_ID} } }]) {
 }
 }
 `;
-
 try {
   const response = await fetch(HTTP_ENDPOINT, {
       method: "POST",
@@ -50,16 +43,12 @@ try {
       },
       body: JSON.stringify({ query }),
   });
-
   const result = await response.json();
-
-  
   if (result.data && result.data.calcEnrolments) {
       return result.data.calcEnrolments.map(enrolment => enrolment.Class_ID);
   }
   return [];
-} catch (error) {
- 
+} catch (error) { 
   return [];
 }
 }
@@ -78,7 +67,6 @@ async function initializeSocket() {
                 }
             }, 28000);
             socket.send(JSON.stringify({ type: "connection_init" }));
-            // ✅ Subscribe for EACH class ID
             socket.send(
                 JSON.stringify({
                     id: `subscription_${classId}`,
@@ -94,29 +82,18 @@ async function initializeSocket() {
                 })
             );
         };
-
-        // ✅ Make sure fetch is called for each class ID
        socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-
-
     if (data.type !== "GQL_DATA") return;
     if (!data.payload || !data.payload.data) {
+        return;
+    }
+    const result = data.payload.data.subscribeToCalcAnnouncements;
+    if (!result) {
       
         return;
     }
-
-    const result = data.payload.data.subscribeToCalcAnnouncements;
-    if (!result) {
-       
-        return;
-    }
-
-    
     const notifications = Array.isArray(result) ? result : [result];
-
-    // ✅ Show notification if both `Post_Author_ID` & `Comment_Author_ID` are `null`
-    // ✅ Hide if either matches `CONTACTss_ID`
     const filteredNotifications = notifications.filter(notification => {
         const postAuthor = notification.Post_Author_ID;
         const commentAuthor = notification.Comment_Author_ID;
@@ -132,8 +109,6 @@ async function initializeSocket() {
        
         return;
     }
-
-    // ✅ Process only relevant notifications
     filteredNotifications.forEach(notification => {
         processNotification(notification);
         notificationIDs.add(Number(notification.ID));
@@ -143,29 +118,18 @@ async function initializeSocket() {
     updateMarkAllReadVisibility();
 };
 
-
-
-        // ✅ Fetch read data separately for each class
         fetchReadDataForClass(classId);
-
         socket.onclose = () => {
-           
             clearInterval(keepAliveInterval);
             setTimeout(() => initializeSocket(), 2000);
         };
-
         socket.onerror = (error) => {
            
         };
     });
 }
 
-// ✅ Call once
 initializeSocket();
-
-
-
-// ✅ Create notification card
 function createNotificationCard(notification, isRead) {
 const card = document.createElement("div");
 card.className = "notification-card cursor-pointer";
@@ -200,7 +164,6 @@ card.addEventListener("click", async function () {
 return card;
 }
 
-// ✅ Process and prepend notification
 function processNotification(notification) {
     const container1 = document.getElementById("parentNotificationTemplatesInBody");
     const container2 = document.getElementById("secondaryNotificationContainer"); 
@@ -212,25 +175,25 @@ function processNotification(notification) {
     const isRead = readAnnouncements.has(id);
     const card = createNotificationCard(notification, isRead);
     
-    // ✅ Prepend to the primary container
+   
     container1.prepend(card);
     
     let cardClone = null;
 
-    // ✅ Prepend to the secondary container only if it exists
+    
     if (container2) {
         cardClone = createNotificationCard(notification, isRead);
         container2.prepend(cardClone);
     }
 
-    // ✅ Store both the original and cloned cards in cardMap (if cloned)
+ 
     cardMap.set(id, { original: card, clone: cardClone });
 
-    // ✅ Update UI
+    
     updateNoNotificationMessages(); 
     updateNoNotificationMessagesSec();
 }
-// ✅ Update read status UI
+
 function updateNotificationReadStatus() {
     cardMap.forEach((cards, id) => {
         if (readAnnouncements.has(id)) {
@@ -261,7 +224,7 @@ function updateMarkAllReadVisibility() {
     }
 }
 
-// ✅ Mark a single notification as read
+
 async function markAsRead(announcementId) {
     if (pendingAnnouncements.has(announcementId) || readAnnouncements.has(announcementId)) return;
     pendingAnnouncements.add(announcementId);
@@ -301,7 +264,7 @@ async function markAsRead(announcementId) {
        
     }
 }
-// ✅ Mark all unread notifications as read
+
 function markAllAsRead() {
     let hasUnread = false;
     cardMap.forEach((cards, id) => {
@@ -310,12 +273,12 @@ function markAllAsRead() {
             markAsRead(id);
         }
     });
-    // ✅ Hide "Mark All Read" elements if no unread notifications exist
+   
     updateMarkAllReadVisibility();
     updateNoNotificationMessages(); 
     updateNoNotificationMessagesSec();
 }
-// ✅ Attach event listener to your existing "Mark All Read" button
+
 document.addEventListener("DOMContentLoaded", () => {
 const markAllBtn = document.getElementById("markEveryAsRead");
 if (markAllBtn) {
@@ -326,7 +289,6 @@ if (markAllBtn) {
 }
 });
 
-// ✅ Ensure fetching read data per class
 function fetchReadDataForClass(classId) {    
     fetch(HTTP_ENDPOINT, {
         method: "POST",
@@ -364,7 +326,7 @@ function fetchReadDataForClass(classId) {
 function updateNoNotificationMessages() {
     const noAllMessage = document.getElementById("noAllMessage");
     const noAnnouncementsMessage = document.getElementById("noAnnouncementsMessage");
-    if (!noAllMessage || !noAnnouncementsMessage) return; // Ensure elements exist
+    if (!noAllMessage || !noAnnouncementsMessage) return; 
 
     const visibleCards = [...cardMap.values()].filter(({ original }) => 
         original && !original.classList.contains("hidden")
@@ -373,18 +335,17 @@ function updateNoNotificationMessages() {
     noAllMessage.classList.toggle("hidden", hasNotifications);
     noAnnouncementsMessage.classList.add("hidden");
 }
-// ✅ Also move this function outside DOMContentLoaded
+
 function updateNoNotificationMessagesSec() {
     const noAllMessageSec = document.getElementById("noAllMessageSec");
     const noAnnouncementsMessageSec = document.getElementById("noAnnouncementsMessageSec");
-    if (!noAllMessageSec || !noAnnouncementsMessageSec) return; // Ensure elements exist
+    if (!noAllMessageSec || !noAnnouncementsMessageSec) return; 
     const hasVisible = [...cardMap.values()].some(({ clone }) =>  clone && !clone.classList.contains("hidden")
     );
     noAllMessageSec.classList.toggle("hidden", hasVisible);
     noAnnouncementsMessageSec.classList.add("hidden");
 }
 
-// ✅ Filter announcements only
 document.addEventListener("DOMContentLoaded", function () {
     const onlySeeBtn = document.getElementById("OnlyseeAnnouncements");
     const noAllMessage = document.getElementById("noAllMessage");
@@ -402,11 +363,11 @@ document.addEventListener("DOMContentLoaded", function () {
     cardMap.forEach(({ original }) => {
         if (original) {
             original.classList.remove("hidden");
-            hasData = true; // ✅ Mark as having data
+            hasData = true; 
         }
     });
     noAllMessage.classList.toggle("hidden", hasData);
-    noAnnouncementsMessage.classList.add("hidden"); // Hide announcement message when viewing all
+    noAnnouncementsMessage.classList.add("hidden"); 
 }
 
 function toggleVisibilityByType(type) {
@@ -427,9 +388,9 @@ function toggleVisibilityByType(type) {
         if (shouldShow) hasAnnouncements = true;
     });
 
-    // ✅ Hide "No Messages" when viewing announcements, only show "No Announcements" if empty
+   
     noAnnouncementsMessage.classList.toggle("hidden", hasAnnouncements);
-    noAllMessage.classList.add("hidden"); // Hide general "No Messages" when viewing only announcements
+    noAllMessage.classList.add("hidden"); 
 }
 
 function toggleUnreadAnnouncements() {
@@ -455,9 +416,9 @@ function toggleUnreadAnnouncements() {
         }
     });
 
-    // ✅ Show/Hide "No Announcements" correctly
+    
     noAnnouncementsMessage.classList.toggle("hidden", hasVisible);
-    noAllMessage.classList.add("hidden"); // Hide general "No Messages" when viewing announcements
+    noAllMessage.classList.add("hidden"); 
 }
 
 function toggleUnreadNotifications() {
@@ -478,16 +439,16 @@ function toggleUnreadNotifications() {
         if (isUnread) hasUnread = true;
     });
 
-    // ✅ Show/Hide "No Messages" correctly
+ 
     noAllMessage.classList.toggle("hidden", hasVisible);
-    noAnnouncementsMessage.classList.add("hidden"); // Hide "No Announcements" when viewing all
+    noAnnouncementsMessage.classList.add("hidden"); 
 }
     onlySeeBtn.addEventListener("click", () => toggleVisibilityByType("Announcement"));
     showAllBtn.addEventListener("click", toggleVisibilityAll);
     showUnreadAnnounceBtn.addEventListener("click", toggleUnreadAnnouncements);
     showUnreadAllNotification.addEventListener("click", toggleUnreadNotifications);
 });
-//for View All Notification
+
 document.addEventListener("DOMContentLoaded", function () {
     const onlySeeBtnSec = document.getElementById("OnlyseeAnnouncementsSec");
     const noAllMessageSec = document.getElementById("noAllMessageSec");
@@ -514,12 +475,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (shouldShow) hasAnnouncements = true;
         });
 
-        // ✅ Correctly toggle "No Announcements" message
         noAnnouncementsMessageSec.classList.toggle("hidden", hasAnnouncements);
-        noAllMessageSec.classList.add("hidden"); // Hide "No Messages" when viewing announcements
+        noAllMessageSec.classList.add("hidden"); 
     }
-
-    // ✅ Show all notifications (Secondary)
     function toggleVisibilityAllSec() {
         let hasData = false;
 
@@ -532,13 +490,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 hasData = true;
             }
         });
-
-        // ✅ Correctly toggle "No Messages" message
         noAllMessageSec.classList.toggle("hidden", hasData);
-        noAnnouncementsMessageSec.classList.add("hidden"); // Hide "No Announcements" when viewing all
+        noAnnouncementsMessageSec.classList.add("hidden"); 
     }
-
-    // ✅ Toggle Unread Announcements (Secondary)
     function toggleUnreadAnnouncementsSec() {
         showUnreadModeSec = !showUnreadModeSec;
         let hasUnread = false;
@@ -561,13 +515,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (isUnread) hasUnread = true;
             }
         });
-
-        // ✅ Correctly toggle "No Announcements" message
         noAnnouncementsMessageSec.classList.toggle("hidden", hasVisible);
         noAllMessageSec.classList.add("hidden"); 
     }
-
-    // ✅ Toggle Unread Notifications (Secondary)
     function toggleUnreadNotificationsSec() {
         showUnreadAllModeSec = !showUnreadAllModeSec;
         let hasUnread = false;
@@ -586,7 +536,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (isUnread) hasUnread = true;
         });
         noAllMessageSec.classList.toggle("hidden", hasVisible);
-        noAnnouncementsMessageSec.classList.add("hidden"); // Hide "No Announcements" when viewing all
+        noAnnouncementsMessageSec.classList.add("hidden");
     }
 
 if (onlySeeBtnSec) {
@@ -603,12 +553,9 @@ if (onlySeeBtnSec) {
     }
   
 });
-
 document.addEventListener("DOMContentLoaded", function () {
-    updateMarkAllReadVisibility(); // ✅ Check on page load
+    updateMarkAllReadVisibility(); 
     updateNoNotificationMessages(); 
     updateNoNotificationMessagesSec();
 });
 
-
-//initializeSocket();
