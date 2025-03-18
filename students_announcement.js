@@ -762,7 +762,4 @@
         deleteReply(replyID);
     });
 
-    async function renderAnnouncementOnTabClick() {
-        let announcements = await fetchAllAnnouncements(classID);
-        await renderAnnouncements(announcements);
-    }
+   
