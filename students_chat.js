@@ -1252,111 +1252,89 @@ function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
     });
 }
 
-function gatherMentionsFromElement(el) {
-    const mentionEls = el.querySelectorAll(".mention-handle[data-mention-id]");
-    return [...mentionEls].map(m => m.getAttribute("data-mention-id"));
-}
-
-
-let globalTribute = null;
-let mentionArrays = {};
-
-async function fetchContactsAndInitializeTribute(classId) {
-    const studentQuery = `
-query calcClasses($id: AwcClassID) {
-calcClasses(query: [{ where: { id: $id } }]) {
-Contact_Contact_ID: field(arg: ["Enrolments", "Student", "id"])
-Contact_First_Name: field(arg: ["Enrolments", "Student", "first_name"])
-Contact_Last_Name: field(arg: ["Enrolments", "Student", "last_name"])
-Contact_Profile_Image: field(arg: ["Enrolments", "Student", "profile_image"])
-}
-}`;
-
-    const adminQuery = `query calcContacts {
-calcContacts(
-query: [
-{ where: { is_admin: true } }
-{
-andWhere: { email: "courses@writerscentre.com.au" }
-}
-]
-) {
-Contact_ID: field(arg: ["id"])
-First_Name: field(arg: ["first_name"])
-Last_Name: field(arg: ["last_name"])
-Profile_Photo: field(arg: ["profile_photo"])
-}
-}`;
-
-    const variables = { id: classId };
-
-    try {
-        const studentResponse = await fetch(graphqlApiEndpoint, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
-            },
-            body: JSON.stringify({ query: studentQuery, variables })
-        });
-
-        const adminResponse = await fetch(graphqlApiEndpoint, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
-            },
-            body: JSON.stringify({ query: adminQuery })
-        });
-
-        if (!studentResponse.ok || !adminResponse.ok) throw new Error("HTTP Error");
-
-        const studentResult = await studentResponse.json();
-        const adminResult = await adminResponse.json();
-
-        if (!studentResult?.data?.calcClasses || !adminResult?.data?.calcContacts) {
-
-            return;
-        }
-
-        let students = studentResult.data.calcClasses.map(contact => ({
-            key: `${contact.Contact_First_Name} ${contact.Contact_Last_Name}`.trim(),
-            value: String(contact.Contact_Contact_ID),
-            image: contact.Contact_Profile_Image || "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA"
-        }));
-
-        let admins = adminResult.data.calcContacts.map(admin => ({
-            key: `${admin.First_Name} ${admin.Last_Name}`.trim() + " (Admin)",
-            value: String(admin.Contact_ID),
-            image: admin.Profile_Photo || "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA"
-        }));
-
-        const combinedContacts = [...students, ...admins];
-
-        globalTribute = new Tribute({
-            values: combinedContacts,
-            menuItemTemplate: function (item) {
-                return `
-<div class="cursor-pointer inline-flex items-center gap-x-1">
-<img src="${item.original.image}" style="object-fit:cover;height:20px;width:20px;border-radius:50%">
-<span>${item.string}</span>
-</div>`;
-            },
-            selectTemplate: function (item) {
-                return `<span class="mention-handle label bg-[#c7e6e6] py-1 px-2 rounded text-dark small-text" data-mention-id="${item.original.value}">@${item.original.key}</span>`;
-            }
-        });
-
-        document.querySelectorAll(".mentionable").forEach(el => {
-            globalTribute.attach(el);
-        });
-
-    } catch (e) {
-
+ function gatherMentionsFromElement(el) {
+        const mentionEls = el.querySelectorAll(".mention-handle[data-mention-id]");
+        return [...mentionEls].map(m => m.getAttribute("data-mention-id"));
     }
-}
-
-fetchContactsAndInitializeTribute(uniquePageId);
+    let globalTribute = null;
+    let mentionArrays = {};
+    async function fetchContactsAndInitializeTribute(classId) {
+        const combinedQueryForAdminTeacherAndStudents = `
+    query calcContacts($class_id: AwcClassID, $id: AwcClassID) {
+      calcContacts(
+        query: [
+          {
+            where: {
+              Enrolments: [{ where: { class_id: $class_id } }]
+            }
+          }
+          { orWhere: { Classes: [{ where: { id: $id } }] } }
+          { orWhere: { email: "courses@writerscentre.com.au" } }
+        ]
+      ) {
+        Display_Name: field(arg: ["display_name"])
+        Contact_ID: field(arg: ["id"])
+        Profile_Image: field(arg: ["profile_image"])
+        Is_Instructor: field(arg: ["is_instructor"])
+        Is_Admin: field(arg: ["is_admin"])
+      }
+    }
+    `;
+        const variables = { class_id: classId, id: classId };
+        const defaultImageUrl = "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA";
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
+                },
+                body: JSON.stringify({
+                    query: combinedQueryForAdminTeacherAndStudents,
+                    variables
+                })
+            });
+            if (!response.ok) throw new Error("HTTP Error");
+            const result = await response.json();
+            if (!result?.data?.calcContacts) {
+                console.error("Invalid response structure:", result);
+                return;
+            }
+            const finalContacts = result.data.calcContacts.map(contact => {
+                let userType = "(Student)";
+                if (contact.Is_Admin) {
+                    userType = "(Admin)";
+                } else if (contact.Is_Instructor) {
+                    userType = "(Tutor)";
+                }
+                return {
+                    key: `${contact.Display_Name} ${userType}`,
+                    value: String(contact.Contact_ID),
+                    image: contact.Profile_Image || defaultImageUrl
+                };
+            });
+            globalTribute = new Tribute({
+                values: finalContacts,
+                menuItemTemplate: function (item) {
+                    return `
+                  <div class="cursor-pointer inline-flex items-center gap-x-1">
+                    <img src="${item.original.image}" style="object-fit:cover;height:20px;width:20px;border-radius:50%">
+                    <span>${item.string}</span>
+                  </div>
+                `;
+                },
+                selectTemplate: function (item) {
+                    return `<span class="mention-handle label bg-[#C7E6E6] py-1 px-2 rounded text-dark small-text" data-mention-id="${item.original.value}">@${item.original.key}</span>`;
+                }
+            });
+            document.querySelectorAll(".mentionable").forEach(el => {
+                globalTribute.attach(el);
+            });
+        } catch (e) {
+            console.error("Error fetching contacts:", e);
+        }
+    }
+    fetchContactsAndInitializeTribute(uniquePageId);
 
 function handleRepliesCount(el) {
 
