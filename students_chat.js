@@ -3168,31 +3168,31 @@ async function attachAllListenerFns() {
                     voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
                 }
             } else {
-                const postId = Number(forumPost.getAttribute("current-post-id"));
-                const currentUserId = Number(forumPost.getAttribute("author-id"));
-                if (!postId) return;
-                voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                try {
-                    const voteResponse = await createVote({
-                        post_upvote_id: postId,
-                        member_post_upvote_id: currentUserId
-                    });
-                    if (voteResponse) {
-                        const newVoteId = voteResponse;
-                        forumPost.setAttribute("user-liked-post", "true");
-                        forumPost.setAttribute("member-upvote-id", newVoteId);
-                        voteButton_chat.classList.add("upVoted");
-                        currentVotes += 1;
-                        voteCounter_chat.textContent = currentVotes;
-                    } else {
-                        throw new Error();
+                    const postId = Number(forumPost.getAttribute("current-post-id"));
+                    const currentUserId = Number(visitorContactID);
+                    if (!postId) return;
+                    voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                    try {
+                        const voteResponse = await createVote({
+                            post_upvote_id: postId,
+                            member_post_upvote_id: currentUserId
+                        });
+                        if (voteResponse) {
+                            const newVoteId = voteResponse;
+                            forumPost.setAttribute("user-liked-post", "true");
+                            forumPost.setAttribute("member-upvote-id", newVoteId);
+                            voteButton_chat.classList.add("upVoted");
+                            currentVotes += 1;
+                            voteCounter_chat.textContent = currentVotes;
+                        } else {
+                            throw new Error();
+                        }
+                    } catch (err) {
+                        alert("Failed to upvote.");
+                    } finally {
+                        voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
                     }
-                } catch (err) {
-                    alert("Failed to upvote.");
-                } finally {
-                    voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
                 }
-            }
             return;
         }
         const tripleDot = e.target.closest(".tripleDotSVG");
