@@ -2376,7 +2376,7 @@ function renderForumPosts(posts) {
             : "N/A";
 
         const profileImage = post.Author_Profile_Image || "";
-        const authorFullName = post.Author_Display_Name || "N/A";
+        const authorFullName = post.Author_Display_Name || "Anoynomous";
         const postContent = post.Post_Copy || "N/A";
         const authorId = post.Author_ID;
         const actualPostID = post.ID;
