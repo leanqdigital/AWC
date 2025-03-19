@@ -490,7 +490,7 @@ function toggleReplyForm(replyID) {
 
         if (isVisible) {
             targetElement.classList.add('hidden');
-            
+
         }
         else {
             document.querySelectorAll('[id^="commentBox_"], [id^="replyFormBox_"]').forEach(el => {
@@ -505,7 +505,7 @@ function toggleReplyForm(replyID) {
 
         }
     } else {
-        
+
     }
 }
 
@@ -629,7 +629,7 @@ function audioPlayer() {
                         this.isPlaying = true;
                     })
                     .catch(error => {
-                        
+
                     });
             } else {
                 this.$refs.audioElement.pause();
@@ -713,7 +713,7 @@ async function uploadRepliesWithFile($el) {
     if (replyContainer) {
         replyContainer.appendChild(tempReplyElement);
     } else {
-        
+
         return;
     }
     const payload = {
@@ -725,13 +725,13 @@ async function uploadRepliesWithFile($el) {
     };
     if (fileData) {
         const filePreviewContainer = tempReplyElement.querySelector(".filePreviewContainerReply");
-       
+
     }
     try {
         const createdReply = await createReply(payload);
-        
+
         if (createdReply && createdReply.id) {
-           
+
             tempReplyElement.setAttribute("reply-id", createdReply.id);
             tempReplyElement.style.opacity = "1";
             tempReplyElement.style.pointerEvents = "auto";
@@ -740,7 +740,7 @@ async function uploadRepliesWithFile($el) {
                 authorNameEl.textContent = visitorFirstName + " " + visitorLastName;;
             }
             if (fileData) {
-              
+
                 let serverFileData;
                 if (createdReply.data && createdReply.data.createForumComment) {
                     serverFileData = createdReply.data.createForumComment.file;
@@ -748,7 +748,7 @@ async function uploadRepliesWithFile($el) {
                     serverFileData = createdReply.file;
                 }
                 if (serverFileData) {
-                    
+
                     const cleanLink = typeof serverFileData === "string"
                         ? serverFileData.replace(/^"(.+)"$/, '$1')
                         : serverFileData.link;
@@ -757,17 +757,17 @@ async function uploadRepliesWithFile($el) {
                         type: fileData.type,
                         link: cleanLink
                     };
-                   
+
                     const analyzedObject = analyzeFile(combinedFileData);
                     const filePreviewHtml = generateFilePreview(analyzedObject);
                     const filePreviewContainer = tempReplyElement.querySelector(".filePreviewContainerReply");
                     if (filePreviewContainer) {
                         filePreviewContainer.innerHTML = filePreviewHtml || "";
                     } else {
-                       
+
                     }
                 } else {
-                    
+
                 }
             }
             handleRepliesCount(thisComment);
@@ -775,7 +775,7 @@ async function uploadRepliesWithFile($el) {
             throw new Error("createReply returned invalid data");
         }
     } catch (err) {
-        
+
         if (!tempReplyElement.getAttribute("reply-id")) {
             tempReplyElement.remove();
             alert("An error occurred while posting the reply.");
@@ -852,7 +852,7 @@ async function uploadCommentWithFile(element) {
         Author_ID: Number(visitorContactID),
         File: fileData ? JSON.stringify(fileData) : null
     }];
-   
+
 
     const commentTmpl = $.templates("#commentTemplate");
     $.views.helpers({
@@ -863,7 +863,7 @@ async function uploadCommentWithFile(element) {
                     try {
                         file = JSON.parse(file);
                     } catch (e) {
-                        
+
                     }
                 }
                 const analyzedObject = analyzeFile(file);
@@ -887,7 +887,7 @@ async function uploadCommentWithFile(element) {
         commentContainer.querySelectorAll('.outlineButton.text-label').forEach(el => {
             el.classList.add('hidden');
         });
-        
+
     }
 
     try {
@@ -918,7 +918,7 @@ async function uploadCommentWithFile(element) {
             if (commentTextEl) {
                 commentTextEl.innerHTML = commentText;
             } else {
-               
+
             }
 
             // Update file preview with combined data
@@ -939,7 +939,7 @@ async function uploadCommentWithFile(element) {
                 if (filePreviewContainer) {
                     filePreviewContainer.innerHTML = filePreviewHtml || "";
                 } else {
-                    
+
                 }
             }
 
@@ -995,7 +995,7 @@ function encodeAwsParam(hash, currentEpoch) {
         currentEpoch = Math.round(Date.now() / 1000);
     }
     const expiry = new Date(currentEpoch * 1000);
-   
+
     expiry.setTime(expiry.getTime() + 12 * 60 * 60 * 1000);
     return btoa(
         `a:2:{s:4:"hash";s:${hash.length}:"${hash}";s:6:"expiry";i:${Math.round(
@@ -1063,7 +1063,7 @@ function uploadFiles(filesToUpload, s3Params, toSubmit) {
                     }
                     resolve(result);
                 } else {
-                   
+
                     resolve(null);
                 }
             };
@@ -1136,7 +1136,7 @@ function encodeAwsParam(hash, currentEpoch) {
         currentEpoch = Math.round(Date.now() / 1000);
     }
     const expiry = new Date(currentEpoch * 1000);
-    
+
     expiry.setTime(expiry.getTime() + 12 * 60 * 60 * 1000);
     return btoa(
         `a:2:{s:4:"hash";s:${hash.length}:"${hash}";s:6:"expiry";i:${Math.round(
@@ -1315,7 +1315,7 @@ Profile_Photo: field(arg: ["profile_photo"])
         const adminResult = await adminResponse.json();
 
         if (!studentResult?.data?.calcClasses || !adminResult?.data?.calcContacts) {
-           
+
             return;
         }
 
@@ -1352,7 +1352,7 @@ Profile_Photo: field(arg: ["profile_photo"])
         });
 
     } catch (e) {
-       
+
     }
 }
 
@@ -1363,7 +1363,7 @@ function handleRepliesCount(el) {
     const commentElement = el.closest("[comment-id]");
 
     if (!commentElement) {
-        
+
         return;
     }
 
@@ -1373,7 +1373,7 @@ function handleRepliesCount(el) {
     if (commentNumber) {
         handleReplyCount(commentNumber);
     } else {
-        
+
     }
 }
 
@@ -1381,7 +1381,7 @@ function handleCommentCounts(el) {
     let postContainer = el.closest('[current-post-id]');
 
     if (!postContainer) {
-        
+
         return;
     }
 
@@ -1391,10 +1391,10 @@ function handleCommentCounts(el) {
         if (typeof fetchCommentCount === 'function') {
             fetchCommentCount(postId);
         } else {
-            
+
         }
     } else {
-        
+
     }
 }
 
@@ -1443,17 +1443,17 @@ totalCount: countDistinct(args: [{ field: ["id"] }])
             if (replyCountElement) {
                 replyCountElement.innerHTML = `${replyCount} Replies`;
             } else {
-                
+
             }
         } else {
-           
+
         }
 
 
 
 
     } catch (error) {
-        
+
     }
 }
 
@@ -1480,7 +1480,7 @@ calcForumPosts(query: [{ where: { id: $id } }]) {
         });
 
         if (!response.ok) {
-           
+
             return;
         }
 
@@ -1492,10 +1492,10 @@ calcForumPosts(query: [{ where: { id: $id } }]) {
                 `#commentCountsForPost-${postId}`
             ).innerHTML = `${result.data.calcForumPosts[0].ForumCommentsTotalCount} Comments`;
         } else {
-            
+
         }
     } catch (error) {
-       
+
     }
 }
 
@@ -1508,7 +1508,7 @@ async function processPosts(posts) {
         if (post.ID) {
             await fetchCommentCount(post.ID);
         } else {
-            
+
         }
     }
 }
@@ -1556,14 +1556,14 @@ comment
         const responseData = await httpResponse.json();
 
         if (responseData.errors) {
-            
+
             return null;
         } else {
 
             return responseData.data.updateForumComment.comment;
         }
     } catch (error) {
-       
+
         return null;
     }
 }
@@ -1608,7 +1608,7 @@ post_copy
         const responseData = await httpResponse.json();
 
         if (responseData.errors) {
-           
+
             return null;
         } else {
 
@@ -1666,7 +1666,7 @@ id
             throw new Error("Current Post Id was not received From the server.");
         }
     } catch (error) {
-        
+
     }
 }
 
@@ -1713,7 +1713,7 @@ query: [{ where: { forum_comment_upvote_id: ${commentId} } }]
         const result = await response.json();
 
         if (result.errors) {
-            
+
             return;
         }
 
@@ -1737,7 +1737,7 @@ query: [{ where: { forum_comment_upvote_id: ${commentId} } }]
         const userLikeID = hasUserLiked ? userLike.ID : null;
         return [uniqueLikes.length, hasUserLiked, userLikeID];
     } catch (error) {
-       
+
     }
 }
 
@@ -1773,13 +1773,13 @@ async function createVoteForComments(memberId, commentId) {
         const result = await response.json();
 
         if (result.errors) {
-           
+
             return null;
         }
 
         return result;
     } catch (error) {
-        
+
         return null;
     }
 }
@@ -1817,7 +1817,7 @@ deleteMemberCommentUpvotesForumCommentUpvotes(
         const result = await response.json();
         return result;
     } catch (error) {
-       
+
     }
 };
 
@@ -1858,11 +1858,11 @@ async function fetchCommentUpvotes(commentId) {
         if (response.ok) {
             return result.data.calcMemberCommentUpvotesForumCommentUpvotesMany;
         } else {
-           
+
             throw new Error("Failed to fetch data");
         }
     } catch (error) {
-        
+
         throw error;
     }
 }
@@ -1908,7 +1908,7 @@ const createReply = async (payload) => {
         const result = await response.json();
         return result.data.createForumComment;
     } catch (error) {
-        
+
     }
 };
 
@@ -1958,7 +1958,7 @@ async function createVote(payload) {
 
         return pkMapValue;
     } catch (error) {
-      
+
         throw error;
     }
 }
@@ -2003,7 +2003,7 @@ async function deleteVote(id) {
 
         return result.data.deleteMemberPostUpvotesPostUpvotes.id;
     } catch (error) {
-       
+
         throw error;
     }
 }
@@ -2088,7 +2088,7 @@ async function fetchAndDisplayAllUpvotes() {
             if (voteCounter_chat) {
                 voteCounter_chat.textContent = upvoteCount;
             } else {
-               
+
             }
 
             if (uniqueMemberIds.has(currentUserId)) {
@@ -2097,7 +2097,7 @@ async function fetchAndDisplayAllUpvotes() {
                     voteButton_chat.classList.add("upVoted");
                     post.setAttribute("user-liked-post", "true");
                 } else {
-                   
+
                 }
 
                 const userUpvoteID = getUserUpvoteID(upvotes, currentUserId);
@@ -2105,7 +2105,7 @@ async function fetchAndDisplayAllUpvotes() {
                 if (userUpvoteID !== null) {
                     post.setAttribute("member-upvote-id", userUpvoteID);
                 } else {
-                    
+
                 }
             } else {
                 const voteButton_chat = post.querySelector(".voteButton_chat");
@@ -2113,13 +2113,13 @@ async function fetchAndDisplayAllUpvotes() {
                     voteButton_chat.classList.remove("upVoted");
                     post.setAttribute("user-liked-post", "false");
                 } else {
-                   
+
                 }
 
                 post.removeAttribute("member-upvote-id");
             }
         } else {
-            
+
         }
     }
 }
@@ -2150,13 +2150,13 @@ deleteForumPost(query: [{ where: { id: $postId } }]) {
         return json;
 
         if (json.errors) {
-          
+
             return null;
         }
 
         return json.data.deleteForumPost;
     } catch (error) {
-        
+
         return null;
     }
 }
@@ -2221,10 +2221,10 @@ async function postComment(postId, authorId, commentText, mentionIDs, file) {
         if (responseJson.data && responseJson.data.createForumComment) {
             return responseJson;
         } else {
-          
+
         }
     } catch (error) {
-       
+
         alert(`Error submitting comment: ${error.message}`);
     }
 }
@@ -2233,7 +2233,7 @@ async function postComment(postId, authorId, commentText, mentionIDs, file) {
 
 async function deleteForumComment(commentId) {
     if (!commentId || typeof commentId !== "string") {
-        
+
         return null;
     }
 
@@ -2264,7 +2264,7 @@ deleteForumComment(query: [{ where: { id: $id } }]) {
         const json = await response.json();
 
         if (json.errors) {
-           
+
             return null;
         }
 
@@ -2280,21 +2280,22 @@ deleteForumComment(query: [{ where: { id: $id } }]) {
 
         return null;
     } catch (error) {
-       
+
         return null;
     }
 }
 
 
+
+
 function createPostsFetcher() {
-    let limit = 10, offset = 0;
+    let limit = 3, offset = 0;
     let loadingThePosts = false;
     let lastFetchedTime = 0;
-    const cooldownTime = 5000;
+    const cooldownTime = 5000; 
     return async function fetchForumPosts() {
         const now = Date.now();
         if (loadingThePosts || now - lastFetchedTime < cooldownTime) {
-           
             return [];
         }
         loadingThePosts = true;
@@ -2308,8 +2309,7 @@ function createPostsFetcher() {
                 orderBy: [{ path: ["created_at"], type: desc }]
             ) {
                 Author_Profile_Image: field(arg: ["Author", "profile_image"])
-                Author_First_Name: field(arg: ["Author", "first_name"])
-                Author_Last_Name: field(arg: ["Author", "last_name"])
+                Author_Display_Name: field(arg: ["Author", "display_name"])
                 Date_Added: field(arg: ["created_at"])
                 Post_Copy: field(arg: ["post_copy"])
                 Post_Image: field(arg: ["post_image"])
@@ -2321,13 +2321,14 @@ function createPostsFetcher() {
                 ForumCommentsTotalCount: countDistinct(args: [{ field: ["ForumComments", "id"] }])
                 Author_Is_Admin: field(arg: ["Author", "is_admin"])
             }
-        }
-        `;
+        }`;
+
         const variables = {
             class_id: Number(currentClassID),
             limit: limit,
             offset: offset
         };
+
         const httpRequestOptions = {
             method: "POST",
             headers: {
@@ -2336,20 +2337,23 @@ function createPostsFetcher() {
             },
             body: JSON.stringify({ query: graphqlQuery, variables: variables })
         };
+
         try {
             const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
             const responseData = await httpResponse.json();
+
             if (responseData.errors) {
-                
+                console.error("GraphQL Errors (fetchForumPosts):", responseData.errors);
                 return [];
             } else {
                 offset += limit;
                 return responseData.data.calcForumPosts || [];
             }
         } catch (error) {
-           
+            console.error("Error while fetching forum posts:", error);
             return [];
         } finally {
+          
             setTimeout(() => {
                 loadingThePosts = false;
             }, cooldownTime);
@@ -2357,10 +2361,11 @@ function createPostsFetcher() {
     };
 }
 
+
 function renderForumPosts(posts) {
     const forumContainer = document.getElementById("parentAllAnnouncements");
     if (!forumContainer) {
-       
+
         return;
     }
 
@@ -2398,7 +2403,7 @@ function renderForumPosts(posts) {
 
         // Check if postHTML is valid
         if (!postHTML) {
-           
+
             return;
         }
 
@@ -2480,7 +2485,7 @@ calcForumComments(
 
         return result.data?.calcForumComments || [];
     } catch (error) {
-        
+
         return [];
     }
 }
@@ -2492,7 +2497,7 @@ async function fetchUpVotesForReplies(replies) {
             const likesData = await fetchLikesForReplies(reply.ID);
             return likesData;
         } catch (error) {
-            
+
             return [0, false, null];
         }
     });
@@ -2508,7 +2513,7 @@ async function renderRepliesForComment(commentId) {
         if (!replyShowContainer) {
             return;
         } else {
-           
+
         }
 
         let replies = await fetchRepliesByCommentId(commentId);
@@ -2542,14 +2547,14 @@ async function renderRepliesForComment(commentId) {
             }
         }
     } catch (error) {
-        
+
     }
 }
 
 async function renderCommentsForPost(postId) {
     const postElement = document.querySelector(`[current-post-id="${postId}"]`);
     if (!postElement) {
-       
+
         return;
     }
 
@@ -2563,7 +2568,7 @@ async function renderCommentsForPost(postId) {
         "#allCommentsForPostContainer"
     );
     if (!commentContainer) {
-        
+
         return;
     }
 
@@ -2616,7 +2621,7 @@ async function renderCommentsForPost(postId) {
                 `[comment-id="${commentId}"]`
             );
             if (!specificCommentContainer) {
-              
+
                 continue;
             }
 
@@ -2642,7 +2647,7 @@ async function renderCommentsForPost(postId) {
                 }
             }
         } catch (err) {
-            
+
         }
     }
 
@@ -2695,7 +2700,7 @@ calcForumComments(
         const data = await response.json();
 
         if (data.errors) {
-            
+
             return;
         }
 
@@ -2707,7 +2712,7 @@ calcForumComments(
 
         return comments;
     } catch (error) {
-        
+
     }
 }
 
@@ -2812,7 +2817,7 @@ async function attachAllListenerFns() {
                         `[current-post-id="${editId}"] .text-bodyText`
                     ).innerHTML = result;
                 } else {
-                   
+
                 }
 
 
@@ -3022,7 +3027,7 @@ async function attachAllListenerFns() {
 
                 }
                 else {
-                    
+
                 }
             } else {
                 postButton
@@ -3364,7 +3369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (footerElement) {
         observer.observe(footerElement);
     } else {
-         const documentObserver = new MutationObserver(() => {
+        const documentObserver = new MutationObserver(() => {
             const element = document.getElementById('footerOfClassChat');
             if (element) {
                 observer.observe(element);
@@ -3506,16 +3511,16 @@ function analyzeFile(fileData) {
             }
         }
 
-        
+
         return result;
     } catch (error) {
-        
+
         return { fileType: null, category: 'unknown', fileLink: null, fileName: null };
     }
 }
 
 function generateFilePreview(fileInfo) {
-    
+
     if (!fileInfo || !fileInfo.fileLink) return '';
 
     const fileLink = fileInfo.fileLink;
@@ -3535,7 +3540,7 @@ function generateFilePreview(fileInfo) {
 <div class="post-image-container h-[450px] w-full">
 <img src="${fileLink}" alt="${fileName}" class="post-image" style="height: 100%; width: 100%; object-fit: cover">
 </div>`;
-            
+
             return imageHtml;
 
         case 'video':
@@ -3944,7 +3949,7 @@ function populatePreviewContainer(el) {
         ?.previousElementSibling;
 
     if (!previewContainer) {
-        
+
         return;
     }
 
