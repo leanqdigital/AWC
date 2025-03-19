@@ -3361,7 +3361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-let authorID = "[Visitor//Contact ID]";
+let authorID = LOGGED_IN_USER_ID;
 
 document.addEventListener("DOMContentLoaded", () => {
     const parentAllAnnouncements = document.querySelector("#parentAllAnnouncements");
