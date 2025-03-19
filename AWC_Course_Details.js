@@ -275,6 +275,7 @@ async function combineModulesAndLessons() {
                 Due_Date_Text: dueDateInfo.dueDateText,
                 Status: status, 
                 Lessons_Your_Next_Step: lesson.Your_Next_Step,
+                Custom_Button_Text: lesson.Custom_Button_Text,
                 Lessons_Join_Your_New_Community: lesson.Join_Your_New_Community,
                 Lessons_Give_Us_Your_Feedback: lesson.Give_Us_Your_Feedback,
                 Lessons_Download_Your_Certificate: lesson.Download_Your_Certificate,
