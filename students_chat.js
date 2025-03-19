@@ -101,7 +101,6 @@ function templateForForumPost(
     let objectFromPostFile, fileStringPreview;
     let formattedDate = convertToElapsedTime(date);
 
-    let visitorContactID = Number(visitorContactID, 10);
     let isShowTripleDot = authorID === visitorContactID;
     let showCommentsCount = ForumCommentsTotalCount > 0;
 
@@ -2516,8 +2515,8 @@ function renderForumPosts(posts) {
 
 
 
-    async function getCommentsByPostId(postId) {
-        const query = `
+async function getCommentsByPostId(postId) {
+    const query = `
 query calcForumComments($postId: AwcForumPostID) {
 calcForumComments(
  query: [
@@ -2554,210 +2553,210 @@ calcForumComments(
 }
  `;
 
+    try {
+        const response = await fetch(graphqlApiEndpoint, {
+            method: "POST",
+            headers: {
+                "Api-Key": apiAccessKey,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                query,
+                variables: { postId }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        return result.data?.calcForumComments || [];
+    } catch (error) {
+        console.error(`Error fetching comments for Post ID ${postId}:`, error);
+        return [];
+    }
+}
+
+// Function to fetch upvotes for each reply
+async function fetchUpVotesForReplies(replies) {
+    const promises = replies.map(async (reply) => {
         try {
-            const response = await fetch(graphqlApiEndpoint, {
-                method: "POST",
-                headers: {
-                    "Api-Key": apiAccessKey,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    query,
-                    variables: { postId }
-                })
+            const likesData = await fetchLikesForReplies(reply.ID);
+            return likesData;
+        } catch (error) {
+            console.error(`Error fetching likes for reply ID ${reply.ID}:`, error);
+            // Return fallback data if needed (here, assuming zero likes and false)
+            return [0, false, null];
+        }
+    });
+    return Promise.all(promises);
+}
+
+// Function to process and render replies for a given commentId
+async function renderRepliesForComment(commentId) {
+    // async function renderRepliesForComment(commentId, commentContainer) {
+
+    try {
+        const replyShowContainer = document
+            .querySelector(`[comment-id="${commentId}"]`)
+            .querySelector(".replyShowContainer");
+        if (!replyShowContainer) {
+            return;
+        } else {
+            console.log("Reply show container found");
+        }
+
+        let replies = await fetchRepliesByCommentId(commentId);
+
+        if (Array.isArray(replies) && replies.length > 0) {
+
+            const likesData = await fetchUpVotesForReplies(replies);
+
+            $.views.helpers({
+                elapsedTime: convertToElapsedTime
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const result = await response.json();
-
-            return result.data?.calcForumComments || [];
-        } catch (error) {
-            console.error(`Error fetching comments for Post ID ${postId}:`, error);
-            return [];
-        }
-    }
-
-    // Function to fetch upvotes for each reply
-    async function fetchUpVotesForReplies(replies) {
-        const promises = replies.map(async (reply) => {
-            try {
-                const likesData = await fetchLikesForReplies(reply.ID);
-                return likesData;
-            } catch (error) {
-                console.error(`Error fetching likes for reply ID ${reply.ID}:`, error);
-                // Return fallback data if needed (here, assuming zero likes and false)
-                return [0, false, null];
-            }
-        });
-        return Promise.all(promises);
-    }
-
-    // Function to process and render replies for a given commentId
-    async function renderRepliesForComment(commentId) {
-        // async function renderRepliesForComment(commentId, commentContainer) {
-
-        try {
-            const replyShowContainer = document
-                .querySelector(`[comment-id="${commentId}"]`)
-                .querySelector(".replyShowContainer");
-            if (!replyShowContainer) {
-                return;
-            } else {
-                console.log("Reply show container found");
-            }
-
-            let replies = await fetchRepliesByCommentId(commentId);
-
-            if (Array.isArray(replies) && replies.length > 0) {
-
-                const likesData = await fetchUpVotesForReplies(replies);
-
-                $.views.helpers({
-                    elapsedTime: convertToElapsedTime
-                });
-                const replyTmpl = $.templates("#replyTemplate");
-                const replyHTML = replyTmpl.render(replies);
-                replyShowContainer.innerHTML = replyHTML;
+            const replyTmpl = $.templates("#replyTemplate");
+            const replyHTML = replyTmpl.render(replies);
+            replyShowContainer.innerHTML = replyHTML;
 
 
-                const allReplies = Array.from(replyShowContainer.children);
-                for (let i = 0; i < allReplies.length; i++) {
-                    const replyElement = allReplies[i];
-                    // Set an attribute based on whether the user liked the reply
-                    if (likesData[i][1] === false) {
-                        replyElement.setAttribute("user-liked-reply", "false");
-                    } else {
-                        replyElement.setAttribute("user-liked-reply", "true");
-                        replyElement.querySelector("button").classList.add("upVoted");
-                        replyElement.setAttribute("user-liked-id", likesData[i][2]);
-                    }
-                    // Update the vote counter with the number of unique likes
-                    const currentVoteBtn = replyElement.querySelector(".voteCounter_chat");
-                    currentVoteBtn.innerHTML = likesData[i][0];
+            const allReplies = Array.from(replyShowContainer.children);
+            for (let i = 0; i < allReplies.length; i++) {
+                const replyElement = allReplies[i];
+                // Set an attribute based on whether the user liked the reply
+                if (likesData[i][1] === false) {
+                    replyElement.setAttribute("user-liked-reply", "false");
+                } else {
+                    replyElement.setAttribute("user-liked-reply", "true");
+                    replyElement.querySelector("button").classList.add("upVoted");
+                    replyElement.setAttribute("user-liked-id", likesData[i][2]);
                 }
+                // Update the vote counter with the number of unique likes
+                const currentVoteBtn = replyElement.querySelector(".voteCounter_chat");
+                currentVoteBtn.innerHTML = likesData[i][0];
             }
-        } catch (error) {
-            console.error(`Error processing comment ID ${commentId}:`, error);
         }
+    } catch (error) {
+        console.error(`Error processing comment ID ${commentId}:`, error);
+    }
+}
+
+async function renderCommentsForPost(postId) {
+    const postElement = document.querySelector(`[current-post-id="${postId}"]`);
+    if (!postElement) {
+        console.error("No post element found for postId:", postId);
+        return;
     }
 
-    async function renderCommentsForPost(postId) {
-        const postElement = document.querySelector(`[current-post-id="${postId}"]`);
-        if (!postElement) {
-            console.error("No post element found for postId:", postId);
-            return;
-        }
+    // Fetch comments for the post
+    const comments = await getCommentsByPostId(postId);
+    if (!Array.isArray(comments)) {
+        console.warn("No valid comments array returned for Post ID:", postId);
+        return;
+    }
 
-        // Fetch comments for the post
-        const comments = await getCommentsByPostId(postId);
-        if (!Array.isArray(comments)) {
-            console.warn("No valid comments array returned for Post ID:", postId);
-            return;
-        }
-
-        const commentContainer = postElement.querySelector(
-            "#allCommentsForPostContainer"
+    const commentContainer = postElement.querySelector(
+        "#allCommentsForPostContainer"
+    );
+    if (!commentContainer) {
+        console.error(
+            "No #allCommentsForPostContainer found for post:",
+            postElement
         );
-        if (!commentContainer) {
-            console.error(
-                "No #allCommentsForPostContainer found for post:",
-                postElement
-            );
-            return;
-        }
-
-        commentContainer.innerHTML = "";
-
-
-
-
-        $.views.helpers({
-            elapsedTime: convertToElapsedTime,
-
-            filePreview: function (file) {
-                if (file) {
-                    var analyzedObject = analyzeFile(file);
-                    return generateFilePreview(analyzedObject);
-                }
-                return "";
-            }
-        });
-
-        const commentTmpl = $.templates("#commentTemplate");
-        const commentHTML = commentTmpl.render(comments);
-
-        commentContainer.innerHTML = commentHTML;
-
-        // Process upvotes for each comment
-        const commentIDs = comments.map((c) => c.ID).filter(Boolean);
-
-        // fetchReplyCounts(commentIDs);
-
-        for (const commentId of commentIDs) {
-            try {
-                const upvoteData = await fetchCommentUpvotes(commentId);
-                const visitorIdNum = Number(contactIdOfThisVisitor);
-                function getUpvoteId() {
-                    for (const upvote of upvoteData) {
-                        if (upvote.Member_Comment_Upvote_ID === visitorIdNum) {
-                            return upvote.ID;
-                        }
-                    }
-                    return null;
-                }
-                const uniqueMemberIds = new Set(
-                    (upvoteData || []).map((item) => item.Member_Comment_Upvote_ID)
-                );
-                const upvoteCount = uniqueMemberIds.size;
-                const hasUserUpvoted = uniqueMemberIds.has(visitorIdNum);
-
-                const specificCommentContainer = commentContainer.querySelector(
-                    `[comment-id="${commentId}"]`
-                );
-                if (!specificCommentContainer) {
-                    console.warn(`No element found for [comment-id="${commentId}"]`);
-                    continue;
-                }
-
-                specificCommentContainer.setAttribute(
-                    "user-liked-comment",
-                    hasUserUpvoted ? "true" : "false"
-                );
-                if (hasUserUpvoted) {
-                    const theUpvoteId = getUpvoteId();
-                    if (theUpvoteId) {
-                        specificCommentContainer.setAttribute("user-upvote-id", theUpvoteId);
-                    }
-                }
-
-                const voteButton_chatEl = specificCommentContainer.querySelector(
-                    `button.voteButton_chat[id="vote-${commentId}"]`
-                );
-                if (voteButton_chatEl) {
-                    voteButton_chatEl.classList.toggle("upVoted", hasUserUpvoted);
-                    const voteCounter_chatEl = voteButton_chatEl.querySelector(".voteCounter_chat");
-                    if (voteCounter_chatEl) {
-                        voteCounter_chatEl.textContent = upvoteCount;
-                    }
-                }
-            } catch (err) {
-                console.error(
-                    "Error fetching/updating upvotes for comment:",
-                    commentId,
-                    err
-                );
-            }
-        }
-
+        return;
     }
 
+    commentContainer.innerHTML = "";
 
 
-    async function fetchRepliesByCommentId(reply_to_comment_id) {
-        const query = `
+
+
+    $.views.helpers({
+        elapsedTime: convertToElapsedTime,
+
+        filePreview: function (file) {
+            if (file) {
+                var analyzedObject = analyzeFile(file);
+                return generateFilePreview(analyzedObject);
+            }
+            return "";
+        }
+    });
+
+    const commentTmpl = $.templates("#commentTemplate");
+    const commentHTML = commentTmpl.render(comments);
+
+    commentContainer.innerHTML = commentHTML;
+
+    // Process upvotes for each comment
+    const commentIDs = comments.map((c) => c.ID).filter(Boolean);
+
+    // fetchReplyCounts(commentIDs);
+
+    for (const commentId of commentIDs) {
+        try {
+            const upvoteData = await fetchCommentUpvotes(commentId);
+            const visitorIdNum = Number(contactIdOfThisVisitor);
+            function getUpvoteId() {
+                for (const upvote of upvoteData) {
+                    if (upvote.Member_Comment_Upvote_ID === visitorIdNum) {
+                        return upvote.ID;
+                    }
+                }
+                return null;
+            }
+            const uniqueMemberIds = new Set(
+                (upvoteData || []).map((item) => item.Member_Comment_Upvote_ID)
+            );
+            const upvoteCount = uniqueMemberIds.size;
+            const hasUserUpvoted = uniqueMemberIds.has(visitorIdNum);
+
+            const specificCommentContainer = commentContainer.querySelector(
+                `[comment-id="${commentId}"]`
+            );
+            if (!specificCommentContainer) {
+                console.warn(`No element found for [comment-id="${commentId}"]`);
+                continue;
+            }
+
+            specificCommentContainer.setAttribute(
+                "user-liked-comment",
+                hasUserUpvoted ? "true" : "false"
+            );
+            if (hasUserUpvoted) {
+                const theUpvoteId = getUpvoteId();
+                if (theUpvoteId) {
+                    specificCommentContainer.setAttribute("user-upvote-id", theUpvoteId);
+                }
+            }
+
+            const voteButton_chatEl = specificCommentContainer.querySelector(
+                `button.voteButton_chat[id="vote-${commentId}"]`
+            );
+            if (voteButton_chatEl) {
+                voteButton_chatEl.classList.toggle("upVoted", hasUserUpvoted);
+                const voteCounter_chatEl = voteButton_chatEl.querySelector(".voteCounter_chat");
+                if (voteCounter_chatEl) {
+                    voteCounter_chatEl.textContent = upvoteCount;
+                }
+            }
+        } catch (err) {
+            console.error(
+                "Error fetching/updating upvotes for comment:",
+                commentId,
+                err
+            );
+        }
+    }
+
+}
+
+
+
+async function fetchRepliesByCommentId(reply_to_comment_id) {
+    const query = `
 query calcForumComments($reply_to_comment_id: AwcForumCommentID) {
 calcForumComments(
  query: [
@@ -2785,872 +2784,872 @@ calcForumComments(
 }
  `;
 
-        try {
-            const response = await fetch(graphqlApiEndpoint, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Api-Key": apiAccessKey
-                },
-                body: JSON.stringify({
-                    query,
-                    variables: { reply_to_comment_id }
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.errors) {
-                console.error("GraphQL Errors:", data.errors);
-                return;
-            }
-
-            const comments = data.data.calcForumComments || [];
-
-            if (!comments.length) {
-                return;
-            }
-
-            return comments;
-        } catch (error) {
-            console.error("Error fetching comments:", error);
-        }
-    }
-
-
-
-
-    async function attachAllListenerFns() {
-        function resetAllUI() {
-            document.querySelectorAll(".optionsContainerPosts").forEach((el) => {
-                el.classList.add("opacity-0", "pointer-events-none");
-                el.classList.remove("opacity-100", "pointer-events-auto");
-            });
-            document.querySelectorAll(".optionsContainerComments").forEach((el) => {
-                el.classList.add("opacity-0", "pointer-events-none");
-                el.classList.remove("opacity-100", "pointer-events-auto");
-            });
-            document.querySelectorAll(".optionsContainerReplies").forEach((el) => {
-                el.classList.add("opacity-0", "pointer-events-none");
-                el.classList.remove("opacity-100", "pointer-events-auto");
-            });
-        }
-        document.addEventListener("focusin", (e) => {
-            const m = e.target.closest(".mentionable");
-            if (m && !m.dataset.tributeAttached && globalTribute) {
-                globalTribute.attach(m);
-                m.dataset.tributeAttached = "true";
-            }
+    try {
+        const response = await fetch(graphqlApiEndpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Api-Key": apiAccessKey
+            },
+            body: JSON.stringify({
+                query,
+                variables: { reply_to_comment_id }
+            })
         });
 
-        document.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            resetAllUI();
+        const data = await response.json();
 
-            const editBtn = e.target.closest(".edit-post-btn");
-            if (editBtn) {
-                // Get the closest parent container that might have the ID attributes
-                const container = editBtn.closest(
-                    "[current-post-id], [comment-id], [reply-id]"
+        if (data.errors) {
+            console.error("GraphQL Errors:", data.errors);
+            return;
+        }
+
+        const comments = data.data.calcForumComments || [];
+
+        if (!comments.length) {
+            return;
+        }
+
+        return comments;
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+    }
+}
+
+
+
+
+async function attachAllListenerFns() {
+    function resetAllUI() {
+        document.querySelectorAll(".optionsContainerPosts").forEach((el) => {
+            el.classList.add("opacity-0", "pointer-events-none");
+            el.classList.remove("opacity-100", "pointer-events-auto");
+        });
+        document.querySelectorAll(".optionsContainerComments").forEach((el) => {
+            el.classList.add("opacity-0", "pointer-events-none");
+            el.classList.remove("opacity-100", "pointer-events-auto");
+        });
+        document.querySelectorAll(".optionsContainerReplies").forEach((el) => {
+            el.classList.add("opacity-0", "pointer-events-none");
+            el.classList.remove("opacity-100", "pointer-events-auto");
+        });
+    }
+    document.addEventListener("focusin", (e) => {
+        const m = e.target.closest(".mentionable");
+        if (m && !m.dataset.tributeAttached && globalTribute) {
+            globalTribute.attach(m);
+            m.dataset.tributeAttached = "true";
+        }
+    });
+
+    document.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        resetAllUI();
+
+        const editBtn = e.target.closest(".edit-post-btn");
+        if (editBtn) {
+            // Get the closest parent container that might have the ID attributes
+            const container = editBtn.closest(
+                "[current-post-id], [comment-id], [reply-id]"
+            );
+            if (!container) return;
+
+            // Determine type based on which attribute exists
+            let editType = null;
+            if (container.hasAttribute("current-post-id")) {
+                editType = "post";
+            } else if (container.hasAttribute("comment-id")) {
+                editType = "comment";
+            } else if (container.hasAttribute("reply-id")) {
+                editType = "reply";
+            }
+
+            // Extract data based on the determined type
+            let id, authorId, currentText;
+            switch (editType) {
+                case "post":
+                    id = container.getAttribute("current-post-id");
+                    break;
+                case "comment":
+                    id = container.getAttribute("comment-id");
+                    break;
+                case "reply":
+                    id = container.getAttribute("reply-id");
+                    break;
+            }
+
+            authorId = container.getAttribute("author-id");
+            currentText =
+                container.querySelector(".text-bodyText")?.innerHTML.trim() || "";
+
+
+
+            // Update modal
+            const modalEl = document.getElementById("editModal");
+            modalEl.dataset.editType = editType;
+            modalEl.dataset.editId = id;
+            modalEl.dataset.authorId = authorId;
+            modalEl.querySelector(".comment-editor").innerHTML = currentText;
+
+            return;
+        }
+
+        const updateButton = e.target.closest("#updateNowButton");
+        if (updateButton) {
+            const modalEl = document.getElementById("editModal");
+
+            // Retrieve dataset info (populated when .edit-post-btn is clicked)
+            const editType = modalEl.dataset.editType;
+            const editId = modalEl.dataset.editId;
+            const authorId = modalEl.dataset.authorId;
+
+            const updatedText =
+                modalEl.querySelector(".comment-editor")?.innerHTML.trim() || "";
+
+
+            if (editType === "post") {
+
+                const result = await updateForumPost(updatedText, editId);
+
+                if (result !== null) {
+                    modalEl.querySelector(".comment-editor").innerHTML = result;
+                    document.querySelector(
+                        `[current-post-id="${editId}"] .text-bodyText`
+                    ).innerHTML = result;
+                } else {
+                    console.error("There has been an error.");
+                }
+
+
+            } else if (editType === "comment") {
+
+
+                const result = await updateForumComment(updatedText, editId);
+
+                if (result !== null) {
+                    //
+                    document.querySelector(
+                        `[comment-id="${editId}"] .text-bodyText`
+                    ).innerHTML = String(result);
+
+                }
+            } else if (editType === "reply") {
+
+                // TODO: reply to the comment and commments are typically the same things. . .
+                const result = await updateForumComment(updatedText, editId);
+
+                if (result !== null) {
+                    //
+                    document.querySelector(
+                        `[reply-id="${editId}"] .text-bodyText`
+                    ).innerHTML = String(result);
+
+                }
+            }
+        }
+
+
+
+        const postButton = e.target.closest("#postNowButtonForForumPost");
+        if (postButton) {
+            postButton
+                .closest("#postOuterWrapper")
+                .classList.add("opacity-50", "pointer-events-none");
+
+
+            let fileData = null;
+            const fileFields = [];
+            if (uploadedFile) {
+                fileFields.push({
+                    fieldName: "file_content",
+                    file: uploadedFile
+                });
+            }
+
+            if (fileFields.length > 0) {
+                const toSubmitFields = {};
+                await processFileFields(
+                    toSubmitFields,
+                    fileFields,
+                    awsParam,
+                    awsParamUrl
                 );
-                if (!container) return;
-
-                // Determine type based on which attribute exists
-                let editType = null;
-                if (container.hasAttribute("current-post-id")) {
-                    editType = "post";
-                } else if (container.hasAttribute("comment-id")) {
-                    editType = "comment";
-                } else if (container.hasAttribute("reply-id")) {
-                    editType = "reply";
-                }
-
-                // Extract data based on the determined type
-                let id, authorId, currentText;
-                switch (editType) {
-                    case "post":
-                        id = container.getAttribute("current-post-id");
-                        break;
-                    case "comment":
-                        id = container.getAttribute("comment-id");
-                        break;
-                    case "reply":
-                        id = container.getAttribute("reply-id");
-                        break;
-                }
-
-                authorId = container.getAttribute("author-id");
-                currentText =
-                    container.querySelector(".text-bodyText")?.innerHTML.trim() || "";
-
-
-
-                // Update modal
-                const modalEl = document.getElementById("editModal");
-                modalEl.dataset.editType = editType;
-                modalEl.dataset.editId = id;
-                modalEl.dataset.authorId = authorId;
-                modalEl.querySelector(".comment-editor").innerHTML = currentText;
-
-                return;
+                fileData =
+                    typeof toSubmitFields.file_content === "string"
+                        ? JSON.parse(toSubmitFields.file_content)
+                        : toSubmitFields.file_content;
+                fileData.name = fileData.name || uploadedFile.name;
+                fileData.size = fileData.size || uploadedFile.size;
+                fileData.type = fileData.type || uploadedFile.type;
             }
 
-            const updateButton = e.target.closest("#updateNowButton");
-            if (updateButton) {
-                const modalEl = document.getElementById("editModal");
-
-                // Retrieve dataset info (populated when .edit-post-btn is clicked)
-                const editType = modalEl.dataset.editType;
-                const editId = modalEl.dataset.editId;
-                const authorId = modalEl.dataset.authorId;
-
-                const updatedText =
-                    modalEl.querySelector(".comment-editor")?.innerHTML.trim() || "";
-
-
-                if (editType === "post") {
-
-                    const result = await updateForumPost(updatedText, editId);
-
-                    if (result !== null) {
-                        modalEl.querySelector(".comment-editor").innerHTML = result;
-                        document.querySelector(
-                            `[current-post-id="${editId}"] .text-bodyText`
-                        ).innerHTML = result;
-                    } else {
-                        console.error("There has been an error.");
-                    }
+            const textArea = postButton
+                .closest("#postOuterWrapper")
+                .querySelector(".mentionable");
+            const postText = textArea.innerHTML.trim();
+            const mentionIDs = gatherMentionsFromElement(textArea);
+            textArea.innerHTML = "";
+            textArea.removeAttribute("data-tributeAttached");
+            const parentAllAnnouncements =
+                postButton.closest("#postOuterWrapper").nextElementSibling;
+            const newDiv = document.createElement("div");
+            const embeedableUrls = extractAndConvertToEmbedUrls(postText);
 
 
-                } else if (editType === "comment") {
+            if (uploadedFile != undefined) {
+                const awsFileObject = {
+                    link: "https://courses.writerscentre.com.au",
+                    name: uploadedFile.name,
+                    size: uploadedFile.size,
+                    type: uploadedFile.type,
+                    s3_id: "dummy_s3_id_" + uploadedFile.name
+                };
+                const awsFileString = JSON.stringify(awsFileObject);
+
+                newDiv.innerHTML = templateForForumPost(
+                    visitorProfilePicture,
+                    visitorFirstName,
+                    visitorLastName,
+                    "Just Now",
+                    embeedableUrls.formattedPostText,
+                    Number(visitorContactID),
+                    "id",
+                    awsFileString,
+                    iscontactInstructor === "Yes" ? true : false,
+                    0,
+                    isContactAdmin === "No" ? false : true,
+
+                );
+            } else {
 
 
-                    const result = await updateForumComment(updatedText, editId);
+                newDiv.innerHTML = templateForForumPost(
+                    visitorProfilePicture,
+                    contactDisplayName,
+                    "Just Now",
+                    embeedableUrls.formattedPostText,
+                    Number(visitorContactID),
+                    "null",
+                    null,
+                    iscontactInstructor === "Yes" ? true : false,
+                    0,
+                    isContactAdmin === "No" ? false : true,
 
-                    if (result !== null) {
-                        //
-                        document.querySelector(
-                            `[comment-id="${editId}"] .text-bodyText`
-                        ).innerHTML = String(result);
+                );;
+            }
 
-                    }
-                } else if (editType === "reply") {
+            const toBeAddedUpTemplate = newDiv.firstElementChild;
+            toBeAddedUpTemplate.classList.add("opacity-50", "pointer-events-none");
 
-                    // TODO: reply to the comment and commments are typically the same things. . .
-                    const result = await updateForumComment(updatedText, editId);
 
-                    if (result !== null) {
-                        //
-                        document.querySelector(
-                            `[reply-id="${editId}"] .text-bodyText`
-                        ).innerHTML = String(result);
+            if (embeedableUrls.embeddableUrls.length > 0) {
+                //
+                let randomNumber = Math.floor(Math.random() * embeedableUrls.embeddableUrls.length);
+                newDiv.firstElementChild.querySelector("iframe").src = embeedableUrls.embeddableUrls[randomNumber];
+                newDiv.firstElementChild.querySelector("iframe").classList.remove("hidden");
 
-                    }
-                }
             }
 
 
+            parentAllAnnouncements.prepend(toBeAddedUpTemplate);
 
-            const postButton = e.target.closest("#postNowButtonForForumPost");
-            if (postButton) {
+            const result = await createForumPost({
+                post_copy: postText,
+                author_id: Number(contactIdOfThisVisitor),
+                class_id: currentClassID,
+                file: fileData ? fileData : null,
+                Mentions: mentionIDs.map((id) => ({ id: Number(id) }))
+            });
+            if (result) {
+                document.getElementById("showContainerForAllFiles").innerHTML = "";
+                document.getElementById("replaceFileContainer").classList.add("hidden");
+                document.getElementById("deleteFileContainer").classList.add("hidden");
+                document.querySelector(".attachAFileForClassChat").classList.remove("hidden");
+
+                uploadedFile = undefined;
                 postButton
                     .closest("#postOuterWrapper")
-                    .classList.add("opacity-50", "pointer-events-none");
+                    .classList.remove("opacity-50", "pointer-events-none");
+
+                toBeAddedUpTemplate.classList.remove(
+                    "opacity-50",
+                    "pointer-events-none"
+                );
+                toBeAddedUpTemplate.setAttribute("current-post-id", result[0]);
+                toBeAddedUpTemplate.setAttribute("user-liked-post", false);
+                toBeAddedUpTemplate.setAttribute("author-id", visitorContactID);
 
 
-                let fileData = null;
-                const fileFields = [];
-                if (uploadedFile) {
-                    fileFields.push({
-                        fieldName: "file_content",
-                        file: uploadedFile
-                    });
+                // Find the element within `toBeAddedUpTemplate` that has an ID starting with "commentCountsForPost-"
+                let currentIdOfTheTemplate = toBeAddedUpTemplate.querySelector('[id^="commentCountsForPost-"]');
+
+                if (currentIdOfTheTemplate && result.length > 0) {
+                    // Update the ID of the found element
+                    currentIdOfTheTemplate.id = `commentCountsForPost-${result[0]}`;
                 }
 
-                if (fileFields.length > 0) {
-                    const toSubmitFields = {};
-                    await processFileFields(
-                        toSubmitFields,
-                        fileFields,
-                        awsParam,
-                        awsParamUrl
-                    );
-                    fileData =
-                        typeof toSubmitFields.file_content === "string"
-                            ? JSON.parse(toSubmitFields.file_content)
-                            : toSubmitFields.file_content;
-                    fileData.name = fileData.name || uploadedFile.name;
-                    fileData.size = fileData.size || uploadedFile.size;
-                    fileData.type = fileData.type || uploadedFile.type;
+
+
+                const anchorTagOfTheTemplate = toBeAddedUpTemplate.querySelector("a");
+                const videoTagOfTheTemplate =
+                    toBeAddedUpTemplate.querySelector("video");
+                const imageTagOfTheTemplate =
+                    toBeAddedUpTemplate.querySelector(".post-image");
+                const audioTagOfTemplate = toBeAddedUpTemplate.querySelector("audio");
+
+                function extractUrl(text) {
+                    const urlMatch = text.match(/(https?:\/\/[^\s"]+)/);
+
+                    if (urlMatch) {
+                        return urlMatch[1].replace(/\\+$/, "");
+                    } else {
+                        return "No URL found in the text";
+                    }
                 }
 
-                const textArea = postButton
+                if (anchorTagOfTheTemplate) {
+                    let usableLink = extractUrl(result[1]);
+
+                    anchorTagOfTheTemplate.href = `${usableLink}`;
+                } else if (imageTagOfTheTemplate) {
+                    let usableLink = extractUrl(result[1]);
+                    imageTagOfTheTemplate.src = `${usableLink}`;
+                } else if (videoTagOfTheTemplate) {
+                    let usableLink = extractUrl(result[1]);
+                    const videoSource = videoTagOfTheTemplate;
+                    videoSource.setAttribute("src", usableLink);
+                }
+
+                else if (audioTagOfTemplate) {
+                    let usableLink = extractUrl(result[1]);
+                    audioTagOfTemplate.src = usableLink;
+
+
+                }
+                else {
+                    console.log("anchor tag of to be added up template not found. . . ");
+                }
+            } else {
+                postButton
                     .closest("#postOuterWrapper")
-                    .querySelector(".mentionable");
-                const postText = textArea.innerHTML.trim();
-                const mentionIDs = gatherMentionsFromElement(textArea);
-                textArea.innerHTML = "";
-                textArea.removeAttribute("data-tributeAttached");
-                const parentAllAnnouncements =
-                    postButton.closest("#postOuterWrapper").nextElementSibling;
-                const newDiv = document.createElement("div");
-                const embeedableUrls = extractAndConvertToEmbedUrls(postText);
-
-
-                if (uploadedFile != undefined) {
-                    const awsFileObject = {
-                        link: "https://courses.writerscentre.com.au",
-                        name: uploadedFile.name,
-                        size: uploadedFile.size,
-                        type: uploadedFile.type,
-                        s3_id: "dummy_s3_id_" + uploadedFile.name
-                    };
-                    const awsFileString = JSON.stringify(awsFileObject);
-
-                    newDiv.innerHTML = templateForForumPost(
-                        visitorProfilePicture,
-                        visitorFirstName,
-                        visitorLastName,
-                        "Just Now",
-                        embeedableUrls.formattedPostText,
-                        Number(visitorContactID),
-                        "id",
-                        awsFileString,
-                        iscontactInstructor === "Yes" ? true : false,
-                        0,
-                        isContactAdmin === "No" ? false : true,
-
-                    );
-                } else {
-
-
-                    newDiv.innerHTML = templateForForumPost(
-                        visitorProfilePicture,
-                        contactDisplayName,
-                        "Just Now",
-                        embeedableUrls.formattedPostText,
-                        Number(visitorContactID),
-                        "null",
-                        null,
-                        iscontactInstructor === "Yes" ? true : false,
-                        0,
-                        isContactAdmin === "No" ? false : true,
-
-                    );;
-                }
-
-                const toBeAddedUpTemplate = newDiv.firstElementChild;
-                toBeAddedUpTemplate.classList.add("opacity-50", "pointer-events-none");
-
-
-                if (embeedableUrls.embeddableUrls.length > 0) {
-                    //
-                    let randomNumber = Math.floor(Math.random() * embeedableUrls.embeddableUrls.length);
-                    newDiv.firstElementChild.querySelector("iframe").src = embeedableUrls.embeddableUrls[randomNumber];
-                    newDiv.firstElementChild.querySelector("iframe").classList.remove("hidden");
-
-                }
-
-
-                parentAllAnnouncements.prepend(toBeAddedUpTemplate);
-
-                const result = await createForumPost({
-                    post_copy: postText,
-                    author_id: Number(contactIdOfThisVisitor),
-                    class_id: currentClassID,
-                    file: fileData ? fileData : null,
-                    Mentions: mentionIDs.map((id) => ({ id: Number(id) }))
-                });
-                if (result) {
-                    document.getElementById("showContainerForAllFiles").innerHTML = "";
-                    document.getElementById("replaceFileContainer").classList.add("hidden");
-                    document.getElementById("deleteFileContainer").classList.add("hidden");
-                    document.querySelector(".attachAFileForClassChat").classList.remove("hidden");
-
-                    uploadedFile = undefined;
-                    postButton
-                        .closest("#postOuterWrapper")
-                        .classList.remove("opacity-50", "pointer-events-none");
-
-                    toBeAddedUpTemplate.classList.remove(
-                        "opacity-50",
-                        "pointer-events-none"
-                    );
-                    toBeAddedUpTemplate.setAttribute("current-post-id", result[0]);
-                    toBeAddedUpTemplate.setAttribute("user-liked-post", false);
-                    toBeAddedUpTemplate.setAttribute("author-id", visitorContactID);
-
-
-                    // Find the element within `toBeAddedUpTemplate` that has an ID starting with "commentCountsForPost-"
-                    let currentIdOfTheTemplate = toBeAddedUpTemplate.querySelector('[id^="commentCountsForPost-"]');
-
-                    if (currentIdOfTheTemplate && result.length > 0) {
-                        // Update the ID of the found element
-                        currentIdOfTheTemplate.id = `commentCountsForPost-${result[0]}`;
-                    }
-
-
-
-                    const anchorTagOfTheTemplate = toBeAddedUpTemplate.querySelector("a");
-                    const videoTagOfTheTemplate =
-                        toBeAddedUpTemplate.querySelector("video");
-                    const imageTagOfTheTemplate =
-                        toBeAddedUpTemplate.querySelector(".post-image");
-                    const audioTagOfTemplate = toBeAddedUpTemplate.querySelector("audio");
-
-                    function extractUrl(text) {
-                        const urlMatch = text.match(/(https?:\/\/[^\s"]+)/);
-
-                        if (urlMatch) {
-                            return urlMatch[1].replace(/\\+$/, "");
-                        } else {
-                            return "No URL found in the text";
-                        }
-                    }
-
-                    if (anchorTagOfTheTemplate) {
-                        let usableLink = extractUrl(result[1]);
-
-                        anchorTagOfTheTemplate.href = `${usableLink}`;
-                    } else if (imageTagOfTheTemplate) {
-                        let usableLink = extractUrl(result[1]);
-                        imageTagOfTheTemplate.src = `${usableLink}`;
-                    } else if (videoTagOfTheTemplate) {
-                        let usableLink = extractUrl(result[1]);
-                        const videoSource = videoTagOfTheTemplate;
-                        videoSource.setAttribute("src", usableLink);
-                    }
-
-                    else if (audioTagOfTemplate) {
-                        let usableLink = extractUrl(result[1]);
-                        audioTagOfTemplate.src = usableLink;
-
-
-                    }
-                    else {
-                        console.log("anchor tag of to be added up template not found. . . ");
-                    }
-                } else {
-                    postButton
-                        .closest("#postOuterWrapper")
-                        .classList.remove("opacity-50", "pointer-events-none");
-                    toBeAddedUpTemplate.remove();
-                }
-                return;
+                    .classList.remove("opacity-50", "pointer-events-none");
+                toBeAddedUpTemplate.remove();
             }
+            return;
+        }
 
-            const voteButton_chat = e.target.closest(".voteButton_chat");
-            if (voteButton_chat) {
-                e.stopPropagation();
-                const replyContainer = voteButton_chat.closest("[reply-id]");
-                const commentContainer = voteButton_chat.closest("[comment-id]");
-                const forumPost = voteButton_chat.closest(".forum-post");
-                if (replyContainer) {
-                    const userLikedReply =
-                        replyContainer.getAttribute("user-liked-reply") === "true";
-                    //true or false in string
-                    const userUpvoteId = replyContainer.getAttribute("user-liked-id");
-                    //either undefined or number in string.
-                    const voteCounter_chatEl = voteButton_chat.querySelector(".voteCounter_chat");
-                    let currentVotes = parseInt(voteCounter_chatEl?.textContent || "0", 10);
-                    if (userLikedReply) {
-                        if (!userUpvoteId) return;
-                        voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                        try {
-                            const deletionResult = await deleteVoteCount(userUpvoteId);
-                            if (
-                                deletionResult?.data
-                                    ?.deleteMemberCommentUpvotesForumCommentUpvotes
-                            ) {
-                                replyContainer.setAttribute("user-liked-reply", "false");
-                                replyContainer.removeAttribute("user-liked-id");
-                                voteButton_chat.classList.remove("upVoted");
-                                currentVotes = Math.max(currentVotes - 1, 0);
-                                voteCounter_chatEl.textContent = currentVotes;
-                            } else {
-                                throw new Error();
-                            }
-                        } catch (err) {
-                            alert("Failed to remove your reply upvote.");
-                        } finally {
-                            voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                        }
-                    } else {
-                        const replyId = replyContainer.getAttribute("reply-id");
-                        if (!replyId) return;
-                        const parentPost = replyContainer.closest(".forum-post");
-                        const authorId = Number(parentPost.getAttribute("author-id"));
-                        voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                        try {
-                            const createResult = await createVoteForComments(authorId, replyId);
-                            if (
-                                createResult?.data?.createMemberCommentUpvotesForumCommentUpvotes
-                            ) {
-                                const newUpvoteId = Object.values(
-                                    createResult.extensions.pkMap
-                                )[0];
-                                replyContainer.setAttribute("user-liked-reply", "true");
-                                replyContainer.setAttribute("user-liked-id", newUpvoteId);
-                                voteButton_chat.classList.add("upVoted");
-                                currentVotes += 1;
-                                voteCounter_chatEl.textContent = currentVotes;
-                            } else {
-                                throw new Error();
-                            }
-                        } catch (err) {
-                            alert("Failed to upvote the reply.");
-                        } finally {
-                            voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                        }
-                    }
-                    return;
-                }
-                if (commentContainer) {
-                    const userLikedComment =
-                        commentContainer.getAttribute("user-liked-comment") === "true";
-                    let userUpvoteId = commentContainer.getAttribute("user-upvote-id");
-                    const voteCounter_chatEl = voteButton_chat.querySelector(".voteCounter_chat");
-                    let currentVotes = parseInt(voteCounter_chatEl?.textContent || "0", 10);
-                    if (userLikedComment) {
-                        if (!userUpvoteId) return;
-                        voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                        try {
-                            const deletionResult = await deleteVoteCount(userUpvoteId);
-                            if (
-                                deletionResult?.data
-                                    ?.deleteMemberCommentUpvotesForumCommentUpvotes
-                            ) {
-                                commentContainer.setAttribute("user-liked-comment", "false");
-                                commentContainer.removeAttribute("user-upvote-id");
-                                voteButton_chat.classList.remove("upVoted");
-                                currentVotes = Math.max(currentVotes - 1, 0);
-                                voteCounter_chatEl.textContent = currentVotes;
-                            } else {
-                                throw new Error();
-                            }
-                        } catch (err) {
-                            alert("Failed to remove your comment upvote.");
-                        } finally {
-                            voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                        }
-                    } else {
-                        const commentId = commentContainer.getAttribute("comment-id");
-                        if (!commentId) return;
-                        voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                        try {
-                            const memberId = Number(contactIdOfThisVisitor);
-                            const createResult = await createVoteForComments(
-                                memberId,
-                                commentId
-                            );
-                            if (
-                                createResult?.data?.createMemberCommentUpvotesForumCommentUpvotes
-                            ) {
-                                const newUpvoteId = Object.values(
-                                    createResult.extensions.pkMap
-                                )[0];
-                                commentContainer.setAttribute("user-liked-comment", "true");
-                                commentContainer.setAttribute("user-upvote-id", newUpvoteId);
-                                voteButton_chat.classList.add("upVoted");
-                                currentVotes += 1;
-                                voteCounter_chatEl.textContent = currentVotes;
-                            } else {
-                                throw new Error();
-                            }
-                        } catch (err) {
-                            alert("Failed to upvote the comment.");
-                        } finally {
-                            voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                        }
-                    }
-                    return;
-                }
-                if (!forumPost) return;
-                const userLikedPost =
-                    forumPost.getAttribute("user-liked-post") === "true";
-                let memberUpvoteId = forumPost.getAttribute("member-upvote-id");
-                if (userLikedPost && !memberUpvoteId) return;
-                const voteCounter_chat = voteButton_chat.querySelector(".voteCounter_chat");
-                let currentVotes = parseInt(voteCounter_chat.textContent, 10) || 0;
-                if (userLikedPost) {
+        const voteButton_chat = e.target.closest(".voteButton_chat");
+        if (voteButton_chat) {
+            e.stopPropagation();
+            const replyContainer = voteButton_chat.closest("[reply-id]");
+            const commentContainer = voteButton_chat.closest("[comment-id]");
+            const forumPost = voteButton_chat.closest(".forum-post");
+            if (replyContainer) {
+                const userLikedReply =
+                    replyContainer.getAttribute("user-liked-reply") === "true";
+                //true or false in string
+                const userUpvoteId = replyContainer.getAttribute("user-liked-id");
+                //either undefined or number in string.
+                const voteCounter_chatEl = voteButton_chat.querySelector(".voteCounter_chat");
+                let currentVotes = parseInt(voteCounter_chatEl?.textContent || "0", 10);
+                if (userLikedReply) {
+                    if (!userUpvoteId) return;
                     voteButton_chat.classList.add("opacity-50", "pointer-events-none");
                     try {
-                        const deletionResult = await deleteVote(memberUpvoteId);
-                        if (deletionResult) {
-                            forumPost.setAttribute("user-liked-post", "false");
-                            forumPost.removeAttribute("member-upvote-id");
+                        const deletionResult = await deleteVoteCount(userUpvoteId);
+                        if (
+                            deletionResult?.data
+                                ?.deleteMemberCommentUpvotesForumCommentUpvotes
+                        ) {
+                            replyContainer.setAttribute("user-liked-reply", "false");
+                            replyContainer.removeAttribute("user-liked-id");
                             voteButton_chat.classList.remove("upVoted");
                             currentVotes = Math.max(currentVotes - 1, 0);
-                            voteCounter_chat.textContent = currentVotes;
+                            voteCounter_chatEl.textContent = currentVotes;
                         } else {
                             throw new Error();
                         }
                     } catch (err) {
-                        alert("Failed to remove your upvote.");
+                        alert("Failed to remove your reply upvote.");
                     } finally {
                         voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
                     }
                 } else {
-                    const postId = Number(forumPost.getAttribute("current-post-id"));
-                    const currentUserId = Number(forumPost.getAttribute("author-id"));
-                    if (!postId) return;
+                    const replyId = replyContainer.getAttribute("reply-id");
+                    if (!replyId) return;
+                    const parentPost = replyContainer.closest(".forum-post");
+                    const authorId = Number(parentPost.getAttribute("author-id"));
                     voteButton_chat.classList.add("opacity-50", "pointer-events-none");
                     try {
-                        const voteResponse = await createVote({
-                            post_upvote_id: postId,
-                            member_post_upvote_id: currentUserId
-                        });
-                        if (voteResponse) {
-                            const newVoteId = voteResponse;
-                            forumPost.setAttribute("user-liked-post", "true");
-                            forumPost.setAttribute("member-upvote-id", newVoteId);
+                        const createResult = await createVoteForComments(authorId, replyId);
+                        if (
+                            createResult?.data?.createMemberCommentUpvotesForumCommentUpvotes
+                        ) {
+                            const newUpvoteId = Object.values(
+                                createResult.extensions.pkMap
+                            )[0];
+                            replyContainer.setAttribute("user-liked-reply", "true");
+                            replyContainer.setAttribute("user-liked-id", newUpvoteId);
                             voteButton_chat.classList.add("upVoted");
                             currentVotes += 1;
-                            voteCounter_chat.textContent = currentVotes;
+                            voteCounter_chatEl.textContent = currentVotes;
                         } else {
                             throw new Error();
                         }
                     } catch (err) {
-                        alert("Failed to upvote.");
+                        alert("Failed to upvote the reply.");
                     } finally {
                         voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
                     }
                 }
                 return;
             }
-            const tripleDot = e.target.closest(".tripleDotSVG");
-            if (tripleDot) {
-                if (tripleDot.closest("[reply-id]")) {
-                    const replyContainer = tripleDot.closest("[reply-id]");
-                    const optionsContainer = replyContainer.querySelector(
-                        ".optionsContainerReplies"
-                    );
-                    if (optionsContainer) {
-                        optionsContainer.classList.remove("opacity-0", "pointer-events-none");
-                        optionsContainer.classList.add("opacity-100", "pointer-events-auto");
+            if (commentContainer) {
+                const userLikedComment =
+                    commentContainer.getAttribute("user-liked-comment") === "true";
+                let userUpvoteId = commentContainer.getAttribute("user-upvote-id");
+                const voteCounter_chatEl = voteButton_chat.querySelector(".voteCounter_chat");
+                let currentVotes = parseInt(voteCounter_chatEl?.textContent || "0", 10);
+                if (userLikedComment) {
+                    if (!userUpvoteId) return;
+                    voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                    try {
+                        const deletionResult = await deleteVoteCount(userUpvoteId);
+                        if (
+                            deletionResult?.data
+                                ?.deleteMemberCommentUpvotesForumCommentUpvotes
+                        ) {
+                            commentContainer.setAttribute("user-liked-comment", "false");
+                            commentContainer.removeAttribute("user-upvote-id");
+                            voteButton_chat.classList.remove("upVoted");
+                            currentVotes = Math.max(currentVotes - 1, 0);
+                            voteCounter_chatEl.textContent = currentVotes;
+                        } else {
+                            throw new Error();
+                        }
+                    } catch (err) {
+                        alert("Failed to remove your comment upvote.");
+                    } finally {
+                        voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
                     }
-                    return;
+                } else {
+                    const commentId = commentContainer.getAttribute("comment-id");
+                    if (!commentId) return;
+                    voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                    try {
+                        const memberId = Number(contactIdOfThisVisitor);
+                        const createResult = await createVoteForComments(
+                            memberId,
+                            commentId
+                        );
+                        if (
+                            createResult?.data?.createMemberCommentUpvotesForumCommentUpvotes
+                        ) {
+                            const newUpvoteId = Object.values(
+                                createResult.extensions.pkMap
+                            )[0];
+                            commentContainer.setAttribute("user-liked-comment", "true");
+                            commentContainer.setAttribute("user-upvote-id", newUpvoteId);
+                            voteButton_chat.classList.add("upVoted");
+                            currentVotes += 1;
+                            voteCounter_chatEl.textContent = currentVotes;
+                        } else {
+                            throw new Error();
+                        }
+                    } catch (err) {
+                        alert("Failed to upvote the comment.");
+                    } finally {
+                        voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
+                    }
                 }
-                if (tripleDot.closest("[comment-id]")) {
-                    const commentContainer = tripleDot.closest("[comment-id]");
-                    const optionsContainer = commentContainer.querySelector(
-                        ".optionsContainerComments"
-                    );
-                    if (optionsContainer) {
-                        optionsContainer.classList.remove("opacity-0", "pointer-events-none");
-                        optionsContainer.classList.add("opacity-100", "pointer-events-auto");
+                return;
+            }
+            if (!forumPost) return;
+            const userLikedPost =
+                forumPost.getAttribute("user-liked-post") === "true";
+            let memberUpvoteId = forumPost.getAttribute("member-upvote-id");
+            if (userLikedPost && !memberUpvoteId) return;
+            const voteCounter_chat = voteButton_chat.querySelector(".voteCounter_chat");
+            let currentVotes = parseInt(voteCounter_chat.textContent, 10) || 0;
+            if (userLikedPost) {
+                voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                try {
+                    const deletionResult = await deleteVote(memberUpvoteId);
+                    if (deletionResult) {
+                        forumPost.setAttribute("user-liked-post", "false");
+                        forumPost.removeAttribute("member-upvote-id");
+                        voteButton_chat.classList.remove("upVoted");
+                        currentVotes = Math.max(currentVotes - 1, 0);
+                        voteCounter_chat.textContent = currentVotes;
+                    } else {
+                        throw new Error();
                     }
-                    return;
+                } catch (err) {
+                    alert("Failed to remove your upvote.");
+                } finally {
+                    voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
                 }
-                if (tripleDot.closest(".forum-post")) {
-                    const postContainer = tripleDot.closest(".forum-post");
-                    const optionsContainer = postContainer.querySelector(
-                        ".optionsContainerPosts"
-                    );
-                    if (optionsContainer) {
-                        optionsContainer.classList.remove("opacity-0", "pointer-events-none");
-                        optionsContainer.classList.add("opacity-100", "pointer-events-auto");
+            } else {
+                const postId = Number(forumPost.getAttribute("current-post-id"));
+                const currentUserId = Number(forumPost.getAttribute("author-id"));
+                if (!postId) return;
+                voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                try {
+                    const voteResponse = await createVote({
+                        post_upvote_id: postId,
+                        member_post_upvote_id: currentUserId
+                    });
+                    if (voteResponse) {
+                        const newVoteId = voteResponse;
+                        forumPost.setAttribute("user-liked-post", "true");
+                        forumPost.setAttribute("member-upvote-id", newVoteId);
+                        voteButton_chat.classList.add("upVoted");
+                        currentVotes += 1;
+                        voteCounter_chat.textContent = currentVotes;
+                    } else {
+                        throw new Error();
                     }
-                    return;
+                } catch (err) {
+                    alert("Failed to upvote.");
+                } finally {
+                    voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
                 }
             }
-
-            const deleteBtn = e.target.closest(".delete-post-btn");
-            if (deleteBtn) {
-                const replyEl = deleteBtn.closest("[reply-id]");
-                if (replyEl) {
-                    const replyId = replyEl.getAttribute("reply-id");
-                    replyEl.style.opacity = "0.5";
-                    replyEl.style.pointerEvents = "none";
-                    try {
-                        const del = await deleteForumComment(replyId);
-                        if (del) replyEl.remove();
-
-                        else throw new Error();
-                    } catch (err) {
-                        replyEl.style.opacity = "1";
-                        replyEl.style.pointerEvents = "auto";
-                        alert("Failed to delete the comment.");
-                    }
-                    return;
+            return;
+        }
+        const tripleDot = e.target.closest(".tripleDotSVG");
+        if (tripleDot) {
+            if (tripleDot.closest("[reply-id]")) {
+                const replyContainer = tripleDot.closest("[reply-id]");
+                const optionsContainer = replyContainer.querySelector(
+                    ".optionsContainerReplies"
+                );
+                if (optionsContainer) {
+                    optionsContainer.classList.remove("opacity-0", "pointer-events-none");
+                    optionsContainer.classList.add("opacity-100", "pointer-events-auto");
                 }
-
-                const commentEl = deleteBtn.closest("[comment-id]");
-                if (commentEl) {
-                    const commentId = commentEl.getAttribute("comment-id");
-                    commentEl.style.opacity = "0.5";
-                    commentEl.style.pointerEvents = "none";
-                    try {
-                        const del = await deleteForumComment(commentId);
-                        handleCommentCounts(commentEl);
-
-                        if (del) {
-                            commentEl.remove();
-
-                        }
-
-
-                        else throw new Error();
-                    } catch (err) {
-                        commentEl.style.opacity = "1";
-                        commentEl.style.pointerEvents = "auto";
-                        alert("Failed to delete the comment.");
-                    }
-                    return;
+                return;
+            }
+            if (tripleDot.closest("[comment-id]")) {
+                const commentContainer = tripleDot.closest("[comment-id]");
+                const optionsContainer = commentContainer.querySelector(
+                    ".optionsContainerComments"
+                );
+                if (optionsContainer) {
+                    optionsContainer.classList.remove("opacity-0", "pointer-events-none");
+                    optionsContainer.classList.add("opacity-100", "pointer-events-auto");
                 }
-                const postEl = deleteBtn.closest(".forum-post");
-                if (postEl) {
-                    const postId = postEl.getAttribute("current-post-id");
-                    postEl.classList.add("opacity-50", "pointer-events-none");
-                    try {
-                        const deletionResult = await deleteForumPost(postId);
-                        if (deletionResult) postEl.remove();
-                        else throw new Error();
-                    } catch (err) {
-                        postEl.classList.remove("opacity-50", "pointer-events-none");
-                        alert("Failed to delete the post.");
-                    }
-                    return;
+                return;
+            }
+            if (tripleDot.closest(".forum-post")) {
+                const postContainer = tripleDot.closest(".forum-post");
+                const optionsContainer = postContainer.querySelector(
+                    ".optionsContainerPosts"
+                );
+                if (optionsContainer) {
+                    optionsContainer.classList.remove("opacity-0", "pointer-events-none");
+                    optionsContainer.classList.add("opacity-100", "pointer-events-auto");
+                }
+                return;
+            }
+        }
+
+        const deleteBtn = e.target.closest(".delete-post-btn");
+        if (deleteBtn) {
+            const replyEl = deleteBtn.closest("[reply-id]");
+            if (replyEl) {
+                const replyId = replyEl.getAttribute("reply-id");
+                replyEl.style.opacity = "0.5";
+                replyEl.style.pointerEvents = "none";
+                try {
+                    const del = await deleteForumComment(replyId);
+                    if (del) replyEl.remove();
+
+                    else throw new Error();
+                } catch (err) {
+                    replyEl.style.opacity = "1";
+                    replyEl.style.pointerEvents = "auto";
+                    alert("Failed to delete the comment.");
                 }
                 return;
             }
 
-
-        });
-
-    }
-
-    const postClosureInstance = createPostsFetcher();
-
-    async function fetchAndDisplayForumPosts() {
-
-        const posts = await postClosureInstance();
-        loadingThePosts = false;
-
-        renderForumPosts(posts);
-        fetchAndDisplayAllUpvotes();
-
-    }
-
-
-
-
-
-
-    document.addEventListener('DOMContentLoaded', () => {
-        attachAllListenerFns();
-        const footerElement = document.getElementById('footerOfClassChat');
-        loadingThePosts = false;
-
-        const handleIntersection = (entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    if (loadingThePosts === false) {
-                        fetchAndDisplayForumPosts(loadingThePosts);
-                    }
-
-                    else {
-
-                        console.log("Already loading");
-                    }
-
-
-                }
-            });
-        };
-
-        const options = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
-
-        const observer = new IntersectionObserver(handleIntersection, options);
-
-
-
-        if (footerElement) {
-            observer.observe(footerElement);
-        } else {
-            console.error('Element with ID footerOfClassChat not found');
-
-            const documentObserver = new MutationObserver(() => {
-                const element = document.getElementById('footerOfClassChat');
-                if (element) {
-                    observer.observe(element);
-                    documentObserver.disconnect();
-                }
-            });
-
-            documentObserver.observe(document.body, { childList: true, subtree: true });
-        }
-    });
-
-
-
-    let authorID = "[Visitor//Contact ID]";
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const parentAllAnnouncements = document.querySelector("#parentAllAnnouncements");
-        const container = document.getElementById("allAnnouncementsContainer");
-        const children = container.querySelectorAll(".text-button");
-
-        container.addEventListener("click", (event) => {
-            const target = event.target;
-
-            if (target !== container && target.classList.contains("text-button")) {
-                children.forEach((child) => {
-                    child.classList.remove("border-b-[#007c8f]");
-                    child.classList.add("border-transparent");
-                });
-
-                target.classList.remove("border-transparent");
-                target.classList.add("border-b-[#007c8f]");
-
-                const index = Array.from(children).indexOf(target);
-
-                const posts = parentAllAnnouncements.children;
-
-                Array.from(posts).forEach((post) => {
-                    const authorPostId = post.getAttribute("author-ID");
-
-                    if (index === 0) {
-                        post.classList.remove("hidden");
-                    } else if (index === 1) {
-                        if (authorPostId === authorID) {
-                            post.classList.remove("hidden");
-                        } else {
-                            post.classList.add("hidden");
-                        }
-                    }
-                });
-            }
-        });
-    });
-
-
-
-
-
-
-    function analyzeFile(fileData) {
-        try {
-            let result = {
-                fileType: null,
-                category: 'unknown',
-                fileLink: null,
-                fileName: null
-            };
-            let fileObject;
-
-            // Handle input
-            if (typeof fileData === 'string') {
-                if (fileData.startsWith('http')) {
-                    fileObject = { link: fileData };
-                } else {
-                    try {
-                        fileObject = JSON.parse(fileData);
-                    } catch (e) {
-                        fileObject = { name: fileData };
-                    }
-                }
-            } else if (typeof fileData === 'object') {
-                fileObject = fileData;
-            } else {
-                throw new Error('Invalid input type');
-            }
-
-            // Assign link and name
-            if (fileObject.link) {
-                result.fileLink = fileObject.link;
-            }
-            if (fileObject.name) {
-                result.fileName = fileObject.name;
-            }
-
-            // Extract file extension from link or name
-            function getFileExtension(str) {
-                if (!str) return null;
+            const commentEl = deleteBtn.closest("[comment-id]");
+            if (commentEl) {
+                const commentId = commentEl.getAttribute("comment-id");
+                commentEl.style.opacity = "0.5";
+                commentEl.style.pointerEvents = "none";
                 try {
-                    const decodedStr = decodeURIComponent(str);
-                    // Look for the last occurrence of a file extension before query params
-                    const match = decodedStr.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/i);
-                    if (match) return match[1].toLowerCase();
+                    const del = await deleteForumComment(commentId);
+                    handleCommentCounts(commentEl);
 
-                    // Fallback: search anywhere in the string for a known extension
-                    const knownExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'mp4', 'mp3'];
-                    for (const ext of knownExtensions) {
-                        if (decodedStr.toLowerCase().includes(`.${ext}`)) return ext;
+                    if (del) {
+                        commentEl.remove();
+
                     }
-                    return null;
-                } catch (e) {
-                    return null;
-                }
-            }
-            const mimeTypeMap = {
-                'image/jpeg': { type: 'jpg', category: 'image' },
-                'image/png': { type: 'png', category: 'image' },
-                'image/gif': { type: 'gif', category: 'image' },
-                'image/webp': { type: 'webp', category: 'image' },
-                'application/pdf': { type: 'pdf', category: 'document' },
-                'video/mp4': { type: 'mp4', category: 'video' },
-                'audio/mpeg': { type: 'mp3', category: 'audio' }
-            };
 
-            if (fileObject.type && mimeTypeMap[fileObject.type]) {
-                result.fileType = mimeTypeMap[fileObject.type].type;
-                result.category = mimeTypeMap[fileObject.type].category;
-            } else {
-                const extension = getFileExtension(result.fileLink) || getFileExtension(result.fileName);
-                if (extension) {
-                    const extensionCategories = {
-                        'jpg': 'image', 'jpeg': 'image', 'png': 'image', 'gif': 'image', 'webp': 'image',
-                        'pdf': 'document', 'doc': 'document', 'docx': 'document', 'txt': 'document',
-                        'mp4': 'video', 'mov': 'video', 'avi': 'video',
-                        'mp3': 'audio', 'wav': 'audio'
-                    };
-                    if (extensionCategories[extension]) {
-                        result.fileType = extension;
-                        result.category = extensionCategories[extension];
-                    }
-                }
-            }
 
-            console.log("analyzeFile result:", result);
-            return result;
-        } catch (error) {
-            console.error("Error analyzing file data:", error);
-            return { fileType: null, category: 'unknown', fileLink: null, fileName: null };
+                    else throw new Error();
+                } catch (err) {
+                    commentEl.style.opacity = "1";
+                    commentEl.style.pointerEvents = "auto";
+                    alert("Failed to delete the comment.");
+                }
+                return;
+            }
+            const postEl = deleteBtn.closest(".forum-post");
+            if (postEl) {
+                const postId = postEl.getAttribute("current-post-id");
+                postEl.classList.add("opacity-50", "pointer-events-none");
+                try {
+                    const deletionResult = await deleteForumPost(postId);
+                    if (deletionResult) postEl.remove();
+                    else throw new Error();
+                } catch (err) {
+                    postEl.classList.remove("opacity-50", "pointer-events-none");
+                    alert("Failed to delete the post.");
+                }
+                return;
+            }
+            return;
         }
+
+
+    });
+
+}
+
+const postClosureInstance = createPostsFetcher();
+
+async function fetchAndDisplayForumPosts() {
+
+    const posts = await postClosureInstance();
+    loadingThePosts = false;
+
+    renderForumPosts(posts);
+    fetchAndDisplayAllUpvotes();
+
+}
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    attachAllListenerFns();
+    const footerElement = document.getElementById('footerOfClassChat');
+    loadingThePosts = false;
+
+    const handleIntersection = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (loadingThePosts === false) {
+                    fetchAndDisplayForumPosts(loadingThePosts);
+                }
+
+                else {
+
+                    console.log("Already loading");
+                }
+
+
+            }
+        });
+    };
+
+    const options = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, options);
+
+
+
+    if (footerElement) {
+        observer.observe(footerElement);
+    } else {
+        console.error('Element with ID footerOfClassChat not found');
+
+        const documentObserver = new MutationObserver(() => {
+            const element = document.getElementById('footerOfClassChat');
+            if (element) {
+                observer.observe(element);
+                documentObserver.disconnect();
+            }
+        });
+
+        documentObserver.observe(document.body, { childList: true, subtree: true });
     }
-
-    function generateFilePreview(fileInfo) {
-        console.log("Input to generateFilePreview:", fileInfo);
-        if (!fileInfo || !fileInfo.fileLink) return '';
-
-        const fileLink = fileInfo.fileLink;
-        const escapedLink = fileLink.replace(/"/g, '&quot;');
-
-        // Strip surrounding quotes from fileLink if present
-        const fileName = fileInfo.fileName || "Unnamed File";
-        // Remove unnecessary escaping unless quotes are embedded in the string
-        const escapedFileName = fileName.replace(/"/g, '&quot;');
+});
 
 
-        console.log("Input to generateFilePreview:", fileInfo);
+
+let authorID = "[Visitor//Contact ID]";
+
+document.addEventListener("DOMContentLoaded", () => {
+    const parentAllAnnouncements = document.querySelector("#parentAllAnnouncements");
+    const container = document.getElementById("allAnnouncementsContainer");
+    const children = container.querySelectorAll(".text-button");
+
+    container.addEventListener("click", (event) => {
+        const target = event.target;
+
+        if (target !== container && target.classList.contains("text-button")) {
+            children.forEach((child) => {
+                child.classList.remove("border-b-[#007c8f]");
+                child.classList.add("border-transparent");
+            });
+
+            target.classList.remove("border-transparent");
+            target.classList.add("border-b-[#007c8f]");
+
+            const index = Array.from(children).indexOf(target);
+
+            const posts = parentAllAnnouncements.children;
+
+            Array.from(posts).forEach((post) => {
+                const authorPostId = post.getAttribute("author-ID");
+
+                if (index === 0) {
+                    post.classList.remove("hidden");
+                } else if (index === 1) {
+                    if (authorPostId === authorID) {
+                        post.classList.remove("hidden");
+                    } else {
+                        post.classList.add("hidden");
+                    }
+                }
+            });
+        }
+    });
+});
 
 
-        switch (fileInfo.category) {
-            case 'image':
-                const imageHtml = `
+
+
+
+
+function analyzeFile(fileData) {
+    try {
+        let result = {
+            fileType: null,
+            category: 'unknown',
+            fileLink: null,
+            fileName: null
+        };
+        let fileObject;
+
+        // Handle input
+        if (typeof fileData === 'string') {
+            if (fileData.startsWith('http')) {
+                fileObject = { link: fileData };
+            } else {
+                try {
+                    fileObject = JSON.parse(fileData);
+                } catch (e) {
+                    fileObject = { name: fileData };
+                }
+            }
+        } else if (typeof fileData === 'object') {
+            fileObject = fileData;
+        } else {
+            throw new Error('Invalid input type');
+        }
+
+        // Assign link and name
+        if (fileObject.link) {
+            result.fileLink = fileObject.link;
+        }
+        if (fileObject.name) {
+            result.fileName = fileObject.name;
+        }
+
+        // Extract file extension from link or name
+        function getFileExtension(str) {
+            if (!str) return null;
+            try {
+                const decodedStr = decodeURIComponent(str);
+                // Look for the last occurrence of a file extension before query params
+                const match = decodedStr.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/i);
+                if (match) return match[1].toLowerCase();
+
+                // Fallback: search anywhere in the string for a known extension
+                const knownExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'mp4', 'mp3'];
+                for (const ext of knownExtensions) {
+                    if (decodedStr.toLowerCase().includes(`.${ext}`)) return ext;
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+        const mimeTypeMap = {
+            'image/jpeg': { type: 'jpg', category: 'image' },
+            'image/png': { type: 'png', category: 'image' },
+            'image/gif': { type: 'gif', category: 'image' },
+            'image/webp': { type: 'webp', category: 'image' },
+            'application/pdf': { type: 'pdf', category: 'document' },
+            'video/mp4': { type: 'mp4', category: 'video' },
+            'audio/mpeg': { type: 'mp3', category: 'audio' }
+        };
+
+        if (fileObject.type && mimeTypeMap[fileObject.type]) {
+            result.fileType = mimeTypeMap[fileObject.type].type;
+            result.category = mimeTypeMap[fileObject.type].category;
+        } else {
+            const extension = getFileExtension(result.fileLink) || getFileExtension(result.fileName);
+            if (extension) {
+                const extensionCategories = {
+                    'jpg': 'image', 'jpeg': 'image', 'png': 'image', 'gif': 'image', 'webp': 'image',
+                    'pdf': 'document', 'doc': 'document', 'docx': 'document', 'txt': 'document',
+                    'mp4': 'video', 'mov': 'video', 'avi': 'video',
+                    'mp3': 'audio', 'wav': 'audio'
+                };
+                if (extensionCategories[extension]) {
+                    result.fileType = extension;
+                    result.category = extensionCategories[extension];
+                }
+            }
+        }
+
+        console.log("analyzeFile result:", result);
+        return result;
+    } catch (error) {
+        console.error("Error analyzing file data:", error);
+        return { fileType: null, category: 'unknown', fileLink: null, fileName: null };
+    }
+}
+
+function generateFilePreview(fileInfo) {
+    console.log("Input to generateFilePreview:", fileInfo);
+    if (!fileInfo || !fileInfo.fileLink) return '';
+
+    const fileLink = fileInfo.fileLink;
+    const escapedLink = fileLink.replace(/"/g, '&quot;');
+
+    // Strip surrounding quotes from fileLink if present
+    const fileName = fileInfo.fileName || "Unnamed File";
+    // Remove unnecessary escaping unless quotes are embedded in the string
+    const escapedFileName = fileName.replace(/"/g, '&quot;');
+
+
+    console.log("Input to generateFilePreview:", fileInfo);
+
+
+    switch (fileInfo.category) {
+        case 'image':
+            const imageHtml = `
 <div class="post-image-container h-[450px] w-full">
 <img src="${fileLink}" alt="${fileName}" class="post-image" style="height: 100%; width: 100%; object-fit: cover">
 </div>`;
-                console.log("Generated image HTML:", imageHtml);
-                return imageHtml;
+            console.log("Generated image HTML:", imageHtml);
+            return imageHtml;
 
-            case 'video':
-                return `
+        case 'video':
+            return `
 <!-- Video modal component -->
 <div class="[&_[x-cloak]]:hidden" x-data="{
 videoModal: false,
@@ -3752,8 +3751,8 @@ Your browser does not support the video tag.
 </div> `;
 
 
-            case 'audio':
-                return `
+        case 'audio':
+            return `
 <div class="flex flex-col gap-y-4  p-4 bg-[#ebf6f6] rounded" x-init="initPlayer()" x-data="audioPlayer();">
 
 <div class=" flex items-center justify-between">
@@ -3833,9 +3832,9 @@ src=${escapedLink} controls></audio>
 
 `;
 
-            case 'document':
-                if (fileInfo.fileType === 'pdf' || fileInfo.fileType === "zip") {
-                    return `
+        case 'document':
+            if (fileInfo.fileType === 'pdf' || fileInfo.fileType === "zip") {
+                return `
 <div class="post-pdf-container p-4 bg-[#c7e6e6] rounded">
 <!--iframe src="${escapedLink}" class="pdf-preview "></iframe-->
 
@@ -3872,10 +3871,10 @@ fill="#007C8F" />
 
 </div>
 </div>`;
-                }
+            }
 
-            default:
-                return `
+        default:
+            return `
 <div class="post-pdf-container p-4 bg-[#c7e6e6] rounded">
 <!--iframe src="${escapedLink}" class="pdf-preview "></iframe-->
 
@@ -3909,179 +3908,179 @@ fill="#007C8F" />
 
 </div>
 </div>`;
-        }
     }
+}
 
 
 
 
 
-    document.addEventListener("alpine:init", () => {
-        Alpine.data("videoModal", (videoUrl) => ({
-            modalOpen: false,
-            videoSrc: videoUrl,
-            thumbnail: "https://via.placeholder.com/768x432?text=Loading+Thumbnail",
-            openModal() {
-                this.modalOpen = true;
-                this.stopOtherVideos();
-                this.$nextTick(() => {
-                    this.$refs.videoPlayer.play();
+document.addEventListener("alpine:init", () => {
+    Alpine.data("videoModal", (videoUrl) => ({
+        modalOpen: false,
+        videoSrc: videoUrl,
+        thumbnail: "https://via.placeholder.com/768x432?text=Loading+Thumbnail",
+        openModal() {
+            this.modalOpen = true;
+            this.stopOtherVideos();
+            this.$nextTick(() => {
+                this.$refs.videoPlayer.play();
+            });
+        },
+        closeModal() {
+            this.modalOpen = false;
+            this.$nextTick(() => {
+                this.$refs.videoPlayer.pause();
+            });
+        },
+        stopOtherVideos() {
+            document.querySelectorAll("video").forEach((video) => {
+                if (video !== this.$refs.videoPlayer) {
+                    video.pause();
+                }
+            });
+        },
+        generateThumbnail() {
+            const video = document.createElement("video");
+            video.src = this.videoSrc;
+            video.crossOrigin = "anonymous";
+            video.muted = true;
+
+            video.addEventListener("loadeddata", () => {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                video.currentTime = 2;
+
+                video.addEventListener("seeked", () => {
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    this.thumbnail = canvas.toDataURL("image/png");
                 });
-            },
-            closeModal() {
-                this.modalOpen = false;
-                this.$nextTick(() => {
-                    this.$refs.videoPlayer.pause();
-                });
-            },
-            stopOtherVideos() {
-                document.querySelectorAll("video").forEach((video) => {
-                    if (video !== this.$refs.videoPlayer) {
-                        video.pause();
-                    }
-                });
-            },
-            generateThumbnail() {
-                const video = document.createElement("video");
-                video.src = this.videoSrc;
-                video.crossOrigin = "anonymous";
-                video.muted = true;
+            });
+        },
+        init() {
+            this.generateThumbnail();
+        }
+    }));
+});
 
-                video.addEventListener("loadeddata", () => {
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
 
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
 
-                    video.currentTime = 2;
 
-                    video.addEventListener("seeked", () => {
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        this.thumbnail = canvas.toDataURL("image/png");
-                    });
-                });
-            },
-            init() {
-                this.generateThumbnail();
-            }
-        }));
+function extractAndConvertToEmbedUrls(data) {
+    const urlRegex = /https?:\/\/[^\s]+/g;
+
+    const urls = data.match(urlRegex) || [];
+
+    const embeddableUrls = urls.map(url => {
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            return convertYouTubeUrlToEmbed(url);
+        } else if (url.includes('vimeo.com')) {
+            return convertVimeoUrlToEmbed(url);
+        } else if (url.includes('loom.com')) {
+            return convertLoomUrlToEmbed(url);
+        } else {
+            return null;
+        }
+    }).filter(url => url !== null);
+
+    const formattedPostText = data.replace(urlRegex, url => {
+        return `<a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
     });
 
+    return {
+        embeddableUrls: embeddableUrls,
+        formattedPostText: formattedPostText
+    };
+}
 
 
-
-    function extractAndConvertToEmbedUrls(data) {
-        const urlRegex = /https?:\/\/[^\s]+/g;
-
-        const urls = data.match(urlRegex) || [];
-
-        const embeddableUrls = urls.map(url => {
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                return convertYouTubeUrlToEmbed(url);
-            } else if (url.includes('vimeo.com')) {
-                return convertVimeoUrlToEmbed(url);
-            } else if (url.includes('loom.com')) {
-                return convertLoomUrlToEmbed(url);
-            } else {
-                return null;
-            }
-        }).filter(url => url !== null);
-
-        const formattedPostText = data.replace(urlRegex, url => {
-            return `<a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
-        });
-
-        return {
-            embeddableUrls: embeddableUrls,
-            formattedPostText: formattedPostText
-        };
+function convertYouTubeUrlToEmbed(url) {
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(youtubeRegex);
+    if (match && match[1]) {
+        return `https://www.youtube.com/embed/${match[1]}`;
     }
+    return null;
+}
 
 
-    function convertYouTubeUrlToEmbed(url) {
-        const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-        const match = url.match(youtubeRegex);
-        if (match && match[1]) {
-            return `https://www.youtube.com/embed/${match[1]}`;
+function convertVimeoUrlToEmbed(url) {
+    const vimeoRegex = /(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/;
+    const match = url.match(vimeoRegex);
+    if (match && match[1]) {
+        return `https://player.vimeo.com/video/${match[1]}`;
+    }
+    return null;
+}
+
+
+function convertLoomUrlToEmbed(url) {
+    const loomRegex = /(?:https?:\/\/)?(?:www\.)?loom\.com\/share\/([a-zA-Z0-9]+)/;
+    const match = url.match(loomRegex);
+    if (match && match[1]) {
+        return `https://www.loom.com/embed/${match[1]}`;
+    }
+    return null;
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const images = document.querySelectorAll("img");
+
+    const newSrc = "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA";
+
+    images.forEach(img => {
+        let src = img.getAttribute("src")?.trim();
+        if (src) {
+            src = src.replace(/^['"]|['"]$/g, "");
         }
-        return null;
-    }
 
-
-    function convertVimeoUrlToEmbed(url) {
-        const vimeoRegex = /(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/;
-        const match = url.match(vimeoRegex);
-        if (match && match[1]) {
-            return `https://player.vimeo.com/video/${match[1]}`;
+        if (!src || src === "https://i.ontraport.com/abc.jpg" || src === "https://i.ontraport.com/265848.e4eb6c354950b9d6fcd6df912e177552.JPEG") {
+            img.src = newSrc;
         }
-        return null;
-    }
-
-
-    function convertLoomUrlToEmbed(url) {
-        const loomRegex = /(?:https?:\/\/)?(?:www\.)?loom\.com\/share\/([a-zA-Z0-9]+)/;
-        const match = url.match(loomRegex);
-        if (match && match[1]) {
-            return `https://www.loom.com/embed/${match[1]}`;
-        }
-        return null;
-    }
-
-
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const images = document.querySelectorAll("img");
-
-        const newSrc = "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA";
-
-        images.forEach(img => {
-            let src = img.getAttribute("src")?.trim();
-            if (src) {
-                src = src.replace(/^['"]|['"]$/g, "");
-            }
-
-            if (!src || src === "https://i.ontraport.com/abc.jpg" || src === "https://i.ontraport.com/265848.e4eb6c354950b9d6fcd6df912e177552.JPEG") {
-                img.src = newSrc;
-            }
-        });
     });
+});
 
 
 
-    function populatePreviewContainer(el) {
-        // Get preview container reference first
-        const previewContainer = el.closest(".flex.items-center.justify-end.gap-2")
-            ?.previousElementSibling;
+function populatePreviewContainer(el) {
+    // Get preview container reference first
+    const previewContainer = el.closest(".flex.items-center.justify-end.gap-2")
+        ?.previousElementSibling;
 
-        if (!previewContainer) {
-            console.log('No preview container found');
-            return;
-        }
+    if (!previewContainer) {
+        console.log('No preview container found');
+        return;
+    }
 
-        // Handle file selection
-        if (el.files && el.files[0]) {
-            const file = el.files[0];
+    // Handle file selection
+    if (el.files && el.files[0]) {
+        const file = el.files[0];
 
-            if (file.type.startsWith('image')) {
-                const reader = new FileReader();
+        if (file.type.startsWith('image')) {
+            const reader = new FileReader();
 
-                reader.onload = function (e) {
-                    previewContainer.classList.remove('hidden');
-                    previewContainer.innerHTML = `
+            reader.onload = function (e) {
+                previewContainer.classList.remove('hidden');
+                previewContainer.innerHTML = `
 <img src="${e.target.result}" 
  class="w-full max-h-full object-cover h-[450px]"
  alt="Image preview">
        `;
-                };
+            };
 
-                reader.readAsDataURL(file);
-            } else if (file.type.startsWith('audio')) {
-                const audioUrl = URL.createObjectURL(file);
-                previewContainer.classList.remove('hidden');
-                previewContainer.innerHTML = '';
+            reader.readAsDataURL(file);
+        } else if (file.type.startsWith('audio')) {
+            const audioUrl = URL.createObjectURL(file);
+            previewContainer.classList.remove('hidden');
+            previewContainer.innerHTML = '';
 
-                const audioPlayerHTML = `
+            const audioPlayerHTML = `
  <div class="flex flex-col gap-y-4  p-4 bg-[#ebf6f6]" x-init="initPlayer()" x-data="audioPlayer();">
        <div class=" flex items-center justify-between">
        <div class="flex items-center gap-x-2" @click="muteUnmuteSound()">
@@ -4143,34 +4142,34 @@ fill="#007C8F" />
                                            src=${audioUrl} controls></audio>
 </div>
                                            `;
-                previewContainer.innerHTML = audioPlayerHTML;
-                Alpine.initTree(previewContainer);
+            previewContainer.innerHTML = audioPlayerHTML;
+            Alpine.initTree(previewContainer);
 
-            }
+        }
 
-            else if (file.type.startsWith('video')) {
-                // Show video player
+        else if (file.type.startsWith('video')) {
+            // Show video player
 
-                const videoUrl = URL.createObjectURL(file);
-                previewContainer.classList.remove('hidden');
-                previewContainer.innerHTML = '';
-                const videoPlayerHTML = `
+            const videoUrl = URL.createObjectURL(file);
+            previewContainer.classList.remove('hidden');
+            previewContainer.innerHTML = '';
+            const videoPlayerHTML = `
                                              <video class="w-full h-[450px]" controls>
                                                <source src="${videoUrl}" type="${file.type}">
                                                  `;
-                previewContainer.innerHTML = videoPlayerHTML;
+            previewContainer.innerHTML = videoPlayerHTML;
 
 
 
-            }
+        }
 
-            else {
+        else {
 
-                const documentURl = URL.createObjectURL(file);
+            const documentURl = URL.createObjectURL(file);
 
-                previewContainer.classList.remove('hidden');
-                previewContainer.innerHTML = '';
-                const otherFileHTML = `<span class="bg-[#c7e6e6] text-[#007c82] p-4  rounded flex items-center justify-between" >
+            previewContainer.classList.remove('hidden');
+            previewContainer.innerHTML = '';
+            const otherFileHTML = `<span class="bg-[#c7e6e6] text-[#007c82] p-4  rounded flex items-center justify-between" >
 <span  class="flex items-center gap-x-2">
  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
    <path  d="M20.6981 7.60962L15.3135 2.225C15.242 2.15359 15.1571 2.09696 15.0637 2.05836C14.9704 2.01975 14.8703 1.99992 14.7692 2H5.53846C5.13044 2 4.73912 2.16209 4.4506 2.45061C4.16209 2.73912 4 3.13044 4 3.53846V20.4615C4 20.8696 4.16209 21.2609 4.4506 21.5494C4.73912 21.8379 5.13044 22 5.53846 22H19.3846C19.7926 22 20.184 21.8379 20.4725 21.5494C20.761 21.2609 20.9231 20.8696 20.9231 20.4615V8.15385C20.9232 8.0528 20.9033 7.95273 20.8647 7.85935C20.8261 7.76597 20.7695 7.68111 20.6981 7.60962ZM15.5385 16.6154H9.38462C9.1806 16.6154 8.98495 16.5343 8.84069 16.3901C8.69643 16.2458 8.61538 16.0502 8.61538 15.8462C8.61538 15.6421 8.69643 15.4465 8.84069 15.3022C8.98495 15.158 9.1806 15.0769 9.38462 15.0769H15.5385C15.7425 15.0769 15.9381 15.158 16.0824 15.3022C16.2266 15.4465 16.3077 15.6421 16.3077 15.8462C16.3077 16.0502 16.2266 16.2458 16.0824 16.3901C15.9381 16.5343 15.7425 16.6154 15.5385 16.6154ZM15.5385 13.5385H9.38462C9.1806 13.5385 8.98495 13.4574 8.84069 13.3132C8.69643 13.1689 8.61538 12.9732 8.61538 12.7692C8.61538 12.5652 8.69643 12.3696 8.84069 12.2253C8.98495 12.081 9.1806 12 9.38462 12H15.5385C15.7425 12 15.9381 12.081 16.0824 12.2253C16.2266 12.3696 16.3077 12.5652 16.3077 12.7692C16.3077 12.9732 16.2266 13.1689 16.0824 13.3132C15.9381 13.4574 15.7425 13.5385 15.5385 13.5385ZM14.7692 8.15385V3.92308L19 8.15385H14.7692Z" fill="#007C8F"/>
@@ -4184,10 +4183,10 @@ fill="#007C8F" />
 </svg>
 </span>
 </span>`;
-                previewContainer.innerHTML = otherFileHTML;
-            }
-        } else {
-            // Hide container when no file selected
-            previewContainer.classList.add('hidden');
+            previewContainer.innerHTML = otherFileHTML;
         }
+    } else {
+        // Hide container when no file selected
+        previewContainer.classList.add('hidden');
     }
+}
