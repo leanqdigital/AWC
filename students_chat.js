@@ -3552,7 +3552,7 @@ function analyzeFile(fileData) {
             }
         }
 
-        console.log("analyzeFile result:", result);
+        
         return result;
     } catch (error) {
         console.error("Error analyzing file data:", error);
@@ -3561,7 +3561,7 @@ function analyzeFile(fileData) {
 }
 
 function generateFilePreview(fileInfo) {
-    console.log("Input to generateFilePreview:", fileInfo);
+    
     if (!fileInfo || !fileInfo.fileLink) return '';
 
     const fileLink = fileInfo.fileLink;
