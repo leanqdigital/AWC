@@ -101,7 +101,7 @@ function templateForForumPost(
     let objectFromPostFile, fileStringPreview;
     let formattedDate = convertToElapsedTime(date);
 
-    let visitorContactID = Number(visitorContactID, 10);
+    let visitorContactID = Number(`${visitorContactID}`, 10);
     let isShowTripleDot = authorID === visitorContactID;
     let showCommentsCount = ForumCommentsTotalCount > 0;
 
@@ -888,7 +888,7 @@ async function uploadCommentWithFile(element) {
         Author_Is_Instructor: isThisVisitorAnInstructor === "Yes",
         ForumCommentsTotalCount: 0,
         Author_Is_Admin: isContactAdmin !== "No",
-        Author_ID: Number(visitorContactID),
+        Author_ID: Number(`${visitorContactID}`),
         File: fileData ? JSON.stringify(fileData) : null
     }];
     console.log("This is MANUAL DATA IN COMMENT: ", manualData);
