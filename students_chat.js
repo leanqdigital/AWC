@@ -490,7 +490,7 @@ function toggleReplyForm(replyID) {
 
         if (isVisible) {
             targetElement.classList.add('hidden');
-            console.log("Reply form hidden:", replyFormID);
+            
         }
         else {
             document.querySelectorAll('[id^="commentBox_"], [id^="replyFormBox_"]').forEach(el => {
@@ -503,10 +503,9 @@ function toggleReplyForm(replyID) {
             const y = targetElement.getBoundingClientRect().top + window.scrollY + yOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
 
-            console.log("Reply form displayed:", replyFormID);
         }
     } else {
-        console.error("Reply form element not found:", replyFormID);
+        
     }
 }
 
@@ -630,7 +629,7 @@ function audioPlayer() {
                         this.isPlaying = true;
                     })
                     .catch(error => {
-                        console.error("Error playing audio:", error);
+                        
                     });
             } else {
                 this.$refs.audioElement.pause();
@@ -714,7 +713,7 @@ async function uploadRepliesWithFile($el) {
     if (replyContainer) {
         replyContainer.appendChild(tempReplyElement);
     } else {
-        console.error("Reply container not found in comment:", thisComment.outerHTML);
+        
         return;
     }
     const payload = {
@@ -726,17 +725,13 @@ async function uploadRepliesWithFile($el) {
     };
     if (fileData) {
         const filePreviewContainer = tempReplyElement.querySelector(".filePreviewContainerReply");
-        if (filePreviewContainer) {
-            console.log("Optimistic preview already handled by template in .filePreviewContainerReply");
-        } else {
-            console.error("No .filePreviewContainerReply found in tempReplyElement for optimistic preview:", tempReplyElement.outerHTML);
-        }
+       
     }
     try {
         const createdReply = await createReply(payload);
-        console.log("created reply is:", createdReply);
+        
         if (createdReply && createdReply.id) {
-            console.log("after reply has been created. this line of code runs.");
+           
             tempReplyElement.setAttribute("reply-id", createdReply.id);
             tempReplyElement.style.opacity = "1";
             tempReplyElement.style.pointerEvents = "auto";
@@ -745,8 +740,7 @@ async function uploadRepliesWithFile($el) {
                 authorNameEl.textContent = visitorFirstName + " " + visitorLastName;;
             }
             if (fileData) {
-                console.log("Processing server file data...");
-                // Determine the correct file data based on response structure
+              
                 let serverFileData;
                 if (createdReply.data && createdReply.data.createForumComment) {
                     serverFileData = createdReply.data.createForumComment.file;
@@ -754,7 +748,7 @@ async function uploadRepliesWithFile($el) {
                     serverFileData = createdReply.file;
                 }
                 if (serverFileData) {
-                    console.log("Server file data is", serverFileData);
+                    
                     const cleanLink = typeof serverFileData === "string"
                         ? serverFileData.replace(/^"(.+)"$/, '$1')
                         : serverFileData.link;
@@ -763,20 +757,17 @@ async function uploadRepliesWithFile($el) {
                         type: fileData.type,
                         link: cleanLink
                     };
-                    console.log("Combined file data:", combinedFileData);
+                   
                     const analyzedObject = analyzeFile(combinedFileData);
-                    console.log("Analyzed file object:", analyzedObject);
                     const filePreviewHtml = generateFilePreview(analyzedObject);
-                    console.log("Generated file preview HTML:", filePreviewHtml);
                     const filePreviewContainer = tempReplyElement.querySelector(".filePreviewContainerReply");
                     if (filePreviewContainer) {
                         filePreviewContainer.innerHTML = filePreviewHtml || "";
-                        console.log("Updated .filePreviewContainerReply HTML:", filePreviewContainer.innerHTML);
                     } else {
-                        console.error("No .filePreviewContainerReply found in tempReplyElement after server response:", tempReplyElement.outerHTML);
+                       
                     }
                 } else {
-                    console.warn("No file data returned from server despite file upload:", createdReply);
+                    
                 }
             }
             handleRepliesCount(thisComment);
@@ -784,7 +775,7 @@ async function uploadRepliesWithFile($el) {
             throw new Error("createReply returned invalid data");
         }
     } catch (err) {
-        console.error("Error in uploadRepliesWithFile:", err);
+        
         if (!tempReplyElement.getAttribute("reply-id")) {
             tempReplyElement.remove();
             alert("An error occurred while posting the reply.");
@@ -861,7 +852,7 @@ async function uploadCommentWithFile(element) {
         Author_ID: Number(visitorContactID),
         File: fileData ? JSON.stringify(fileData) : null
     }];
-    console.log("This is MANUAL DATA IN COMMENT: ", manualData);
+   
 
     const commentTmpl = $.templates("#commentTemplate");
     $.views.helpers({
@@ -872,7 +863,7 @@ async function uploadCommentWithFile(element) {
                     try {
                         file = JSON.parse(file);
                     } catch (e) {
-                        console.error('Error parsing file JSON:', e);
+                        
                     }
                 }
                 const analyzedObject = analyzeFile(file);
@@ -882,8 +873,6 @@ async function uploadCommentWithFile(element) {
         }
     });
     const renderedHtml = commentTmpl.render(manualData);
-    console.log("Rendered HTML:", renderedHtml);
-
     const tempWrapper = document.createElement("div");
     tempWrapper.innerHTML = renderedHtml;
     while (tempWrapper.firstChild) {
@@ -891,7 +880,6 @@ async function uploadCommentWithFile(element) {
     }
 
     let tempEl = commentContainerElem.lastElementChild;
-    console.log("tempEl structure:", tempEl.outerHTML);
     tempEl.classList.add("opacity-50", "pointer-events-none");
 
     if (fileData) {
@@ -899,11 +887,7 @@ async function uploadCommentWithFile(element) {
         commentContainer.querySelectorAll('.outlineButton.text-label').forEach(el => {
             el.classList.add('hidden');
         });
-        if (filePreviewContainer) {
-            console.log("Optimistic preview already handled by template in .filePreviewContainer");
-        } else {
-            console.error("No .filePreviewContainer found in tempEl for optimistic preview:", tempEl.outerHTML);
-        }
+        
     }
 
     try {
@@ -934,14 +918,12 @@ async function uploadCommentWithFile(element) {
             if (commentTextEl) {
                 commentTextEl.innerHTML = commentText;
             } else {
-                console.error("Comment text div not found in tempEl:", tempEl.outerHTML);
+               
             }
 
             // Update file preview with combined data
             if (fileData && createdComment.data.createForumComment.file) {
                 const serverFileData = createdComment.data.createForumComment.file;
-                console.log("Server file data is", serverFileData);
-
                 const cleanLink = typeof serverFileData === "string"
                     ? serverFileData.replace(/^"(.+)"$/, '$1')
                     : serverFileData.link;
@@ -951,20 +933,13 @@ async function uploadCommentWithFile(element) {
                     type: fileData.type,
                     link: cleanLink
                 };
-                console.log("Combined file data:", combinedFileData);
-
                 const analyzedObject = analyzeFile(combinedFileData);
-                console.log("Analyzed file object:", analyzedObject);
-
                 const filePreviewHtml = generateFilePreview(analyzedObject);
-                console.log("Generated file preview HTML:", filePreviewHtml);
-
                 const filePreviewContainer = tempEl.querySelector(".filePreviewContainer");
                 if (filePreviewContainer) {
                     filePreviewContainer.innerHTML = filePreviewHtml || "";
-                    console.log("Updated .filePreviewContainer HTML:", filePreviewContainer.innerHTML);
                 } else {
-                    console.error("No .filePreviewContainer found in tempEl after server response:", tempEl.outerHTML);
+                    
                 }
             }
 
@@ -1088,7 +1063,7 @@ function uploadFiles(filesToUpload, s3Params, toSubmit) {
                     }
                     resolve(result);
                 } else {
-                    console.error("File upload failed", xhr.statusText);
+                   
                     resolve(null);
                 }
             };
@@ -1340,7 +1315,7 @@ Profile_Photo: field(arg: ["profile_photo"])
         const adminResult = await adminResponse.json();
 
         if (!studentResult?.data?.calcClasses || !adminResult?.data?.calcContacts) {
-            console.error("Invalid response structure:", studentResult, adminResult);
+           
             return;
         }
 
@@ -1377,7 +1352,7 @@ Profile_Photo: field(arg: ["profile_photo"])
         });
 
     } catch (e) {
-        console.error("Error fetching contacts:", e);
+       
     }
 }
 
@@ -1388,7 +1363,7 @@ function handleRepliesCount(el) {
     const commentElement = el.closest("[comment-id]");
 
     if (!commentElement) {
-        console.warn("No parent element with 'comment-id' attribute found.");
+        
         return;
     }
 
@@ -1398,7 +1373,7 @@ function handleRepliesCount(el) {
     if (commentNumber) {
         handleReplyCount(commentNumber);
     } else {
-        console.warn("Invalid comment ID found:", commentNumber);
+        
     }
 }
 
@@ -1406,7 +1381,7 @@ function handleCommentCounts(el) {
     let postContainer = el.closest('[current-post-id]');
 
     if (!postContainer) {
-        console.log('No parent with current-post-id found.');
+        
         return;
     }
 
@@ -1416,10 +1391,10 @@ function handleCommentCounts(el) {
         if (typeof fetchCommentCount === 'function') {
             fetchCommentCount(postId);
         } else {
-            console.warn('fetchCommentCount function is not defined.');
+            
         }
     } else {
-        console.warn('No valid number found for comments.');
+        
     }
 }
 
@@ -1468,17 +1443,17 @@ totalCount: countDistinct(args: [{ field: ["id"] }])
             if (replyCountElement) {
                 replyCountElement.innerHTML = `${replyCount} Replies`;
             } else {
-                console.warn("Reply count element not found inside the comment container.");
+                
             }
         } else {
-            console.warn(`Comment container not found for comment-id: ${replyID}`);
+           
         }
 
 
 
 
     } catch (error) {
-        console.error(`Error fetching count for ID ${replyID}:`, error);
+        
     }
 }
 
@@ -1505,7 +1480,7 @@ calcForumPosts(query: [{ where: { id: $id } }]) {
         });
 
         if (!response.ok) {
-            console.error(`HTTP Error: ${response.status} for Post ID: ${postId}`);
+           
             return;
         }
 
@@ -1517,10 +1492,10 @@ calcForumPosts(query: [{ where: { id: $id } }]) {
                 `#commentCountsForPost-${postId}`
             ).innerHTML = `${result.data.calcForumPosts[0].ForumCommentsTotalCount} Comments`;
         } else {
-            console.log(`Post ID: ${postId}, No Comment Data Found.`);
+            
         }
     } catch (error) {
-        console.error(`Error fetching comment count for Post ID: ${postId}`, error);
+       
     }
 }
 
@@ -1533,7 +1508,7 @@ async function processPosts(posts) {
         if (post.ID) {
             await fetchCommentCount(post.ID);
         } else {
-            console.warn("Skipping post with missing ID:", post);
+            
         }
     }
 }
@@ -1581,17 +1556,14 @@ comment
         const responseData = await httpResponse.json();
 
         if (responseData.errors) {
-            console.error(
-                "GraphQL Errors (updateForumComment):",
-                responseData.errors
-            );
+            
             return null;
         } else {
 
             return responseData.data.updateForumComment.comment;
         }
     } catch (error) {
-        console.error("Error while updating forum comment:", error);
+       
         return null;
     }
 }
@@ -1636,14 +1608,13 @@ post_copy
         const responseData = await httpResponse.json();
 
         if (responseData.errors) {
-            console.error("GraphQL Errors (updateForumPost):", responseData.errors);
+           
             return null;
         } else {
 
             return responseData.data.updateForumPost.post_copy;
         }
     } catch (error) {
-        console.error("Error while updating forum post:", error);
         return null;
     }
 }
@@ -1695,7 +1666,7 @@ id
             throw new Error("Current Post Id was not received From the server.");
         }
     } catch (error) {
-        console.error("Error:", error.message);
+        
     }
 }
 
@@ -1742,7 +1713,7 @@ query: [{ where: { forum_comment_upvote_id: ${commentId} } }]
         const result = await response.json();
 
         if (result.errors) {
-            console.error("GraphQL Errors:", result.errors);
+            
             return;
         }
 
@@ -1766,7 +1737,7 @@ query: [{ where: { forum_comment_upvote_id: ${commentId} } }]
         const userLikeID = hasUserLiked ? userLike.ID : null;
         return [uniqueLikes.length, hasUserLiked, userLikeID];
     } catch (error) {
-        console.error("Error fetching likes data:", error);
+       
     }
 }
 
@@ -1802,13 +1773,13 @@ async function createVoteForComments(memberId, commentId) {
         const result = await response.json();
 
         if (result.errors) {
-            console.error("GraphQL errors:", result.errors);
+           
             return null;
         }
 
         return result;
     } catch (error) {
-        console.error("Error creating vote:", error);
+        
         return null;
     }
 }
@@ -1846,7 +1817,7 @@ deleteMemberCommentUpvotesForumCommentUpvotes(
         const result = await response.json();
         return result;
     } catch (error) {
-        console.error("Error deleting vote count:", error);
+       
     }
 };
 
@@ -1887,11 +1858,11 @@ async function fetchCommentUpvotes(commentId) {
         if (response.ok) {
             return result.data.calcMemberCommentUpvotesForumCommentUpvotesMany;
         } else {
-            console.error("Error:", result.errors);
+           
             throw new Error("Failed to fetch data");
         }
     } catch (error) {
-        console.error("Error fetching comment upvotes:", error);
+        
         throw error;
     }
 }
@@ -1937,7 +1908,7 @@ const createReply = async (payload) => {
         const result = await response.json();
         return result.data.createForumComment;
     } catch (error) {
-        console.error("Error creating reply:", error);
+        
     }
 };
 
@@ -1987,7 +1958,7 @@ async function createVote(payload) {
 
         return pkMapValue;
     } catch (error) {
-        console.error("Error creating vote:", error.message);
+      
         throw error;
     }
 }
@@ -2032,7 +2003,7 @@ async function deleteVote(id) {
 
         return result.data.deleteMemberPostUpvotesPostUpvotes.id;
     } catch (error) {
-        console.error("Error deleting vote:", error.message);
+       
         throw error;
     }
 }
@@ -2117,7 +2088,7 @@ async function fetchAndDisplayAllUpvotes() {
             if (voteCounter_chat) {
                 voteCounter_chat.textContent = upvoteCount;
             } else {
-                console.warn(`No .voteCounter_chat element found for post ID ${postId}`);
+               
             }
 
             if (uniqueMemberIds.has(currentUserId)) {
@@ -2126,7 +2097,7 @@ async function fetchAndDisplayAllUpvotes() {
                     voteButton_chat.classList.add("upVoted");
                     post.setAttribute("user-liked-post", "true");
                 } else {
-                    console.warn(`No .voteButton_chat element found for post ID ${postId}`);
+                   
                 }
 
                 const userUpvoteID = getUserUpvoteID(upvotes, currentUserId);
@@ -2134,9 +2105,7 @@ async function fetchAndDisplayAllUpvotes() {
                 if (userUpvoteID !== null) {
                     post.setAttribute("member-upvote-id", userUpvoteID);
                 } else {
-                    console.warn(
-                        `No upvote ID found for user ${currentUserId} on post ID ${postId}.`
-                    );
+                    
                 }
             } else {
                 const voteButton_chat = post.querySelector(".voteButton_chat");
@@ -2144,13 +2113,13 @@ async function fetchAndDisplayAllUpvotes() {
                     voteButton_chat.classList.remove("upVoted");
                     post.setAttribute("user-liked-post", "false");
                 } else {
-                    console.warn(`No .voteButton_chat element found for post ID ${postId}`);
+                   
                 }
 
                 post.removeAttribute("member-upvote-id");
             }
         } else {
-            console.warn(`No upvotes data found for post ID ${postId}`);
+            
         }
     }
 }
@@ -2181,13 +2150,13 @@ deleteForumPost(query: [{ where: { id: $postId } }]) {
         return json;
 
         if (json.errors) {
-            console.error("GraphQL Error:", json.errors);
+          
             return null;
         }
 
         return json.data.deleteForumPost;
     } catch (error) {
-        console.error("Error while deleting forum post:", error);
+        
         return null;
     }
 }
@@ -2252,10 +2221,10 @@ async function postComment(postId, authorId, commentText, mentionIDs, file) {
         if (responseJson.data && responseJson.data.createForumComment) {
             return responseJson;
         } else {
-            console.warn("Comment submission failed:", responseJson.errors || "Unknown error");
+          
         }
     } catch (error) {
-        console.error("Comment submission error:", error);
+       
         alert(`Error submitting comment: ${error.message}`);
     }
 }
@@ -2264,7 +2233,7 @@ async function postComment(postId, authorId, commentText, mentionIDs, file) {
 
 async function deleteForumComment(commentId) {
     if (!commentId || typeof commentId !== "string") {
-        console.error("Invalid comment ID provided.");
+        
         return null;
     }
 
@@ -2295,7 +2264,7 @@ deleteForumComment(query: [{ where: { id: $id } }]) {
         const json = await response.json();
 
         if (json.errors) {
-            console.error("GraphQL Error:", json.errors);
+           
             return null;
         }
 
@@ -2311,7 +2280,7 @@ deleteForumComment(query: [{ where: { id: $id } }]) {
 
         return null;
     } catch (error) {
-        console.error("Failed to delete the forum comment:", error.message);
+       
         return null;
     }
 }
@@ -2325,7 +2294,7 @@ function createPostsFetcher() {
     return async function fetchForumPosts() {
         const now = Date.now();
         if (loadingThePosts || now - lastFetchedTime < cooldownTime) {
-            console.log("Fetch ignored due to cooldown.");
+           
             return [];
         }
         loadingThePosts = true;
@@ -2371,14 +2340,14 @@ function createPostsFetcher() {
             const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
             const responseData = await httpResponse.json();
             if (responseData.errors) {
-                console.error("GraphQL Errors (fetchForumPosts):", responseData.errors);
+                
                 return [];
             } else {
                 offset += limit;
                 return responseData.data.calcForumPosts || [];
             }
         } catch (error) {
-            console.error("Error while fetching forum posts:", error);
+           
             return [];
         } finally {
             setTimeout(() => {
@@ -2391,7 +2360,7 @@ function createPostsFetcher() {
 function renderForumPosts(posts) {
     const forumContainer = document.getElementById("parentAllAnnouncements");
     if (!forumContainer) {
-        console.error("Parent container (#parentAllAnnouncements) not found!");
+       
         return;
     }
 
@@ -2429,7 +2398,7 @@ function renderForumPosts(posts) {
 
         // Check if postHTML is valid
         if (!postHTML) {
-            console.error("Error: templateForForumPost() returned an invalid value:", postHTML);
+           
             return;
         }
 
@@ -2511,7 +2480,7 @@ calcForumComments(
 
         return result.data?.calcForumComments || [];
     } catch (error) {
-        console.error(`Error fetching comments for Post ID ${postId}:`, error);
+        
         return [];
     }
 }
@@ -2523,8 +2492,7 @@ async function fetchUpVotesForReplies(replies) {
             const likesData = await fetchLikesForReplies(reply.ID);
             return likesData;
         } catch (error) {
-            console.error(`Error fetching likes for reply ID ${reply.ID}:`, error);
-            // Return fallback data if needed (here, assuming zero likes and false)
+            
             return [0, false, null];
         }
     });
@@ -2533,8 +2501,6 @@ async function fetchUpVotesForReplies(replies) {
 
 // Function to process and render replies for a given commentId
 async function renderRepliesForComment(commentId) {
-    // async function renderRepliesForComment(commentId, commentContainer) {
-
     try {
         const replyShowContainer = document
             .querySelector(`[comment-id="${commentId}"]`)
@@ -2542,7 +2508,7 @@ async function renderRepliesForComment(commentId) {
         if (!replyShowContainer) {
             return;
         } else {
-            console.log("Reply show container found");
+           
         }
 
         let replies = await fetchRepliesByCommentId(commentId);
@@ -2576,21 +2542,20 @@ async function renderRepliesForComment(commentId) {
             }
         }
     } catch (error) {
-        console.error(`Error processing comment ID ${commentId}:`, error);
+        
     }
 }
 
 async function renderCommentsForPost(postId) {
     const postElement = document.querySelector(`[current-post-id="${postId}"]`);
     if (!postElement) {
-        console.error("No post element found for postId:", postId);
+       
         return;
     }
 
     // Fetch comments for the post
     const comments = await getCommentsByPostId(postId);
     if (!Array.isArray(comments)) {
-        console.warn("No valid comments array returned for Post ID:", postId);
         return;
     }
 
@@ -2598,10 +2563,7 @@ async function renderCommentsForPost(postId) {
         "#allCommentsForPostContainer"
     );
     if (!commentContainer) {
-        console.error(
-            "No #allCommentsForPostContainer found for post:",
-            postElement
-        );
+        
         return;
     }
 
@@ -2654,7 +2616,7 @@ async function renderCommentsForPost(postId) {
                 `[comment-id="${commentId}"]`
             );
             if (!specificCommentContainer) {
-                console.warn(`No element found for [comment-id="${commentId}"]`);
+              
                 continue;
             }
 
@@ -2680,11 +2642,7 @@ async function renderCommentsForPost(postId) {
                 }
             }
         } catch (err) {
-            console.error(
-                "Error fetching/updating upvotes for comment:",
-                commentId,
-                err
-            );
+            
         }
     }
 
@@ -2737,7 +2695,7 @@ calcForumComments(
         const data = await response.json();
 
         if (data.errors) {
-            console.error("GraphQL Errors:", data.errors);
+            
             return;
         }
 
@@ -2749,7 +2707,7 @@ calcForumComments(
 
         return comments;
     } catch (error) {
-        console.error("Error fetching comments:", error);
+        
     }
 }
 
@@ -2854,7 +2812,7 @@ async function attachAllListenerFns() {
                         `[current-post-id="${editId}"] .text-bodyText`
                     ).innerHTML = result;
                 } else {
-                    console.error("There has been an error.");
+                   
                 }
 
 
@@ -3064,7 +3022,7 @@ async function attachAllListenerFns() {
 
                 }
                 else {
-                    console.log("anchor tag of to be added up template not found. . . ");
+                    
                 }
             } else {
                 postButton
@@ -3386,8 +3344,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 else {
-
-                    console.log("Already loading");
                 }
 
 
@@ -3408,9 +3364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (footerElement) {
         observer.observe(footerElement);
     } else {
-        console.error('Element with ID footerOfClassChat not found');
-
-        const documentObserver = new MutationObserver(() => {
+         const documentObserver = new MutationObserver(() => {
             const element = document.getElementById('footerOfClassChat');
             if (element) {
                 observer.observe(element);
@@ -3555,7 +3509,7 @@ function analyzeFile(fileData) {
         
         return result;
     } catch (error) {
-        console.error("Error analyzing file data:", error);
+        
         return { fileType: null, category: 'unknown', fileLink: null, fileName: null };
     }
 }
@@ -3573,7 +3527,6 @@ function generateFilePreview(fileInfo) {
     const escapedFileName = fileName.replace(/"/g, '&quot;');
 
 
-    console.log("Input to generateFilePreview:", fileInfo);
 
 
     switch (fileInfo.category) {
@@ -3582,7 +3535,7 @@ function generateFilePreview(fileInfo) {
 <div class="post-image-container h-[450px] w-full">
 <img src="${fileLink}" alt="${fileName}" class="post-image" style="height: 100%; width: 100%; object-fit: cover">
 </div>`;
-            console.log("Generated image HTML:", imageHtml);
+            
             return imageHtml;
 
         case 'video':
@@ -3991,7 +3944,7 @@ function populatePreviewContainer(el) {
         ?.previousElementSibling;
 
     if (!previewContainer) {
-        console.log('No preview container found');
+        
         return;
     }
 
