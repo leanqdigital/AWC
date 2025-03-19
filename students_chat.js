@@ -842,7 +842,7 @@ async function uploadCommentWithFile(element) {
     const commentContainerElem = thisPost.querySelector("#allCommentsForPostContainer");
     const manualData = [{
         ID: `${Date.now()}`,
-        Author_Display_Name: contactDisplayName,
+        Author_Display_Name: contactDisplayName  || "Anonymous",
         Comment: commentText,
         Date_Added: Math.floor(Date.now() / 1000),
         Author_Profile_Image: visitorProfilePicture,
