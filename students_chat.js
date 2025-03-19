@@ -1,8 +1,3 @@
-
-
-
-//BODY 
-
 function convertToElapsedTime(timestamp) {
     if (typeof timestamp === "string" && isNaN(timestamp)) {
         let date = new Date(timestamp);
@@ -79,9 +74,6 @@ function convertToElapsedTime(timestamp) {
     }
     return `${years} yrs ago`;
 }
-
-
-
 
 function templateForForumPost(
     profileImg,
@@ -332,12 +324,6 @@ fill="#fff"
 `;
 }
 
-
-
-
-
-
-
 document.addEventListener("DOMContentLoaded", function () {
     let currentFile = null;
 
@@ -494,9 +480,6 @@ xmlns="http://www.w3.org/2000/svg">
     });
 });
 
-
-
-
 function toggleReplyForm(replyID) {
     const replyFormID = 'replyFormBox_' + replyID;
 
@@ -585,13 +568,6 @@ function attachAllFileData($el) {
     buttons.forEach(btn => btn.classList.remove('hidden'));
     $el.closest('button').classList.add('hidden');
 }
-
-
-
-
-
-
-
 
 if (typeof window.audioPlayerss === 'undefined') {
     window.audioPlayerss = [];
@@ -689,10 +665,6 @@ function audioPlayer() {
         }
     };
 }
-
-
-
-
 
 async function uploadRepliesWithFile($el) {
     const thisComment = $el.closest("[comment-id]");
@@ -839,7 +811,6 @@ async function uploadRepliesWithFile($el) {
         }
     }
 }
-
 
 async function uploadCommentWithFile(element) {
     const commentContainer = element.closest("[id^='commentBox_']");
@@ -1025,12 +996,6 @@ async function uploadCommentWithFile(element) {
     }
 }
 
-
-
-
-
-
-
 function decodeAwsParam(awsParam) {
     if (!awsParam) {
         awsParam = window.awsParam;
@@ -1055,9 +1020,7 @@ function encodeAwsParam(hash, currentEpoch) {
         currentEpoch = Math.round(Date.now() / 1000);
     }
     const expiry = new Date(currentEpoch * 1000);
-    // I'm only adding 12 hours, rather than 24 hours,
-    // to allow the user's system time to be off by
-    // +/- 12 hours.
+   
     expiry.setTime(expiry.getTime() + 12 * 60 * 60 * 1000);
     return btoa(
         `a:2:{s:4:"hash";s:${hash.length}:"${hash}";s:6:"expiry";i:${Math.round(
@@ -1065,7 +1028,6 @@ function encodeAwsParam(hash, currentEpoch) {
         )};}`
     );
 }
-
 
 function createS3FileId(key, filename) {
     return `${key.replace("_${filename}", "")}_${filename}`;
@@ -1095,7 +1057,6 @@ function getS3UploadParams(awsParam, url) {
         });
 
 }
-
 
 function uploadFiles(filesToUpload, s3Params, toSubmit) {
     const paramsInputs = s3Params.inputs;
@@ -1139,8 +1100,6 @@ function uploadFiles(filesToUpload, s3Params, toSubmit) {
     return Promise.all(uploadPromises);
 }
 
-
-
 function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
     let awsParam;
     if (!awsParamHash) {
@@ -1174,11 +1133,6 @@ function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
     });
 }
 
-
-
-
-
-
 function decodeAwsParam(awsParam) {
     if (!awsParam) {
         awsParam = window.awsParam;
@@ -1207,9 +1161,7 @@ function encodeAwsParam(hash, currentEpoch) {
         currentEpoch = Math.round(Date.now() / 1000);
     }
     const expiry = new Date(currentEpoch * 1000);
-    // I'm only adding 12 hours, rather than 24 hours,
-    // to allow the user's system time to be off by
-    // +/- 12 hours.
+    
     expiry.setTime(expiry.getTime() + 12 * 60 * 60 * 1000);
     return btoa(
         `a:2:{s:4:"hash";s:${hash.length}:"${hash}";s:6:"expiry";i:${Math.round(
@@ -1325,9 +1277,6 @@ function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
     });
 }
 
-
-
-
 function gatherMentionsFromElement(el) {
     const mentionEls = el.querySelectorAll(".mention-handle[data-mention-id]");
     return [...mentionEls].map(m => m.getAttribute("data-mention-id"));
@@ -1434,12 +1383,7 @@ Profile_Photo: field(arg: ["profile_photo"])
 
 fetchContactsAndInitializeTribute(uniquePageId);
 
-
-
-
 function handleRepliesCount(el) {
-
-    // Find the closest element that has a 'comment-id' attribute
 
     const commentElement = el.closest("[comment-id]");
 
@@ -1457,9 +1401,6 @@ function handleRepliesCount(el) {
         console.warn("Invalid comment ID found:", commentNumber);
     }
 }
-
-
-
 
 function handleCommentCounts(el) {
     let postContainer = el.closest('[current-post-id]');
@@ -1481,7 +1422,6 @@ function handleCommentCounts(el) {
         console.warn('No valid number found for comments.');
     }
 }
-
 
 async function fetchReplyCounts(commentIDs) {
 
@@ -1542,7 +1482,6 @@ totalCount: countDistinct(args: [{ field: ["id"] }])
     }
 }
 
-
 async function fetchCommentCount(postId) {
     const query = `
 query calcForumPosts($id: AwcForumPostID) {
@@ -1584,8 +1523,6 @@ calcForumPosts(query: [{ where: { id: $id } }]) {
         console.error(`Error fetching comment count for Post ID: ${postId}`, error);
     }
 }
-
-
 
 async function processPosts(posts) {
     if (!Array.isArray(posts) || posts.length === 0) {
@@ -1711,7 +1648,6 @@ post_copy
     }
 }
 
-
 async function createForumPost(payload) {
     //DISCLAIMER: this creates a forum post without mentions and  file attachments. Just a string.
     const mutation = `
@@ -1834,7 +1770,6 @@ query: [{ where: { forum_comment_upvote_id: ${commentId} } }]
     }
 }
 
-
 async function createVoteForComments(memberId, commentId) {
     const query = `
  mutation createMemberCommentUpvotesForumCommentUpvotes($payload: MemberCommentUpvotesForumCommentUpvotesCreateInput = null) {
@@ -1914,7 +1849,6 @@ deleteMemberCommentUpvotesForumCommentUpvotes(
         console.error("Error deleting vote count:", error);
     }
 };
-
 
 const calcMemberCommentUpvotesQuery = `
  query calcMemberCommentUpvotesForumCommentUpvotesMany($id: AwcForumCommentID) {
@@ -2006,7 +1940,6 @@ const createReply = async (payload) => {
         console.error("Error creating reply:", error);
     }
 };
-
 
 const mutation = `
  mutation createMemberPostUpvotesPostUpvotes(
@@ -2385,41 +2318,47 @@ deleteForumComment(query: [{ where: { id: $id } }]) {
 
 
 function createPostsFetcher() {
-    let limit = 3, offset = 0;
-    let loadingThePosts = true;
-
+    let limit = 10, offset = 0;
+    let loadingThePosts = false;
+    let lastFetchedTime = 0;
+    const cooldownTime = 5000;
     return async function fetchForumPosts() {
+        const now = Date.now();
+        if (loadingThePosts || now - lastFetchedTime < cooldownTime) {
+            console.log("Fetch ignored due to cooldown.");
+            return [];
+        }
+        loadingThePosts = true;
+        lastFetchedTime = now;
         const graphqlQuery = `
-query calcForumPosts($class_id: AwcClassID, $limit: IntScalar, $offset: IntScalar) {
-calcForumPosts(
- query: [{ where: { class_id: $class_id } }]
- limit: $limit
- offset: $offset
- orderBy: [{ path: ["created_at"], type: desc }]
-) {
- Author_Profile_Image: field(arg: ["Author", "profile_image"])
-Author_Display_Name: field(
- arg: ["Author", "display_name"]
-)
- Date_Added: field(arg: ["created_at"])
- Post_Copy: field(arg: ["post_copy"])
- Post_Image: field(arg: ["post_image"])
- Author_ID: field(arg: ["author_id"])
- File: field(arg: ["file"])
- ID: field(arg: ["id"])
- ClassID: field(arg: ["Class", "id"])
- Author_Is_Instructor: field(arg: ["Author", "is_instructor"])
- ForumCommentsTotalCount: countDistinct(args: [{ field: ["ForumComments", "id"] }])
- Author_Is_Admin: field(arg: ["Author", "is_admin"])
-}
-}`;
-
+        query calcForumPosts($class_id: AwcClassID, $limit: IntScalar, $offset: IntScalar) {
+            calcForumPosts(
+                query: [{ where: { class_id: $class_id } }]
+                limit: $limit
+                offset: $offset
+                orderBy: [{ path: ["created_at"], type: desc }]
+            ) {
+                Author_Profile_Image: field(arg: ["Author", "profile_image"])
+                Author_First_Name: field(arg: ["Author", "first_name"])
+                Author_Last_Name: field(arg: ["Author", "last_name"])
+                Date_Added: field(arg: ["created_at"])
+                Post_Copy: field(arg: ["post_copy"])
+                Post_Image: field(arg: ["post_image"])
+                Author_ID: field(arg: ["author_id"])
+                File: field(arg: ["file"])
+                ID: field(arg: ["id"])
+                ClassID: field(arg: ["Class", "id"])
+                Author_Is_Instructor: field(arg: ["Author", "is_instructor"])
+                ForumCommentsTotalCount: countDistinct(args: [{ field: ["ForumComments", "id"] }])
+                Author_Is_Admin: field(arg: ["Author", "is_admin"])
+            }
+        }
+        `;
         const variables = {
             class_id: Number(currentClassID),
             limit: limit,
             offset: offset
         };
-
         const httpRequestOptions = {
             method: "POST",
             headers: {
@@ -2428,25 +2367,23 @@ Author_Display_Name: field(
             },
             body: JSON.stringify({ query: graphqlQuery, variables: variables })
         };
-
         try {
             const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
             const responseData = await httpResponse.json();
-
             if (responseData.errors) {
                 console.error("GraphQL Errors (fetchForumPosts):", responseData.errors);
                 return [];
             } else {
-                const posts = responseData.data.calcForumPosts || [];
-
-                // Update offset properly to get the next batch of posts
                 offset += limit;
-
-                return posts;
+                return responseData.data.calcForumPosts || [];
             }
         } catch (error) {
             console.error("Error while fetching forum posts:", error);
             return [];
+        } finally {
+            setTimeout(() => {
+                loadingThePosts = false;
+            }, cooldownTime);
         }
     };
 }
