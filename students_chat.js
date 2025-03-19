@@ -93,7 +93,7 @@ function templateForForumPost(
     let objectFromPostFile, fileStringPreview;
     let formattedDate = convertToElapsedTime(date);
 
-    let isShowTripleDot = authorID === visitorContactID;
+    let isShowTripleDot = authorID == visitorContactID;
     let showCommentsCount = ForumCommentsTotalCount > 0;
 
     if (postFile) {
@@ -154,7 +154,7 @@ ${isAuthorAnAdmin
 <div
 class="optionsContainerPosts absolute top-full right-0 bg-[#fff] p-3 flex flex-col text-extraSmallText text-dark w-max shadow-[0px_3px_8px_0px_#00000029]
 opacity-0 pointer-events-none">
-<!-- 'Edit' is hidden by default; shown only if you want to allow editing in future -->
+
 <div
 class="hover:bg-[#ebf6f6] p-2 cursor-pointer edit-post-btn hidden"
 @click="isEditModalExpanded = !isEditModalExpanded">
