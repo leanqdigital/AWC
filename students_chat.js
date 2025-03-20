@@ -1258,7 +1258,7 @@ function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
     }
     let globalTribute = null;
     let mentionArrays = {};
-    async function fetchContactsAndInitializeTribute(currentClassID) {
+    async function fetchContactsAndInitializeTribute(classId) {
         const combinedQueryForAdminTeacherAndStudents = `
     query calcContacts($class_id: AwcClassID, $id: AwcClassID) {
       calcContacts(
