@@ -1300,7 +1300,10 @@ function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
                 console.error("Invalid response structure:", result);
                 return;
             }
-            const finalContacts = result.data.calcContacts.map(contact => {
+           // const finalContacts = result.data.calcContacts.map(contact => {
+            const finalContacts = result.data.calcContacts
+    .filter(contact => contact.Display_Name) 
+    .map(contact => {
                 let userType = "(Student)";
                 if (contact.Is_Admin) {
                     userType = "(Admin)";
@@ -1314,6 +1317,7 @@ function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
                 };
             });
             globalTribute = new Tribute({
+                
                 values: finalContacts,
                 menuItemTemplate: function (item) {
                     return `
@@ -1326,6 +1330,8 @@ function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
                 selectTemplate: function (item) {
                     return `<span class="mention-handle label bg-[#C7E6E6] py-1 px-2 rounded text-dark small-text" data-mention-id="${item.original.value}">@${item.original.key}</span>`;
                 }
+
+                
             });
             document.querySelectorAll(".mentionable").forEach(el => {
                 globalTribute.attach(el);
