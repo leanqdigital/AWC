@@ -1334,7 +1334,7 @@ function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
             console.error("Error fetching contacts:", e);
         }
     }
-    fetchContactsAndInitializeTribute(uniquePageId);
+    fetchContactsAndInitializeTribute(classId);
 
 function handleRepliesCount(el) {
 
