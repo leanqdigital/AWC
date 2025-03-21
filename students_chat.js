@@ -2276,7 +2276,7 @@ function createPostsFetcher() {
     let limit = 3, offset = 0;
     let loadingThePosts = false;
     let lastFetchedTime = 0;
-    const cooldownTime = 5000; 
+    const cooldownTime = 500; 
     return async function fetchForumPosts() {
         const now = Date.now();
         if (loadingThePosts || now - lastFetchedTime < cooldownTime) {
