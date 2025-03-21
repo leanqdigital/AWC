@@ -2272,19 +2272,94 @@ deleteForumComment(query: [{ where: { id: $id } }]) {
 
 
 
-function createPostsFetcher() {
-    let limit = 3, offset = 0;
-    let loadingThePosts = false;
-    let lastFetchedTime = 0;
-    const cooldownTime = 5000; 
-    return async function fetchForumPosts() {
-        const now = Date.now();
-        if (loadingThePosts || now - lastFetchedTime < cooldownTime) {
-            return [];
-        }
-        loadingThePosts = true;
-        lastFetchedTime = now;
-        const graphqlQuery = `
+// function createPostsFetcher() {
+//     let limit = 3, offset = 0;
+//     let loadingThePosts = false;
+//     let lastFetchedTime = 0;
+//     const cooldownTime = 5000; 
+//     return async function fetchForumPosts() {
+//         const now = Date.now();
+//         if (loadingThePosts || now - lastFetchedTime < cooldownTime) {
+//             return [];
+//         }
+//         loadingThePosts = true;
+//         lastFetchedTime = now;
+//         const graphqlQuery = `
+//         query calcForumPosts($class_id: AwcClassID, $limit: IntScalar, $offset: IntScalar) {
+//             calcForumPosts(
+//                 query: [{ where: { class_id: $class_id } }]
+//                 limit: $limit
+//                 offset: $offset
+//                 orderBy: [{ path: ["created_at"], type: desc }]
+//             ) {
+//                 Author_Profile_Image: field(arg: ["Author", "profile_image"])
+//                 Author_Display_Name: field(arg: ["Author", "display_name"])
+//                 Date_Added: field(arg: ["created_at"])
+//                 Post_Copy: field(arg: ["post_copy"])
+//                 Post_Image: field(arg: ["post_image"])
+//                 Author_ID: field(arg: ["author_id"])
+//                 File: field(arg: ["file"])
+//                 ID: field(arg: ["id"])
+//                 ClassID: field(arg: ["Class", "id"])
+//                 Author_Is_Instructor: field(arg: ["Author", "is_instructor"])
+//                 ForumCommentsTotalCount: countDistinct(args: [{ field: ["ForumComments", "id"] }])
+//                 Author_Is_Admin: field(arg: ["Author", "is_admin"])
+//             }
+//         }`;
+
+//         const variables = {
+//             class_id: Number(currentClassID),
+//             limit: limit,
+//             offset: offset
+//         };
+
+//         const httpRequestOptions = {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json",
+//                 "Api-Key": apiAccessKey
+//             },
+//             body: JSON.stringify({ query: graphqlQuery, variables: variables })
+//         };
+
+//         try {
+//             const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
+//             const responseData = await httpResponse.json();
+
+//             if (responseData.errors) {
+//                 console.error("GraphQL Errors (fetchForumPosts):", responseData.errors);
+//                 return [];
+//             } else {
+//                 offset += limit;
+//                 return responseData.data.calcForumPosts || [];
+//             }
+//         } catch (error) {
+//             console.error("Error while fetching forum posts:", error);
+//             return [];
+//         } finally {
+          
+//             setTimeout(() => {
+//                 loadingThePosts = false;
+//             }, cooldownTime);
+//         }
+//     };
+// }
+
+
+  function createPostsFetcher() {
+        let limit = 3, offset = 0;
+        let loadingThePosts = false;
+        let lastFetchedTime = 0;
+        const cooldownTime = 5000;
+        let runningForFirstTime = true;
+        return async function fetchForumPosts() {
+            const now = Date.now();
+            if (loadingThePosts || now - lastFetchedTime < cooldownTime) {
+                return [];
+            }
+            loadingThePosts = true;
+            lastFetchedTime = now;
+            const graphqlQuery = `
         query calcForumPosts($class_id: AwcClassID, $limit: IntScalar, $offset: IntScalar) {
             calcForumPosts(
                 query: [{ where: { class_id: $class_id } }]
@@ -2307,43 +2382,52 @@ function createPostsFetcher() {
             }
         }`;
 
-        const variables = {
-            class_id: Number(currentClassID),
-            limit: limit,
-            offset: offset
-        };
+            const variables = {
+                class_id: Number(currentClassID),
+                limit: limit,
+                offset: offset
+            };
 
-        const httpRequestOptions = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
-            },
-            body: JSON.stringify({ query: graphqlQuery, variables: variables })
-        };
+            const httpRequestOptions = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
+                },
+                body: JSON.stringify({ query: graphqlQuery, variables: variables })
+            };
 
-        try {
-            const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
-            const responseData = await httpResponse.json();
+            try {
+                const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
+                const responseData = await httpResponse.json();
 
-            if (responseData.errors) {
-                console.error("GraphQL Errors (fetchForumPosts):", responseData.errors);
+                if (runningForFirstTime) {
+                    if (responseData.data.calcForumPosts.length == 0) {
+                        document.querySelector(".noPostsContainer").classList.remove('hidden');
+                        runningForFirstTime = false;
+                    }
+                }
+
+
+
+                if (responseData.errors) {
+                    console.error("GraphQL Errors (fetchForumPosts):", responseData.errors);
+                    return [];
+                } else {
+                    offset += limit;
+                    return responseData.data.calcForumPosts || [];
+                }
+            } catch (error) {
+                console.error("Error while fetching forum posts:", error);
                 return [];
-            } else {
-                offset += limit;
-                return responseData.data.calcForumPosts || [];
+            } finally {
+
+                setTimeout(() => {
+                    loadingThePosts = false;
+                }, cooldownTime);
             }
-        } catch (error) {
-            console.error("Error while fetching forum posts:", error);
-            return [];
-        } finally {
-          
-            setTimeout(() => {
-                loadingThePosts = false;
-            }, cooldownTime);
-        }
-    };
-}
+        };
+    }
 
 
 function renderForumPosts(posts) {
