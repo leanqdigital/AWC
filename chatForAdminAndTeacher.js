@@ -3030,6 +3030,7 @@ async function attachAllListenerFns() {
                 Mentions: mentionIDs.map((id) => ({ id: Number(id) }))
             });
             if (result) {
+                document.querySelector(".noPostsContainer").classList.remove("hidden");
                 document.getElementById("showContainerForAllFiles").innerHTML = "";
                 document.getElementById("replaceFileContainer").classList.add("hidden");
                 document.getElementById("deleteFileContainer").classList.add("hidden");
