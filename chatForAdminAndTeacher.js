@@ -2403,6 +2403,7 @@ deleteForumComment(query: [{ where: { id: $id } }]) {
 
                 if (runningForFirstTime) {
                     if (responseData.data.calcForumPosts.length == 0) {
+                        console.log("This is being executed the first time. checking first time if response length is zero.")
                         document.querySelector(".noPostsContainer").classList.remove('hidden');
                         runningForFirstTime = false;
                     }
