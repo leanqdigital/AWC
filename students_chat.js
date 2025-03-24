@@ -845,7 +845,7 @@ async function uploadCommentWithFile(element) {
     const manualData = [{
         ID: `${Date.now()}`,
        // Author_Display_Name: contactDisplayName  || "Anonymous",
-        const authorName = contactDisplayName || ((contactFirstName || contactLastName)  ? `${contactFirstName ?? ''} ${contactLastName ?? ''}`.trim() : "Anonymous");
+        Author_Display_Name: contactDisplayName || ((contactFirstName || contactLastName)  ? `${contactFirstName ?? ''} ${contactLastName ?? ''}`.trim() : "Anonymous"),
         Comment: commentText,
         Date_Added: Math.floor(Date.now() / 1000),
         Author_Profile_Image: visitorProfilePicture,
