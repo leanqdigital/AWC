@@ -77,6 +77,7 @@ async function initializeSocket() {
                             author_id: LOGGED_IN_CONTACT_ID,
                             id: LOGGED_IN_CONTACT_ID,
                             class_id: classId,
+                            created_at: createdAt,
                         },
                     },
                 })
