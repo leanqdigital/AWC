@@ -408,7 +408,8 @@
                           ]
                       ) {
                           ID: field(arg: ["id"])
-                          Author_ID: field(arg: ["author_id"])
+                          Author_ID: field(arg: ["author_id"]) 
+                           Author_Display_Name: field(arg: ["Author", "display_name"]) 
                           Author_First_Name: field(arg: ["Author", "first_name"])
                           Author_Last_Name: field(arg: ["Author", "last_name"])
                           Author_Profile_Image: field(arg: ["Author", "profile_image"])
