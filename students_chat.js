@@ -694,8 +694,6 @@ async function uploadRepliesWithFile($el) {
     }
     const replyData = {
         Author_Display_Name: contactDisplayName,
-        Author_First_Name:contactFirstName,
-        Author_Last_Name : contactLastName,
         Comment: commentText,
         Date_Added: Math.floor(Date.now() / 1000),
         ID: `${Date.now()}`,
