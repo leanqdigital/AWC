@@ -157,9 +157,9 @@ function createNotificationCard(notification, isRead) {
             <div class="text-[#414042] text-xs font-semibold">${
               notification.Title
             }</div>
-            <div class="extra-small-text text-dark line-clamp-2">“${
+            <div class="extra-small-text text-dark line-clamp-2">${
               notification.Content
-            }”-(${notification.Class_Class_Name})</div>
+            }</div>
             <div class="text-[#586A80] extra-small-text">${
               notification.Course_Course_Name
             }</div>
