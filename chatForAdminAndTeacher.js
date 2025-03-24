@@ -101,18 +101,8 @@ function templateForForumPost(
         fileStringPreview = generateFilePreview(objectFromPostFile);
     }
     return `
-<div author-ID="${authorID}"
-current-post-ID="${actualPostID}"
-x-data="{
-showComments: ${hasRealID ? true : false},
-isShowTripleDot: ${isShowTripleDot},
-showCommentsCount: ${showCommentsCount},
-init() {
-if (${hasRealID}) {
-renderCommentsForPost(${numericPostID});
-}
-}
-}"
+<div author-ID="${authorID}" 
+current-post-ID="${actualPostID}" x-data="{ showComments: ${hasRealID ? true : false}, isShowTripleDot: ${isShowTripleDot}, showCommentsCount: ${showCommentsCount}, init() { if (${hasRealID}) { renderCommentsForPost(${numericPostID}); } } }"
 class="bg-[#fff] rounded-[4px] w-full flex flex-col gap-y-3 p-4 forum-post serif border border-[#F2F2F2]">
 
 <!-- Top row: Profile area & triple-dot menu -->
