@@ -681,6 +681,7 @@
         const tempReply = {
             ID: `temp_${Date.now()}`,
             Author_First_Name: LOGGED_IN_USER_FIRST_NAME,
+             Author_Display_Name: LOGGED_IN_USER_Display_NAME,
             Author_Last_Name: LOGGED_IN_USER_LAST_NAME,
             Author_Profile_Image: formatProfileImage(LOGGED_IN_USER_IMAGE),
             Comment: comment,
