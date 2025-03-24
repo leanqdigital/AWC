@@ -694,6 +694,8 @@ async function uploadRepliesWithFile($el) {
     }
     const replyData = {
         Author_Display_Name: contactDisplayName,
+        Author_First_Name:contactFirstName,
+        Author_Last_Name : contactLastName,
         Comment: commentText,
         Date_Added: Math.floor(Date.now() / 1000),
         ID: `${Date.now()}`,
@@ -842,7 +844,8 @@ async function uploadCommentWithFile(element) {
     const commentContainerElem = thisPost.querySelector("#allCommentsForPostContainer");
     const manualData = [{
         ID: `${Date.now()}`,
-        Author_Display_Name: contactDisplayName  || "Anonymous",
+       // Author_Display_Name: contactDisplayName  || "Anonymous",
+        const authorName = contactDisplayName || ((contactFirstName || contactLastName)  ? `${contactFirstName ?? ''} ${contactLastName ?? ''}`.trim() : "Anonymous");
         Comment: commentText,
         Date_Added: Math.floor(Date.now() / 1000),
         Author_Profile_Image: visitorProfilePicture,
@@ -2293,7 +2296,9 @@ function createPostsFetcher() {
                 orderBy: [{ path: ["created_at"], type: desc }]
             ) {
                 Author_Profile_Image: field(arg: ["Author", "profile_image"])
-                Author_Display_Name: field(arg: ["Author", "display_name"])
+                Author_Display_Name: field(arg: ["Author", "display_name"]) 
+                Author_Last_Name: field(arg: ["Author", "last_name"]) 
+                Author_First_Name: field(arg: ["Author", "first_name"]) 
                 Date_Added: field(arg: ["created_at"])
                 Post_Copy: field(arg: ["post_copy"])
                 Post_Image: field(arg: ["post_image"])
@@ -2360,7 +2365,8 @@ function renderForumPosts(posts) {
             : "N/A";
 
         const profileImage = post.Author_Profile_Image || "";
-        const authorFullName = post.Author_Display_Name || "Anoynomous";
+        //const authorFullName = post.Author_Display_Name || "Anoynomous";
+        const authorFullName = post.Author_Display_Name  || ((post.Author_First_Name || post.Author_Last_Name)  ? `${post.Author_First_Name ?? ''} ${post.Author_Last_Name ?? ''}`.trim()  : "Anonymous");
         const postContent = post.Post_Copy || "N/A";
         const authorId = post.Author_ID;
         const actualPostID = post.ID;
@@ -2426,9 +2432,9 @@ calcForumComments(
 ) {
  File: field(arg: ["file"]) 
  Author_ID: field(arg: ["author_id"]) 
-   Author_Display_Name: field(
-    arg: ["Author", "display_name"]
-     )
+ Author_Display_Name: field(arg: ["Author", "display_name"]) 
+ Author_Last_Name: field(arg: ["Author", "last_name"])
+ Author_First_Name: field(arg: ["Author", "first_name"])
  Author_Profile_Image: field(arg: ["Author", "profile_image"]) 
  Date_Added: field(arg: ["created_at"]) 
  Comment: field(arg: ["comment"]) 
@@ -2919,7 +2925,7 @@ async function attachAllListenerFns() {
                     0,
                     isContactAdmin === "No" ? false : true,
 
-                );;
+                );
             }
 
             const toBeAddedUpTemplate = newDiv.firstElementChild;
