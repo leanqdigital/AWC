@@ -138,7 +138,7 @@ card.innerHTML = `
     <div data-my-id ="${notification.ID} "class="p-2  items-start gap-2 rounded justify-between notification-content w-full ${isRead ? "bg-white" : "bg-unread"} ${notification.Status==="Draft" ? "hidden":"flex" }">
         <div class="flex flex-col gap-1">
             <div class="text-[#414042] text-xs font-semibold">${notification.Title}</div>
-            <div class="extra-small-text text-dark line-clamp-2">“${notification.Content}”-(${notification.Class_Class_Name})</div>
+            <div class="extra-small-text text-dark line-clamp-2">${notification.Content}</div>
             <div class="text-[#586A80] extra-small-text">${notification.Course_Course_Name}</div>
         </div>
         <div class="extra-small-text text-[#586A80] text-nowrap">${timeAgo(notification.Date_Added)}</div>
