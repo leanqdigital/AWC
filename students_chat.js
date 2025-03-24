@@ -2659,6 +2659,8 @@ calcForumComments(
  Author_Display_Name: field(
  arg: ["Author", "display_name"]
 )
+Author_Last_Name: field(arg: ["Author", "last_name"])
+    Author_First_Name: field(arg: ["Author", "first_name"])
  Author_Profile_Image: field(arg: ["Author", "profile_image"])
  Comment: field(arg: ["comment"])
  Date_Added: field(arg: ["created_at"])
