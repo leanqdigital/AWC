@@ -243,6 +243,24 @@
                     replyUserVotesMap[reply.ID] && replyUserVotesMap[reply.ID].length > 0;
                 reply.voteCount = window.replyVoteCountMap[reply.ID] || 0;
                 renderReply(a.ID, reply);
+
+
+
+// Newly added for nested replies
+
+
+                const nestedReplies = await fetchRepliesForAnnouncement(reply.ID);
+    nestedReplies.forEach((nestedReply) => {
+        nestedReply.Date_Added = formatDateTimeFromUnix(nestedReply.Date_Added);
+        nestedReply.Author_Profile_Image = formatProfileImage(nestedReply.Author_Profile_Image);
+        nestedReply.isOwner = String(nestedReply.Author_ID) === String(LOGGED_IN_USER_ID);
+        nestedReply.hasVoted = replyUserVotesMap[nestedReply.ID] && replyUserVotesMap[nestedReply.ID].length > 0;
+        nestedReply.voteCount = window.replyVoteCountMap[nestedReply.ID] || 0;
+
+        renderRepliesOfReply(reply.ID, nestedReply);
+
+
+                
             });
         }
     }
@@ -500,6 +518,42 @@
         }
 
         const template = $.templates("#replyTemplateAnnouncement");
+        const replyHTML = template.render(reply);
+
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = replyHTML;
+        repliesContainer.appendChild(tempDiv.firstElementChild);
+
+        // ** Fix: Ensure correct vote count is displayed **
+        const voteButton = tempDiv.querySelector(".replyVoteButton");
+        if (voteButton) {
+            const replyId = reply.ID;
+            const voteCounter = voteButton.querySelector(".replyVoteCounter");
+        }
+
+        await initializeReplyVotes();
+    }
+
+
+
+
+        // Newly added
+         //===== RENDER REPLY FUNCTION =====//
+    async function renderRepliesOfReply(announcementID, reply) {
+        const announcementEl = document.querySelector(
+            `[data-reply-id="${announcementID}"]`
+        );
+        if (!announcementEl) return;
+
+        let repliesContainer = announcementEl.querySelector(".repliesOfReplyContainer");
+        if (!repliesContainer) {
+            repliesContainer = document.createElement("div");
+            repliesContainer.className =
+                "repliesOfReplyContainer w-full flex flex-col gap-4";
+            announcementEl.appendChild(repliesContainer);
+        }
+
+        const template = $.templates("#repliesOfReplyTemplateAnnouncement");
         const replyHTML = template.render(reply);
 
         const tempDiv = document.createElement("div");
