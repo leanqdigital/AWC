@@ -668,7 +668,7 @@
 
         const form = e.target;
         const replyInput = form.querySelector(".replyContent");
-        const comment = replyInput.value.trim();
+        const comment = replyInput.innerHTML.trim();
         if (!comment) return;
 
         const announcementID = form.closest("[data-announcement-template-id]").getAttribute("data-announcement-template-id");
