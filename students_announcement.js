@@ -462,6 +462,8 @@
             Mentions
         };
 
+        console.log("the payload is:", payload);
+
         try {
             const response = await fetch(apiUrl, {
                 method: "POST",
