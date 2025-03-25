@@ -448,6 +448,9 @@
                       author_id
                       comment
                       parent_announcement_id
+                          Mentions {
+                                    id
+                    }
                   }
               }
           `;
