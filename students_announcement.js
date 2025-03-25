@@ -706,6 +706,7 @@
             const createdReply = await createReplyAnnouncement(announcementID, comment, allMentionsPayload);
             if (createdReply) {
                 const replies = await fetchRepliesForAnnouncement(announcementID);
+                console.log("This runs after announcement has been created");
                 const announcementEl = document.querySelector(
                     `[data-announcement-template-id="${announcementID}"]`
                 );
