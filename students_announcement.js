@@ -842,7 +842,7 @@ async function renderAnnouncements(announcements) {
             isOwner: true,
         };
         renderReply(announcementID, tempReply);
-
+        
         try {
             const createdReply = await createReplyAnnouncement(announcementID, comment, allMentionsPayload);
             if (createdReply) {
@@ -868,6 +868,7 @@ async function renderAnnouncements(announcements) {
                     );
                     reply.isOwner = String(reply.Author_ID) === String(LOGGED_IN_USER_ID);
                     renderReply(announcementID, reply);
+                    renderRepliesOfReply(announcementID, reply);
                 });
             }
         } catch (error) {
