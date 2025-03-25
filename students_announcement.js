@@ -458,7 +458,7 @@
             comment,
             author_id: LOGGED_IN_USER_ID,
             parent_announcement_id: announcementID,
-            mentions
+            Mentions
         };
 
         try {
