@@ -455,11 +455,12 @@
                   }
               }
           `;
+        console.log(*)
         const payload = {
             comment,
             author_id: LOGGED_IN_USER_ID,
             parent_announcement_id: announcementID,
-            Mentions
+            Mentions:mentions
         };
 
         console.log("the payload is:", payload);
