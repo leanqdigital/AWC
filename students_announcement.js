@@ -454,7 +454,6 @@
                   }
               }
           `;
-        console.log('*');
         const payload = {
             comment,
             author_id: LOGGED_IN_USER_ID,
@@ -462,7 +461,6 @@
             Mentions:mentions
         };
 
-        console.log("the payload is:", payload);
 
         try {
             const response = await fetch(apiUrl, {
@@ -471,7 +469,6 @@
                 body: JSON.stringify({ query, variables: { payload } }),
             });
             const data = await response.json();
-            console.log("The data that has come up here:", data);
             return data?.data?.createForumComment || null;
         } catch (error) {
             return null;
@@ -682,7 +679,6 @@
         const replyInput = form.querySelector(".replyContent");
         const comment = replyInput.innerHTML.trim();
         const allMentionsPayload = gatherMentionsFromElementt(replyInput);
-        console.log("All mentions payload is:", allMentionsPayload);
         if (!comment) return;
 
         const announcementID = form.closest("[data-announcement-template-id]").getAttribute("data-announcement-template-id");
@@ -708,7 +704,6 @@
             const createdReply = await createReplyAnnouncement(announcementID, comment, allMentionsPayload);
             if (createdReply) {
                 const replies = await fetchRepliesForAnnouncement(announcementID);
-                console.log("This runs after announcement has been created");
                 const announcementEl = document.querySelector(
                     `[data-announcement-template-id="${announcementID}"]`
                 );
