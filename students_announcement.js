@@ -469,6 +469,7 @@
                 body: JSON.stringify({ query, variables: { payload } }),
             });
             const data = await response.json();
+            console.log("The data that has come up here:", data);
             return data?.data?.createForumComment || null;
         } catch (error) {
             return null;
