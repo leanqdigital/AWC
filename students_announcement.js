@@ -233,7 +233,8 @@
                 announcementEl.appendChild(repliesContainer);
             }
             repliesContainer.innerHTML = "";
-            replies.forEach((reply) => {
+            // replies.forEach((reply) => {
+            replies.forEach(async (reply) => {
                 reply.Date_Added = formatDateTimeFromUnix(reply.Date_Added);
                 reply.Author_Profile_Image = formatProfileImage(
                     reply.Author_Profile_Image
@@ -248,16 +249,15 @@
 
 // Newly added for nested replies
 
-
-                const nestedReplies = await fetchRepliesForAnnouncement(reply.ID);
-    nestedReplies.forEach((nestedReply) => {
-        nestedReply.Date_Added = formatDateTimeFromUnix(nestedReply.Date_Added);
-        nestedReply.Author_Profile_Image = formatProfileImage(nestedReply.Author_Profile_Image);
-        nestedReply.isOwner = String(nestedReply.Author_ID) === String(LOGGED_IN_USER_ID);
-        nestedReply.hasVoted = replyUserVotesMap[nestedReply.ID] && replyUserVotesMap[nestedReply.ID].length > 0;
-        nestedReply.voteCount = window.replyVoteCountMap[nestedReply.ID] || 0;
-
-        renderRepliesOfReply(reply.ID, nestedReply);
+                    const nestedReplies = await fetchRepliesForAnnouncement(reply.ID);
+                    nestedReplies.forEach((nestedReply) => {
+                    nestedReply.Date_Added = formatDateTimeFromUnix(nestedReply.Date_Added);
+                    nestedReply.Author_Profile_Image = formatProfileImage(nestedReply.Author_Profile_Image);
+                    nestedReply.isOwner = String(nestedReply.Author_ID) === String(LOGGED_IN_USER_ID);
+                    nestedReply.hasVoted = replyUserVotesMap[nestedReply.ID] && replyUserVotesMap[nestedReply.ID].length > 0;
+                    nestedReply.voteCount = window.replyVoteCountMap[nestedReply.ID] || 0;
+            
+                    renderRepliesOfReply(reply.ID, nestedReply);
 
 
                 
