@@ -440,7 +440,7 @@
     }
 
     //===== CREATE REPLY FUNCTION =====//
-    async function createReplyAnnouncement(announcementID, comment) {
+    async function createReplyAnnouncement(announcementID, comment, mentions) {
         const query = `
               mutation createForumComment($payload: ForumCommentCreateInput = null) {
                   createForumComment(payload: $payload) {
@@ -458,6 +458,7 @@
             comment,
             author_id: LOGGED_IN_USER_ID,
             parent_announcement_id: announcementID,
+            mentions
         };
 
         try {
@@ -676,6 +677,8 @@
         const form = e.target;
         const replyInput = form.querySelector(".replyContent");
         const comment = replyInput.innerHTML.trim();
+        const allMentionsPayload = gatherMentionsFromElementt(replyInput);
+        console.log("All mentions payload is:", allMentionsPayload);
         if (!comment) return;
 
         const announcementID = form.closest("[data-announcement-template-id]").getAttribute("data-announcement-template-id");
@@ -698,7 +701,7 @@
         renderReply(announcementID, tempReply);
 
         try {
-            const createdReply = await createReplyAnnouncement(announcementID, comment);
+            const createdReply = await createReplyAnnouncement(announcementID, comment, allMentionsPayload);
             if (createdReply) {
                 const replies = await fetchRepliesForAnnouncement(announcementID);
                 const announcementEl = document.querySelector(
