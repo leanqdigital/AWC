@@ -246,7 +246,7 @@ fill="#007C8F"
 
 <!-- The 'Add Comment' box, typically shown after user hits "Comment" or toggles it -->
 <div id="commentBox_${actualPostID}" 
-class=" border border-[#bbbcbb] rounded-[4px] bg-[#fff] comment-box hover:border-[#007c8f] active:border-[#007c8f]  duration-300  p-3 flex flex-col gap-y-3 hidden"
+class=" border border-[#bbbcbb] rounded-[4px] bg-[#fff] comment-box hover:border-[#007c8f] focus-within:border-[#007c8f]  duration-300  p-3 flex flex-col gap-y-3 hidden"
 >
 <div class="mentionable comment-editor min-h-[60px] " contenteditable="true"></div>
 <div previewContainerForFiles class="hidden"> </div>
