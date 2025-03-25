@@ -441,7 +441,6 @@
 
     //===== CREATE REPLY FUNCTION =====//
     async function createReplyAnnouncement(announcementID, comment, mentions) {
-        console.log("create reply announcement running");
         const query = `
               mutation createForumComment($payload: ForumCommentCreateInput = null) {
                   createForumComment(payload: $payload) {
@@ -455,7 +454,7 @@
                   }
               }
           `;
-        console.log(*)
+        console.log('*');
         const payload = {
             comment,
             author_id: LOGGED_IN_USER_ID,
