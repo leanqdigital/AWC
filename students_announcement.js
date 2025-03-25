@@ -166,111 +166,6 @@
     }
 
 //     //============ RENDER ANNOUNCEMENTS ======================//
-//     async function renderAnnouncements(announcements) {
-//         // First, format announcement properties.
-//         await initializeUserVotes();
-//         announcements.forEach((a) => {
-//             if (a.Attachment) {
-//                 a.Instructor_Profile_Image = formatProfileImage(
-//                     a.Instructor_Profile_Image
-//                 );
-//                 a.hasVoted = userVotesMap[a.ID] && userVotesMap[a.ID].length > 0;
-//                 a.voteCount = window.voteCountMap[a.ID] || 0;
-//                 try {
-//                     a.attachmentObject = typeof a.Attachment === 'object'
-//                         ? a.Attachment
-//                         : JSON.parse(a.Attachment);
-//                 } catch (e) {
-//                     // If parsing fails, use the raw value as the link and a default name.
-//                     a.attachmentObject = { link: a.Attachment, name: 'View File' };
-//                 }
-//             } else {
-//                 a.attachmentObject = {};
-//             }
-//             a.Date_Added = formatDateTimeFromUnix(a.Date_Added);
-//             a.Post_Later_Date_Time = a.Post_Later_Date_Time
-//                 ? formatUnixTimestamp(a.Post_Later_Date_Time)
-//                 : "";
-//             a.Instructor_Profile_Image = formatProfileImage(
-//                 a.Instructor_Profile_Image
-//             );
-//             a.isOwner = String(a.Instructor_ID) === String(LOGGED_IN_USER_ID);
-//             a.hasVoted = userVotesMap[a.ID] && userVotesMap[a.ID].length > 0;
-//             a.voteCount = window.voteCountMap[a.ID] || 0;
-//         });
-//         const filteredAnnouncements = announcements.filter(
-//             (a) =>
-//                 a.Status === "Published" ||
-//                 String(a.Instructor_ID) === String(LOGGED_IN_USER_ID)
-//         );
-//         if (filteredAnnouncements.length === 0) {
-//             $("#announcementWrapper").html(`
-//           <div class="no-announcements-message text-center p-4">
-//             <img src="https://files.ontraport.com/media/b8d3dce261494ac7aa221272e345d9d0.php4gxupm?Expires=4895379185&Signature=Z5usQNuPkbcpJElvMSyxEwpvyQrTPkmUuAPqz32DV8GFwg8IBgYiUBya2xr~fUA775bPsPMBPioe9-7HJtyGVKwrnu3XU3I4MU-L0MhQli84rt1tfZnMd2VQh754zY5IxeS~s5bzKdKQA~X-j4TFdoM1n~mlJrdNVKcgNg6uTv3yKsHNjNcwcJXt6pJHFHk7agtRgAkOzugjFrmwFp~XwjDjN8AsuiWoy8P5vvlwMjUYIXy4Zzg7LHXWZ4fpSy1ur8z8ETI0mWpoNkinNAoJarKcMCDaQ-SUrXe7AxeKww0d~aSdd9SXbKpy1h5LBIgEzI5LEV27EhI1r2qzJpXTQw__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA">
-//           </div>
-//         `);
-//             return;
-//         }
-//         const template = $.templates("#announcementTemplate");
-//         $("#announcementWrapper").html(template.render(filteredAnnouncements));
-//         filteredAnnouncements.forEach((a) => {
-//             const voteCounter = document.querySelector(`#vote-${a.ID} .voteCounter`);
-//             if (voteCounter) {
-//                 voteCounter.textContent = a.voteCount;
-//             }
-//         });
-//         for (const a of filteredAnnouncements) {
-//             const replies = await fetchRepliesForAnnouncement(a.ID);
-//             const announcementEl = document.querySelector(
-//                 `[data-announcement-template-id="${a.ID}"]`
-//             );
-//             let repliesContainer = announcementEl.querySelector(".repliesContainer");
-//             // Create the replies container if it doesn't exist
-//             if (!repliesContainer) {
-//                 repliesContainer = document.createElement("div");
-//                 repliesContainer.className =
-//                     "repliesContainer w-full flex flex-col gap-4";
-//                 announcementEl.appendChild(repliesContainer);
-//             }
-//             repliesContainer.innerHTML = "";
-//         //     replies.forEach((reply) => {
-//         //         reply.Date_Added = formatDateTimeFromUnix(reply.Date_Added);
-//         //         reply.Author_Profile_Image = formatProfileImage(
-//         //             reply.Author_Profile_Image
-//         //         );
-//         //         reply.isOwner = String(reply.Author_ID) === String(LOGGED_IN_USER_ID);
-//         //         reply.hasVoted =
-//         //             replyUserVotesMap[reply.ID] && replyUserVotesMap[reply.ID].length > 0;
-//         //         reply.voteCount = window.replyVoteCountMap[reply.ID] || 0;
-//         //         renderReply(a.ID, reply);
-//         // }
-
-//             replies.forEach(async (reply) => {
-//     reply.Date_Added = formatDateTimeFromUnix(reply.Date_Added);
-//     reply.Author_Profile_Image = formatProfileImage(reply.Author_Profile_Image);
-//     reply.isOwner = String(reply.Author_ID) === String(LOGGED_IN_USER_ID);
-//     reply.hasVoted = replyUserVotesMap[reply.ID] && replyUserVotesMap[reply.ID].length > 0;
-//     reply.voteCount = window.replyVoteCountMap[reply.ID] || 0;
-    
-//     renderReply(a.ID, reply);
-
-//     // 🔁 Fetch replies to this reply (nested replies)
-//     const nestedReplies = await fetchRepliesForAnnouncement(reply.ID);
-
-//     nestedReplies.forEach((nestedReply) => {
-//         nestedReply.Date_Added = formatDateTimeFromUnix(nestedReply.Date_Added);
-//         nestedReply.Author_Profile_Image = formatProfileImage(nestedReply.Author_Profile_Image);
-//         nestedReply.isOwner = String(nestedReply.Author_ID) === String(LOGGED_IN_USER_ID);
-//         nestedReply.hasVoted = replyUserVotesMap[nestedReply.ID] && replyUserVotesMap[nestedReply.ID].length > 0;
-//         nestedReply.voteCount = window.replyVoteCountMap[nestedReply.ID] || 0;
-
-//         renderReply(reply.ID, nestedReply); // Attach to the parent reply
-//     });
-// });
-//         }
-//     }
-
-
 async function renderAnnouncements(announcements) {
     await initializeUserVotes();
     announcements.forEach((a) => {
@@ -347,7 +242,6 @@ async function renderAnnouncements(announcements) {
                 nestedReply.isOwner = String(nestedReply.Author_ID) === String(LOGGED_IN_USER_ID);
                 nestedReply.hasVoted = replyUserVotesMap[nestedReply.ID] && replyUserVotesMap[nestedReply.ID].length > 0;
                 nestedReply.voteCount = window.replyVoteCountMap[nestedReply.ID] || 0;
-
                 renderRepliesOfReply(reply.ID, nestedReply);
             }
         }
@@ -859,17 +753,17 @@ async function renderAnnouncements(announcements) {
                         "repliesContainer w-full flex flex-col gap-4";
                     announcementEl.prepend(repliesContainer);
                 }
-
-                repliesContainer.innerHTML = "";
-                replies.forEach((reply) => {
-                    reply.Date_Added = formatDateTimeFromUnix(reply.Date_Added);
-                    reply.Author_Profile_Image = formatProfileImage(
-                        reply.Author_Profile_Image
-                    );
-                    reply.isOwner = String(reply.Author_ID) === String(LOGGED_IN_USER_ID);
-                    renderReply(announcementID, reply);
-                    renderRepliesOfReply(announcementID, reply);
-                });
+                renderAnnouncementOnTabClick();
+                // repliesContainer.innerHTML = "";
+                // replies.forEach((reply) => {
+                //     reply.Date_Added = formatDateTimeFromUnix(reply.Date_Added);
+                //     reply.Author_Profile_Image = formatProfileImage(
+                //         reply.Author_Profile_Image
+                //     );
+                //     reply.isOwner = String(reply.Author_ID) === String(LOGGED_IN_USER_ID);
+                //     renderReply(announcementID, reply);
+                //     renderRepliesOfReply(announcementID, reply);
+                // });
             }
         } catch (error) {
         } finally {
