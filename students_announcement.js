@@ -167,6 +167,12 @@
 
 //     //============ RENDER ANNOUNCEMENTS ======================//
 async function renderAnnouncements(announcements) {
+        $("#announcementWrapper").html(`
+        <div class="skeleton-container w-full">
+  <div class="skeleton-card skeleton-shimmer"></div>
+  <div class="skeleton-card skeleton-shimmer"></div>
+  <div class="skeleton-card skeleton-shimmer"></div>
+</div>`);
     await initializeUserVotes();
     announcements.forEach((a) => {
         if (a.Attachment) {
