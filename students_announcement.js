@@ -731,7 +731,7 @@
         } finally {
             submitButton.disabled = false;
             replyInput.disabled = false;
-            replyInput.value = "";
+            replyInput.innerHTML = "";
             form.style.opacity = "100%";
             form.style.pointerEvents = "";
         }
