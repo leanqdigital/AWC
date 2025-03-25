@@ -248,7 +248,7 @@ fill="#007C8F"
 <div id="commentBox_${actualPostID}" 
 class=" border border-[#bbbcbb] rounded-[4px] bg-[#fff] comment-box hover:border-[#007c8f] active:border-[#007c8f]  duration-300  p-3 flex flex-col gap-y-3 hidden"
 >
-<div class="mentionable comment-editor" contenteditable="true"></div>
+<div class="mentionable comment-editor min-h-[60px] " contenteditable="true"></div>
 <div previewContainerForFiles class="hidden"> </div>
 <div class=" flex items-center justify-end gap-2">
 <div class="outlineButton text-label flex gap-x-2 items-center cursor-pointer hidden" 
