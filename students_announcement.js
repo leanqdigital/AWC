@@ -262,7 +262,7 @@
 
                 
             });
-        }
+        });
     }
     
     //================ PREPEND ANNOUNCEMENT FUNCTION ==========//
