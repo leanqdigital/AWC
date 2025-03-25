@@ -160,6 +160,10 @@
             window.voteCountMap[annId] = uniqueVotes[annId].size;
         }
     }
+  function gatherMentionsFromElementt(el) {
+        const mentionEls = el.querySelectorAll(".mention-handle[data-mention-id]");
+        return [...mentionEls].map(m => ({ id: Number(m.getAttribute("data-mention-id")) }));
+    }
 
     //============ RENDER ANNOUNCEMENTS ======================//
     async function renderAnnouncements(announcements) {
