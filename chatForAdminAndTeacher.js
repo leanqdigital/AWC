@@ -407,7 +407,7 @@ fill="white" />
 <input x-model="currentTime" type="range" min="0" :max="duration" value="0" step="00.01" @input="seek()"
 class="w-full accent-gray-700  absolute top-1/2 left-0 -translate-y-1/2 bg-transparent cursor-pointer">
 </div>
-<div x-text="formattedRemainingTime" class="label text-[#007c8f]">-17:54</div>
+<div x-text="formattedRemainingTime" class="label text-[#007c8f] whitespace-nowrap">-17:54</div>
 <div @click="muteUnmuteSound()">
 <svg  x-bind:class=" volume==0?'hidden':'block'" width="24" height="24" viewBox="0 0 24 24" fill="none"
 xmlns="http://www.w3.org/2000/svg">
