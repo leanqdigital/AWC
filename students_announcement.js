@@ -133,37 +133,37 @@
     }
 
     // ========= INITIALIZE VOTES =========
-//     async function initializeUserVotes() {
-//         const votes = await fetchUserVotes();
-//         // Build a map for unique votes and the logged in user's vote records.
-//         const uniqueVotes = {};
-//         userVotesMap = {};
+    async function initializeUserVotes() {
+        const votes = await fetchUserVotes();
+        // Build a map for unique votes and the logged in user's vote records.
+        const uniqueVotes = {};
+        userVotesMap = {};
 
-//         votes.forEach((vote) => {
-//             const annId = vote.Announcement_ID;
-//             // Build a set of unique contact IDs per announcement.
-//             if (!uniqueVotes[annId]) {
-//                 uniqueVotes[annId] = new Set();
-//             }
-//             uniqueVotes[annId].add(vote.Contact_ID);
-//             // If the vote is from the logged-in user, store the vote ID.
-//             if (parseInt(vote.Contact_ID) === parseInt(LOGGED_IN_USER_ID)) {
-//                 if (!userVotesMap[annId]) {
-//                     userVotesMap[annId] = [];
-//                 }
-//                 userVotesMap[annId].push(vote.ID);
-//             }
-//         });
+        votes.forEach((vote) => {
+            const annId = vote.Announcement_ID;
+            // Build a set of unique contact IDs per announcement.
+            if (!uniqueVotes[annId]) {
+                uniqueVotes[annId] = new Set();
+            }
+            uniqueVotes[annId].add(vote.Contact_ID);
+            // If the vote is from the logged-in user, store the vote ID.
+            if (parseInt(vote.Contact_ID) === parseInt(LOGGED_IN_USER_ID)) {
+                if (!userVotesMap[annId]) {
+                    userVotesMap[annId] = [];
+                }
+                userVotesMap[annId].push(vote.ID);
+            }
+        });
 
-//         // Build a unique vote count map.
-//         for (const annId in uniqueVotes) {
-//             window.voteCountMap[annId] = uniqueVotes[annId].size;
-//         }
-//     }
-//   function gatherMentionsFromElementt(el) {
-//         const mentionEls = el.querySelectorAll(".mention-handle[data-mention-id]");
-//         return [...mentionEls].map(m => ({ id: Number(m.getAttribute("data-mention-id")) }));
-//     }
+        // Build a unique vote count map.
+        for (const annId in uniqueVotes) {
+            window.voteCountMap[annId] = uniqueVotes[annId].size;
+        }
+    }
+  function gatherMentionsFromElementt(el) {
+        const mentionEls = el.querySelectorAll(".mention-handle[data-mention-id]");
+        return [...mentionEls].map(m => ({ id: Number(m.getAttribute("data-mention-id")) }));
+    }
 
 //     //============ RENDER ANNOUNCEMENTS ======================//
 //     async function renderAnnouncements(announcements) {
