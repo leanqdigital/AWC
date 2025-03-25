@@ -2967,8 +2967,7 @@ async function attachAllListenerFns() {
 
                 newDiv.innerHTML = templateForForumPost(
                     visitorProfilePicture,
-                    visitorFirstName,
-                    visitorLastName,
+                    visitorDisplayName,
                     "Just Now",
                     embeedableUrls.formattedPostText,
                     Number(visitorContactID),
