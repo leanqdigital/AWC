@@ -1,42 +1,49 @@
-function convertToElapsedTime(timestamp) {
-if (typeof timestamp === "string" && isNaN(timestamp)) {
-let date = new Date(timestamp);
-if (isNaN(date.getTime())) {
-return "Just Now";
-}
-timestamp = date.getTime();
-}
 
-let numericTimestamp = typeof timestamp === "number" ? timestamp : parseInt(String(timestamp).replace(/\D/g, ''), 10);
+    function convertToElapsedTime(timestamp) {
+        if (typeof timestamp === "string" && isNaN(timestamp)) {
+            let date = new Date(timestamp);
+            if (isNaN(date.getTime())) {
+                return "Just Now";
+            }
+            timestamp = date.getTime();
+        }
 
-if (isNaN(numericTimestamp)) {
-return "Just Now ";
-}
+        let numericTimestamp = typeof timestamp === "number" ? timestamp : parseInt(String(timestamp).replace(/\D/g, ''), 10);
 
-if (numericTimestamp < 1e12) { numericTimestamp *=1000; } const now=Date.now(); const timeDifference=now -
-    numericTimestamp; if (timeDifference < 0) { return "Just Now" ; } const seconds=Math.floor(timeDifference / 1000);
-    if (seconds < 30) { return "just now" ; } if (seconds < 60) { return `${seconds} secs ago`; } const
-    minutes=Math.floor(seconds / 60); if (minutes===1) { return "1 minute ago" ; } if (minutes < 60) { return
-    `${minutes} mins ago`; } const hours=Math.floor(minutes / 60); if (hours===1) { return "1 hr ago" ; } if (hours <
-    24) { return `${hours} hrs ago`; } const days=Math.floor(hours / 24); if (days===1) { return "1 day ago" ; } if
-    (days < 14) { return `${days} days ago`; } if (days < 30) { return "1 fortnight ago" ; } const
-    months=Math.floor(days / 30); if (months===1) { return "1 mnth ago" ; } if (months < 12) { return `${months} mts
-    ago`; } const years=Math.floor(months / 12); if (years===1) { return "Posted 1 yr ago" ; } return `${years} yrs
-    ago`; } function templateForForumPost( profileImg, authorFullName, date, postCopy, authorID, actualPostID, postFile,
-    isAuthorAnInstructor, ForumCommentsTotalCount, isAuthorAnAdmin ) { const numericPostID=parseInt(actualPostID, 10);
-    const hasRealID=!Number.isNaN(numericPostID) && numericPostID> 0;
+        if (isNaN(numericTimestamp)) {
+            return "Just Now ";
+        }
 
-    let objectFromPostFile, fileStringPreview;
-    let formattedDate = convertToElapsedTime(date);
+        if (numericTimestamp < 1e12) { numericTimestamp *= 1000; } const now = Date.now(); const timeDifference = now -
+            numericTimestamp; if (timeDifference < 0) { return "Just Now"; } const seconds = Math.floor(timeDifference / 1000);
+        if (seconds < 30) { return "just now"; } if (seconds < 60) { return `${seconds} secs ago`; } const
+            minutes = Math.floor(seconds / 60); if (minutes === 1) { return "1 minute ago"; } if (minutes < 60) {
+                return
+                `${minutes} mins ago`;
+            } const hours = Math.floor(minutes / 60); if (hours === 1) { return "1 hr ago"; } if (hours <
+                24) { return `${hours} hrs ago`; } const days = Math.floor(hours / 24); if (days === 1) { return "1 day ago"; } if
+            (days < 14) { return `${days} days ago`; } if (days < 30) { return "1 fortnight ago"; } const
+                months = Math.floor(days / 30); if (months === 1) { return "1 mnth ago"; } if (months < 12) {
+                    return `${months} mts
+    ago`;
+                } const years = Math.floor(months / 12); if (years === 1) { return "Posted 1 yr ago"; } return `${years} yrs
+    ago`;
+    } function templateForForumPost(profileImg, authorFullName, date, postCopy, authorID, actualPostID, postFile,
+        isAuthorAnInstructor, ForumCommentsTotalCount, isAuthorAnAdmin) {
+            const numericPostID = parseInt(actualPostID, 10);
+        const hasRealID = !Number.isNaN(numericPostID) && numericPostID > 0;
 
-    let isShowTripleDot = authorID == visitorContactID;
-    let showCommentsCount = ForumCommentsTotalCount > 0;
+        let objectFromPostFile, fileStringPreview;
+        let formattedDate = convertToElapsedTime(date);
 
-    if (postFile) {
-    objectFromPostFile = analyzeFile(postFile);
-    fileStringPreview = generateFilePreview(objectFromPostFile);
-    }
-    return `
+        let isShowTripleDot = authorID == visitorContactID;
+        let showCommentsCount = ForumCommentsTotalCount > 0;
+
+        if (postFile) {
+            objectFromPostFile = analyzeFile(postFile);
+            fileStringPreview = generateFilePreview(objectFromPostFile);
+        }
+        return `
     <div author-ID="${authorID}" current-post-ID="${actualPostID}" x-data="{
 showComments: ${hasRealID ? true : false},
 isShowTripleDot: ${isShowTripleDot},
@@ -55,8 +62,8 @@ renderCommentsForPost(${numericPostID});
             <div class="flex items-center gap-x-4 justify-start">
                 <img class="w-6 h-6 relative rounded-[50%] border border-[#d3d3d3] max-[600px]:w-[40px] max-[600px]:h-[40px]"
                     src="${(profileImg && profileImg !== 'https://i.ontraport.com/abc.jpg')
-            ? profileImg
-            : 'https://files.ontraport.com/media/b0456fe87439430680b173369cc54cea.php03bzcx?Expires=4895186056&Signature=fw-mkSjms67rj5eIsiDF9QfHb4EAe29jfz~yn3XT0--8jLdK4OGkxWBZR9YHSh26ZAp5EHj~6g5CUUncgjztHHKU9c9ymvZYfSbPO9JGht~ZJnr2Gwmp6vsvIpYvE1pEywTeoigeyClFm1dHrS7VakQk9uYac4Sw0suU4MpRGYQPFB6w3HUw-eO5TvaOLabtuSlgdyGRie6Ve0R7kzU76uXDvlhhWGMZ7alNCTdS7txSgUOT8oL9pJP832UsasK4~M~Na0ku1oY-8a7GcvvVv6j7yE0V0COB9OP0FbC8z7eSdZ8r7avFK~f9Wl0SEfS6MkPQR2YwWjr55bbJJhZnZA__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA'}"
+                ? profileImg
+                : 'https://files.ontraport.com/media/b0456fe87439430680b173369cc54cea.php03bzcx?Expires=4895186056&Signature=fw-mkSjms67rj5eIsiDF9QfHb4EAe29jfz~yn3XT0--8jLdK4OGkxWBZR9YHSh26ZAp5EHj~6g5CUUncgjztHHKU9c9ymvZYfSbPO9JGht~ZJnr2Gwmp6vsvIpYvE1pEywTeoigeyClFm1dHrS7VakQk9uYac4Sw0suU4MpRGYQPFB6w3HUw-eO5TvaOLabtuSlgdyGRie6Ve0R7kzU76uXDvlhhWGMZ7alNCTdS7txSgUOT8oL9pJP832UsasK4~M~Na0ku1oY-8a7GcvvVv6j7yE0V0COB9OP0FbC8z7eSdZ8r7avFK~f9Wl0SEfS6MkPQR2YwWjr55bbJJhZnZA__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA'}"
                     alt="Profile Image" />
                 <div class="flex items-center gap-x-4 max-[600px]:flex-col max-[600px]:gap-y-1 max-[600px]:items-start">
                     <div class="justify-start items-center gap-x-4 flex">
@@ -64,13 +71,13 @@ renderCommentsForPost(${numericPostID});
                             ${authorFullName}
                         </div>
                         <div class="py-1.5 px-3 ${isAuthorAnInstructor || isAuthorAnAdmin ? " bg-[#ffeaa7]"
-                            : "bg-[#c7e6e6]" } rounded-[36px] font-400 text-[12px] leading-[12px] text-dark">
+                : "bg-[#c7e6e6]"} rounded-[36px] font-400 text-[12px] leading-[12px] text-dark">
                             ${isAuthorAnAdmin
-                            ? "AWC Admin"
-                            : isAuthorAnInstructor
-                            ? "Tutor"
-                            : "Student"
-                            }
+                ? "AWC Admin"
+                : isAuthorAnInstructor
+                    ? "Tutor"
+                    : "Student"
+            }
                         </div>
                         <div class="w-[2px] h-[15px] bg-[#bbbcbb] max-[600px]:hidden"></div>
                     </div>
@@ -236,54 +243,54 @@ $el.closest('button').classList.add('hidden');
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-    let currentFile = null;
+        let currentFile = null;
 
-    const fileInput = document.querySelector(".formFileInputForClassChat");
-    const previewContainer = document.getElementById("showContainerForAllFiles");
-    const replaceBtn = document.getElementById("replaceFileContainer");
-    const deleteBtn = document.getElementById("deleteFileContainer");
-    const attachFileContainer = document.querySelector(".attachAFileForClassChat");
+        const fileInput = document.querySelector(".formFileInputForClassChat");
+        const previewContainer = document.getElementById("showContainerForAllFiles");
+        const replaceBtn = document.getElementById("replaceFileContainer");
+        const deleteBtn = document.getElementById("deleteFileContainer");
+        const attachFileContainer = document.querySelector(".attachAFileForClassChat");
 
-    previewContainer.classList.add("hidden");
-    replaceBtn.classList.add("hidden");
-    deleteBtn.classList.add("hidden");
+        previewContainer.classList.add("hidden");
+        replaceBtn.classList.add("hidden");
+        deleteBtn.classList.add("hidden");
 
-    function resetFileSelection() {
-    fileInput.value = "";
-    previewContainer.innerHTML = "";
-    previewContainer.classList.add("hidden");
-    replaceBtn.classList.add("hidden");
-    deleteBtn.classList.add("hidden");
-    attachFileContainer.classList.remove("hidden");
-    currentFile = undefined;
+        function resetFileSelection() {
+            fileInput.value = "";
+            previewContainer.innerHTML = "";
+            previewContainer.classList.add("hidden");
+            replaceBtn.classList.add("hidden");
+            deleteBtn.classList.add("hidden");
+            attachFileContainer.classList.remove("hidden");
+            currentFile = undefined;
 
-    }
+        }
 
-    fileInput.addEventListener("change", function () {
-    if (fileInput.files && fileInput.files[0]) {
-    const file = fileInput.files[0];
-    currentFile = file;
+        fileInput.addEventListener("change", function () {
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                currentFile = file;
 
-    previewContainer.classList.remove("hidden");
-    replaceBtn.classList.remove("hidden");
-    deleteBtn.classList.remove("hidden");
-    attachFileContainer.classList.add("hidden");
+                previewContainer.classList.remove("hidden");
+                replaceBtn.classList.remove("hidden");
+                deleteBtn.classList.remove("hidden");
+                attachFileContainer.classList.add("hidden");
 
-    if (file.type.startsWith("image/")) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-    const img = document.createElement("img");
-    img.src = e.target.result;
-    img.classList.add("object-cover", "max-h-full", "max-w-full", "w-full", "h-[450px]");
-    previewContainer.innerHTML = "";
-    previewContainer.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-    }
+                if (file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.classList.add("object-cover", "max-h-full", "max-w-full", "w-full", "h-[450px]");
+                        previewContainer.innerHTML = "";
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
 
-    else if (file.type.startsWith("audio/")) {
-    const audioURL = URL.createObjectURL(file);
-    const audioPlayerHTML = `
+                else if (file.type.startsWith("audio/")) {
+                    const audioURL = URL.createObjectURL(file);
+                    const audioPlayerHTML = `
     <div class="flex flex-col gap-y-4  p-4 bg-[#ebf6f6]" x-init="initPlayer()" x-data="audioPlayer();">
         <div class=" flex items-center justify-between">
             <div class="flex items-center gap-x-2" @click="muteUnmuteSound()">
@@ -351,13 +358,13 @@ $el.closest('button').classList.add('hidden');
             @volumeChange="updateVolume()" @ended="isPlaying = false" src=${audioURL} controls></audio>
     </div>
     `;
-    previewContainer.innerHTML = audioPlayerHTML;
-    Alpine.initTree(previewContainer);
-    }
+                    previewContainer.innerHTML = audioPlayerHTML;
+                    Alpine.initTree(previewContainer);
+                }
 
-    else {
-    let badgeClass = "bg-[#c7e6e6] text-[#007c82] p-4 rounded flex items-center justify-between";
-    previewContainer.innerHTML = `
+                else {
+                    let badgeClass = "bg-[#c7e6e6] text-[#007c82] p-4 rounded flex items-center justify-between";
+                    previewContainer.innerHTML = `
     <span class="${badgeClass}">
         <span class="flex items-center gap-x-2">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -376,232 +383,240 @@ $el.closest('button').classList.add('hidden');
             </svg>
         </span>
     </span>`;
-    const previewSvg = document.getElementById("previewTheFileInNextTab");
-    if (previewSvg) {
-    previewSvg.addEventListener("click", function (e) {
-    e.stopPropagation();
-    if (currentFile) {
-    const fileURL = URL.createObjectURL(currentFile);
-    window.open(fileURL, "_blank");
-    }
-    });
-    }
-    }
-    }
-    });
+                    const previewSvg = document.getElementById("previewTheFileInNextTab");
+                    if (previewSvg) {
+                        previewSvg.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                            if (currentFile) {
+                                const fileURL = URL.createObjectURL(currentFile);
+                                window.open(fileURL, "_blank");
+                            }
+                        });
+                    }
+                }
+            }
+        });
 
-    deleteBtn.addEventListener("click", function () {
-    resetFileSelection();
-    });
+        deleteBtn.addEventListener("click", function () {
+            resetFileSelection();
+        });
 
-    replaceBtn.addEventListener("click", function () {
-    resetFileSelection();
-    fileInput.click();
-    });
+        replaceBtn.addEventListener("click", function () {
+            resetFileSelection();
+            fileInput.click();
+        });
     });
 
     function toggleReplyForm(replyID) {
-    const replyFormID = 'replyFormBox_' + replyID;
+        const replyFormID = 'replyFormBox_' + replyID;
 
-    const targetElement = document.getElementById(replyFormID);
+        const targetElement = document.getElementById(replyFormID);
 
-    if (targetElement) {
-    const isVisible = !targetElement.classList.contains('hidden');
+        if (targetElement) {
+            const isVisible = !targetElement.classList.contains('hidden');
 
-    if (isVisible) {
-    targetElement.classList.add('hidden');
+            if (isVisible) {
+                targetElement.classList.add('hidden');
 
-    }
-    else {
-    document.querySelectorAll('[id^="commentBox_"], [id^="replyFormBox_"]').forEach(el => {
-    el.classList.add('hidden');
-    });
+            }
+            else {
+                document.querySelectorAll('[id^="commentBox_"], [id^="replyFormBox_"]').forEach(el => {
+                    el.classList.add('hidden');
+                });
 
-    targetElement.classList.remove('hidden');
+                targetElement.classList.remove('hidden');
 
-    const yOffset = -150;
-    const y = targetElement.getBoundingClientRect().top + window.scrollY + yOffset;
-    window.scrollTo({ top: y, behavior: 'smooth' });
+                const yOffset = -150;
+                const y = targetElement.getBoundingClientRect().top + window.scrollY + yOffset;
+                window.scrollTo({ top: y, behavior: 'smooth' });
 
-    }
-    } else {
+            }
+        } else {
 
-    }
+        }
     }
 
     function toggleCommentBox(actualPostID) {
-    const clickedCommentBox = document.getElementById('commentBox_' + actualPostID);
-    if (clickedCommentBox) {
-    // First, hide all comment boxes except the clicked one
-    const allCommentBoxes = document.querySelectorAll('[id^="commentBox_"]');
-    allCommentBoxes.forEach(box => {
-    if (box !== clickedCommentBox) {
-    box.classList.add('hidden');
-    }
-    });
+        const clickedCommentBox = document.getElementById('commentBox_' + actualPostID);
+        if (clickedCommentBox) {
+            // First, hide all comment boxes except the clicked one
+            const allCommentBoxes = document.querySelectorAll('[id^="commentBox_"]');
+            allCommentBoxes.forEach(box => {
+                if (box !== clickedCommentBox) {
+                    box.classList.add('hidden');
+                }
+            });
 
-    // Hide all reply form boxes except the one matching the clicked post ID
-    const clickedReplyFormBox = document.getElementById('replyFormBox_' + actualPostID);
-    const allReplyFormBoxes = document.querySelectorAll('[id^="replyFormBox_"]');
-    allReplyFormBoxes.forEach(box => {
-    if (box !== clickedReplyFormBox) {
-    box.classList.add('hidden');
-    }
-    });
+            // Hide all reply form boxes except the one matching the clicked post ID
+            const clickedReplyFormBox = document.getElementById('replyFormBox_' + actualPostID);
+            const allReplyFormBoxes = document.querySelectorAll('[id^="replyFormBox_"]');
+            allReplyFormBoxes.forEach(box => {
+                if (box !== clickedReplyFormBox) {
+                    box.classList.add('hidden');
+                }
+            });
 
-    // Then toggle the clicked comment box
-    clickedCommentBox.classList.toggle('hidden');
+            // Then toggle the clicked comment box
+            clickedCommentBox.classList.toggle('hidden');
 
-    // Scroll to the clicked comment box if it's now visible
-    if (!clickedCommentBox.classList.contains('hidden')) {
-    const yOffset = -150;
-    const y = clickedCommentBox.getBoundingClientRect().top + window.scrollY + yOffset;
-    window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-    }
+            // Scroll to the clicked comment box if it's now visible
+            if (!clickedCommentBox.classList.contains('hidden')) {
+                const yOffset = -150;
+                const y = clickedCommentBox.getBoundingClientRect().top + window.scrollY + yOffset;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            }
+        }
     }
 
     function deletefiledata($el) {
-    const container = $el.closest('.bg-\\[\\#f5f5f5\\]');
-    const fileInput = container.querySelector('input[type="file"]');
-    fileInput.value = '';
-    container.querySelector('[previewcontainerforfiles]').classList.add('hidden');
-    container.querySelector('[previewcontainerforfiles]').innerHTML = '';
-    const buttons = container.querySelectorAll('.outlineButton.text-label');
-    buttons.forEach(btn => btn.classList.add('hidden'));
-    container.querySelector('button.outlineButton').classList.remove('hidden');
+        const container = $el.closest('.bg-\\[\\#f5f5f5\\]');
+        const fileInput = container.querySelector('input[type="file"]');
+        fileInput.value = '';
+        container.querySelector('[previewcontainerforfiles]').classList.add('hidden');
+        container.querySelector('[previewcontainerforfiles]').innerHTML = '';
+        const buttons = container.querySelectorAll('.outlineButton.text-label');
+        buttons.forEach(btn => btn.classList.add('hidden'));
+        container.querySelector('button.outlineButton').classList.remove('hidden');
     }
 
     function replaceFileData($el) {
-    const container = $el.closest('.bg-\\[\\#f5f5f5\\]');
-    const fileInput = container.querySelector('input[type="file"]');
-    fileInput.click();
+        const container = $el.closest('.bg-\\[\\#f5f5f5\\]');
+        const fileInput = container.querySelector('input[type="file"]');
+        fileInput.click();
     }
 
 
     function attachAllFileData($el) {
-    populatePreviewContainer($el);
-    const container = $el.closest('.bg-\\[\\#f5f5f5\\]');
-    container.querySelector('[previewcontainerforfiles]').classList.remove('hidden');
-    const buttons = $el.closest('.flex.items-center.justify-end.gap-2').querySelectorAll('.outlineButton.text-label');
-    buttons.forEach(btn => btn.classList.remove('hidden'));
-    $el.closest('button').classList.add('hidden');
+        populatePreviewContainer($el);
+        const container = $el.closest('.bg-\\[\\#f5f5f5\\]');
+        container.querySelector('[previewcontainerforfiles]').classList.remove('hidden');
+        const buttons = $el.closest('.flex.items-center.justify-end.gap-2').querySelectorAll('.outlineButton.text-label');
+        buttons.forEach(btn => btn.classList.remove('hidden'));
+        $el.closest('button').classList.add('hidden');
     }
 
     if (typeof window.audioPlayerss === 'undefined') {
-    window.audioPlayerss = [];
+        window.audioPlayerss = [];
     }
 
     function audioPlayer() {
-    return {
-    currentTime: 0,
-    duration: 0,
-    isPlaying: false,
-    volume: 1,
+        return {
+            currentTime: 0,
+            duration: 0,
+            isPlaying: false,
+            volume: 1,
 
-    initPlayer() {
-    if (typeof window.audioPlayerss === 'undefined') {
-    window.audioPlayerss = [];
-    }
-    window.audioPlayerss.push(this);
-    },
+            initPlayer() {
+                if (typeof window.audioPlayerss === 'undefined') {
+                    window.audioPlayerss = [];
+                }
+                window.audioPlayerss.push(this);
+            },
 
-    muteUnmuteSound() {
-    if (this.volume == 0) {
-    this.volume = 1;
-    this.$refs.audioElement.volume = 1;
-    } else {
-    this.$refs.audioElement.volume = 0;
-    this.volume = 0;
-    }
-    },
+            muteUnmuteSound() {
+                if (this.volume == 0) {
+                    this.volume = 1;
+                    this.$refs.audioElement.volume = 1;
+                } else {
+                    this.$refs.audioElement.volume = 0;
+                    this.volume = 0;
+                }
+            },
 
-    updateVolume() {
-    this.volume = this.$refs.audioElement.volume;
-    },
+            updateVolume() {
+                this.volume = this.$refs.audioElement.volume;
+            },
 
-    seek() {
-    this.$refs.audioElement.currentTime = this.currentTime
-    },
+            seek() {
+                this.$refs.audioElement.currentTime = this.currentTime
+            },
 
-    updateProgress() {
-    this.currentTime = this.$refs.audioElement.currentTime.toFixed(2)
-    },
+            updateProgress() {
+                this.currentTime = this.$refs.audioElement.currentTime.toFixed(2)
+            },
 
-    loadMetadatafn() {
-    this.duration = this.$refs.audioElement.duration
-    },
+            loadMetadatafn() {
+                this.duration = this.$refs.audioElement.duration
+            },
 
-    playPauseAudio() {
-    // Toggle the current player state
-    if (!this.isPlaying) {
-    // First pause any other playing audio
-    window.audioPlayerss.forEach(player => {
-    if (player !== this && player.isPlaying) {
-    player.$refs.audioElement.pause();
-    player.isPlaying = false;
-    }
-    });
+            playPauseAudio() {
+                // Toggle the current player state
+                if (!this.isPlaying) {
+                    // First pause any other playing audio
+                    window.audioPlayerss.forEach(player => {
+                        if (player !== this && player.isPlaying) {
+                            player.$refs.audioElement.pause();
+                            player.isPlaying = false;
+                        }
+                    });
 
-    // Then play this audio
-    this.$refs.audioElement.play()
-    .then(() => {
-    this.isPlaying = true;
-    })
-    .catch(error => {
+                    // Then play this audio
+                    this.$refs.audioElement.play()
+                        .then(() => {
+                            this.isPlaying = true;
+                        })
+                        .catch(error => {
 
-    });
-    } else {
-    this.$refs.audioElement.pause();
-    this.isPlaying = false;
-    }
-    },
+                        });
+                } else {
+                    this.$refs.audioElement.pause();
+                    this.isPlaying = false;
+                }
+            },
 
-    formattedTime() {
-    let hours = Math.floor(this.currentTime / 3600);
-    let minutes = Math.floor((this.currentTime % 3600) / 60);
-    let seconds = Math.floor(this.currentTime % 60);
+            formattedTime() {
+                let hours = Math.floor(this.currentTime / 3600);
+                let minutes = Math.floor((this.currentTime % 3600) / 60);
+                let seconds = Math.floor(this.currentTime % 60);
 
-    return (hours ? hours + ':' : '') +
-    (minutes < 10 ? '0' : '' ) + minutes + ':' + (seconds < 10 ? '0' : '' ) + seconds; }, formattedRemainingTime() { let
-        remaining=this.duration - this.currentTime; let minutes=Math.floor(remaining / 60); let
-        seconds=Math.floor(remaining % 60); return '-' + (minutes < 10 ? '0' : '' ) + minutes + ':' + (seconds < 10
-        ? '0' : '' ) + seconds; }, downloadAudio() { let a=document.createElement('a');
-        a.href=this.$refs.audioElement.src; a.download='audio.mp3' ; a.click(); } }; } async function
-        uploadRepliesWithFile($el) { const thisComment=$el.closest("[comment-id]"); if (!thisComment) return; const
-        commentId=thisComment.getAttribute("comment-id"); const inputEl=thisComment.querySelector(".mentionable"); const
-        commentText=inputEl ? inputEl.innerHTML.trim() : "" ; const
-        mentionIDs=gatherMentionsFromElement(inputEl).map(id=> ({ id: Number(id) }));
+                return (hours ? hours + ':' : '') +
+                    (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            }, formattedRemainingTime() {
+                let
+                remaining = this.duration - this.currentTime; let minutes = Math.floor(remaining / 60); let
+                    seconds = Math.floor(remaining % 60); return '-' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10
+                        ? '0' : '') + seconds;
+            }, downloadAudio() {
+                let a = document.createElement('a');
+                a.href = this.$refs.audioElement.src; a.download = 'audio.mp3'; a.click();
+            }
+        };
+    } async function
+        uploadRepliesWithFile($el) {
+            const thisComment = $el.closest("[comment-id]"); if (!thisComment) return; const
+                commentId = thisComment.getAttribute("comment-id"); const inputEl = thisComment.querySelector(".mentionable"); const
+                    commentText = inputEl ? inputEl.innerHTML.trim() : ""; const
+                        mentionIDs = gatherMentionsFromElement(inputEl).map(id => ({ id: Number(id) }));
         if (inputEl) {
-        inputEl.innerHTML = "";
+            inputEl.innerHTML = "";
         }
         if (!commentText) return;
         let fileData = null;
         const fileInputEl = thisComment.querySelector('input[type="file"]');
         if (fileInputEl && fileInputEl.files && fileInputEl.files.length > 0) {
-        const file = fileInputEl.files[0];
-        const fileFields = [{ fieldName: "file_content", file }];
-        if (fileFields.length > 0) {
-        const toSubmitFields = {};
-        await processFileFields(toSubmitFields, fileFields, awsParam, awsParamUrl);
-        fileData = typeof toSubmitFields.file_content === "string"
-        ? JSON.parse(toSubmitFields.file_content)
-        : toSubmitFields.file_content;
-        fileData.name = fileData.name || file.name;
-        fileData.size = fileData.size || file.size;
-        fileData.type = fileData.type || file.type;
-        }
+            const file = fileInputEl.files[0];
+            const fileFields = [{ fieldName: "file_content", file }];
+            if (fileFields.length > 0) {
+                const toSubmitFields = {};
+                await processFileFields(toSubmitFields, fileFields, awsParam, awsParamUrl);
+                fileData = typeof toSubmitFields.file_content === "string"
+                    ? JSON.parse(toSubmitFields.file_content)
+                    : toSubmitFields.file_content;
+                fileData.name = fileData.name || file.name;
+                fileData.size = fileData.size || file.size;
+                fileData.type = fileData.type || file.type;
+            }
         }
         const replyData = {
-        Author_Display_Name: contactDisplayName,
-        Comment: commentText,
-        Date_Added: Math.floor(Date.now() / 1000),
-        ID: `${Date.now()}`,
-        Author_Profile_Image: visitorProfilePicture,
-        Author_Is_Instructor: isThisVisitorAnInstructor === "Yes",
-        Author_Is_Admin: isContactAdmin === "Yes",
-        Author_ID: Number(contactIdOfThisVisitor),
-        file: fileData ? JSON.stringify(fileData) : null
+            Author_Display_Name: contactDisplayName,
+            Comment: commentText,
+            Date_Added: Math.floor(Date.now() / 1000),
+            ID: `${Date.now()}`,
+            Author_Profile_Image: visitorProfilePicture,
+            Author_Is_Instructor: isThisVisitorAnInstructor === "Yes",
+            Author_Is_Admin: isContactAdmin === "Yes",
+            Author_ID: Number(contactIdOfThisVisitor),
+            file: fileData ? JSON.stringify(fileData) : null
         };
         const rTmpl = $.templates("#replyTemplate");
         const tempWrapper = document.createElement("div");
@@ -611,99 +626,99 @@ $el.closest('button').classList.add('hidden');
         tempReplyElement.style.opacity = "0.5";
         const replyContainer = thisComment.querySelector(".replyShowContainer");
         if (replyContainer) {
-        replyContainer.appendChild(tempReplyElement);
+            replyContainer.appendChild(tempReplyElement);
         } else {
 
-        return;
+            return;
         }
         const payload = {
-        comment: commentText,
-        reply_to_comment_id: commentId,
-        author_id: Number(contactIdOfThisVisitor),
-        Mentions: mentionIDs,
-        file: fileData ? fileData : null
+            comment: commentText,
+            reply_to_comment_id: commentId,
+            author_id: Number(contactIdOfThisVisitor),
+            Mentions: mentionIDs,
+            file: fileData ? fileData : null
         };
         if (fileData) {
-        const filePreviewContainer = tempReplyElement.querySelector(".filePreviewContainerReply");
+            const filePreviewContainer = tempReplyElement.querySelector(".filePreviewContainerReply");
 
         }
         try {
-        const createdReply = await createReply(payload);
+            const createdReply = await createReply(payload);
 
-        if (createdReply && createdReply.id) {
+            if (createdReply && createdReply.id) {
 
-        tempReplyElement.setAttribute("reply-id", createdReply.id);
-        tempReplyElement.style.opacity = "1";
-        tempReplyElement.style.pointerEvents = "auto";
-        const authorNameEl = tempReplyElement.querySelector(".text-button");
-        if (authorNameEl) {
-        authorNameEl.textContent = visitorFirstName + " " + visitorLastName;;
-        }
-        if (fileData) {
+                tempReplyElement.setAttribute("reply-id", createdReply.id);
+                tempReplyElement.style.opacity = "1";
+                tempReplyElement.style.pointerEvents = "auto";
+                const authorNameEl = tempReplyElement.querySelector(".text-button");
+                if (authorNameEl) {
+                    authorNameEl.textContent = visitorFirstName + " " + visitorLastName;;
+                }
+                if (fileData) {
 
-        let serverFileData;
-        if (createdReply.data && createdReply.data.createForumComment) {
-        serverFileData = createdReply.data.createForumComment.file;
-        } else {
-        serverFileData = createdReply.file;
-        }
-        if (serverFileData) {
+                    let serverFileData;
+                    if (createdReply.data && createdReply.data.createForumComment) {
+                        serverFileData = createdReply.data.createForumComment.file;
+                    } else {
+                        serverFileData = createdReply.file;
+                    }
+                    if (serverFileData) {
 
-        const cleanLink = typeof serverFileData === "string"
-        ? serverFileData.replace(/^"(.+)"$/, '$1')
-        : serverFileData.link;
-        const combinedFileData = {
-        name: fileData.name,
-        type: fileData.type,
-        link: cleanLink
-        };
+                        const cleanLink = typeof serverFileData === "string"
+                            ? serverFileData.replace(/^"(.+)"$/, '$1')
+                            : serverFileData.link;
+                        const combinedFileData = {
+                            name: fileData.name,
+                            type: fileData.type,
+                            link: cleanLink
+                        };
 
-        const analyzedObject = analyzeFile(combinedFileData);
-        const filePreviewHtml = generateFilePreview(analyzedObject);
-        const filePreviewContainer = tempReplyElement.querySelector(".filePreviewContainerReply");
-        if (filePreviewContainer) {
-        filePreviewContainer.innerHTML = filePreviewHtml || "";
-        } else {
+                        const analyzedObject = analyzeFile(combinedFileData);
+                        const filePreviewHtml = generateFilePreview(analyzedObject);
+                        const filePreviewContainer = tempReplyElement.querySelector(".filePreviewContainerReply");
+                        if (filePreviewContainer) {
+                            filePreviewContainer.innerHTML = filePreviewHtml || "";
+                        } else {
 
-        }
-        } else {
+                        }
+                    } else {
 
-        }
-        }
-        handleRepliesCount(thisComment);
-        } else {
-        throw new Error("createReply returned invalid data");
-        }
+                    }
+                }
+                handleRepliesCount(thisComment);
+            } else {
+                throw new Error("createReply returned invalid data");
+            }
         } catch (err) {
 
-        if (!tempReplyElement.getAttribute("reply-id")) {
-        tempReplyElement.remove();
-        alert("An error occurred while posting the reply.");
-        }
+            if (!tempReplyElement.getAttribute("reply-id")) {
+                tempReplyElement.remove();
+                alert("An error occurred while posting the reply.");
+            }
         } finally {
 
 
-        thisComment.querySelectorAll('.outlineButton.text-label').forEach(el => {
-        el.classList.add('hidden');
-        });
-        thisComment.querySelector('.outlineButton.flex.relative').classList.remove('hidden');
+            thisComment.querySelectorAll('.outlineButton.text-label').forEach(el => {
+                el.classList.add('hidden');
+            });
+            thisComment.querySelector('.outlineButton.flex.relative').classList.remove('hidden');
 
 
 
 
 
-        if (fileInputEl) {
-        fileInputEl.value = "";
+            if (fileInputEl) {
+                fileInputEl.value = "";
+            }
+            const previewContainer = thisComment.querySelector("[previewcontainerforfiles]");
+            if (previewContainer) {
+                previewContainer.innerHTML = "";
+                previewContainer.classList.add("hidden");
+            }
         }
-        const previewContainer = thisComment.querySelector("[previewcontainerforfiles]");
-        if (previewContainer) {
-        previewContainer.innerHTML = "";
-        previewContainer.classList.add("hidden");
-        }
-        }
-        }
+    }
 
-        async function uploadCommentWithFile(element) {
+    async function uploadCommentWithFile(element) {
         const commentContainer = element.closest("[id^='commentBox_']");
         commentContainer.classList.add("opacity-50", "pointer-events-none");
         const thisPost = element.closest(".forum-post");
@@ -719,164 +734,164 @@ $el.closest('button').classList.add('hidden');
         let fileData = null;
         const fileInputEl = commentContainer.querySelector('input[type="file"]');
         if (!commentText) {
-        commentContainer.classList.remove("opacity-50", "pointer-events-none");
-        return;
+            commentContainer.classList.remove("opacity-50", "pointer-events-none");
+            return;
         }
         if (fileInputEl && fileInputEl.files && fileInputEl.files.length > 0) {
-        const file = fileInputEl.files[0];
-        const fileFields = [{ fieldName: "file_content", file }];
-        if (fileFields.length > 0) {
-        const toSubmitFields = {};
-        await processFileFields(toSubmitFields, fileFields, awsParam, awsParamUrl);
-        fileData = typeof toSubmitFields.file_content === "string"
-        ? JSON.parse(toSubmitFields.file_content)
-        : toSubmitFields.file_content;
-        fileData.name = fileData.name || file.name;
-        fileData.size = fileData.size || file.size;
-        fileData.type = fileData.type || file.type;
-        }
+            const file = fileInputEl.files[0];
+            const fileFields = [{ fieldName: "file_content", file }];
+            if (fileFields.length > 0) {
+                const toSubmitFields = {};
+                await processFileFields(toSubmitFields, fileFields, awsParam, awsParamUrl);
+                fileData = typeof toSubmitFields.file_content === "string"
+                    ? JSON.parse(toSubmitFields.file_content)
+                    : toSubmitFields.file_content;
+                fileData.name = fileData.name || file.name;
+                fileData.size = fileData.size || file.size;
+                fileData.type = fileData.type || file.type;
+            }
         }
 
 
 
         const commentContainerElem = thisPost.querySelector("#allCommentsForPostContainer");
         const manualData = [{
-        ID: `${Date.now()}`,
-        // Author_Display_Name: contactDisplayName || "Anonymous",
-        Author_Display_Name: contactDisplayName || ((contactFirstName || contactLastName) ? `${contactFirstName ?? ''}
+            ID: `${Date.now()}`,
+            // Author_Display_Name: contactDisplayName || "Anonymous",
+            Author_Display_Name: contactDisplayName || ((contactFirstName || contactLastName) ? `${contactFirstName ?? ''}
         ${contactLastName ?? ''}`.trim() : "Anonymous"),
-        Comment: commentText,
-        Date_Added: Math.floor(Date.now() / 1000),
-        Author_Profile_Image: visitorProfilePicture,
-        Author_Is_Instructor: isThisVisitorAnInstructor === "Yes",
-        ForumCommentsTotalCount: 0,
-        Author_Is_Admin: isContactAdmin !== "No",
-        Author_ID: Number(visitorContactID),
-        File: fileData ? JSON.stringify(fileData) : null
+            Comment: commentText,
+            Date_Added: Math.floor(Date.now() / 1000),
+            Author_Profile_Image: visitorProfilePicture,
+            Author_Is_Instructor: isThisVisitorAnInstructor === "Yes",
+            ForumCommentsTotalCount: 0,
+            Author_Is_Admin: isContactAdmin !== "No",
+            Author_ID: Number(visitorContactID),
+            File: fileData ? JSON.stringify(fileData) : null
         }];
 
 
         const commentTmpl = $.templates("#commentTemplate");
         $.views.helpers({
-        elapsedTime: convertToElapsedTime,
-        filePreview: function (file) {
-        if (file) {
-        if (typeof file === 'string') {
-        try {
-        file = JSON.parse(file);
-        } catch (e) {
+            elapsedTime: convertToElapsedTime,
+            filePreview: function (file) {
+                if (file) {
+                    if (typeof file === 'string') {
+                        try {
+                            file = JSON.parse(file);
+                        } catch (e) {
 
-        }
-        }
-        const analyzedObject = analyzeFile(file);
-        return generateFilePreview(analyzedObject);
-        }
-        return "";
-        }
+                        }
+                    }
+                    const analyzedObject = analyzeFile(file);
+                    return generateFilePreview(analyzedObject);
+                }
+                return "";
+            }
         });
         const renderedHtml = commentTmpl.render(manualData);
         const tempWrapper = document.createElement("div");
         tempWrapper.innerHTML = renderedHtml;
         while (tempWrapper.firstChild) {
-        commentContainerElem.appendChild(tempWrapper.firstChild);
+            commentContainerElem.appendChild(tempWrapper.firstChild);
         }
 
         let tempEl = commentContainerElem.lastElementChild;
         tempEl.classList.add("opacity-50", "pointer-events-none");
 
         if (fileData) {
-        const filePreviewContainer = tempEl.querySelector(".filePreviewContainer");
-        commentContainer.querySelectorAll('.outlineButton.text-label').forEach(el => {
-        el.classList.add('hidden');
-        });
+            const filePreviewContainer = tempEl.querySelector(".filePreviewContainer");
+            commentContainer.querySelectorAll('.outlineButton.text-label').forEach(el => {
+                el.classList.add('hidden');
+            });
 
         }
 
         try {
-        const createdComment = await postComment(
-        postId,
-        authorId,
-        commentText,
-        mentionIDs,
-        fileData ? fileData : null
-        );
-        if (createdComment?.data?.createForumComment?.author_id &&
-        createdComment?.data?.createForumComment?.comment) {
-        const newId = Object.values(createdComment.extensions.pkMap)[0];
-        tempEl.classList.remove("opacity-50", "pointer-events-none");
-        tempEl.setAttribute("comment-id", newId);
-        let element = tempEl.querySelector("[id^='reply-']");
-        if (element) {
-        element.id = `reply-${newId}`;
-        }
+            const createdComment = await postComment(
+                postId,
+                authorId,
+                commentText,
+                mentionIDs,
+                fileData ? fileData : null
+            );
+            if (createdComment?.data?.createForumComment?.author_id &&
+                createdComment?.data?.createForumComment?.comment) {
+                const newId = Object.values(createdComment.extensions.pkMap)[0];
+                tempEl.classList.remove("opacity-50", "pointer-events-none");
+                tempEl.setAttribute("comment-id", newId);
+                let element = tempEl.querySelector("[id^='reply-']");
+                if (element) {
+                    element.id = `reply-${newId}`;
+                }
 
-        const authorNameEl = tempEl.querySelector(".text-button");
-        if (authorNameEl) {
-        authorNameEl.textContent = `${visitorFirstName} ${visitorLastName}`;
-        }
+                const authorNameEl = tempEl.querySelector(".text-button");
+                if (authorNameEl) {
+                    authorNameEl.textContent = `${visitorFirstName} ${visitorLastName}`;
+                }
 
-        // Update comment text
-        const commentTextEl = Array.from(tempEl.children).find(el => el.tagName === "DIV" && el.innerHTML ===
-        commentText);
-        if (commentTextEl) {
-        commentTextEl.innerHTML = commentText;
-        } else {
+                // Update comment text
+                const commentTextEl = Array.from(tempEl.children).find(el => el.tagName === "DIV" && el.innerHTML ===
+                    commentText);
+                if (commentTextEl) {
+                    commentTextEl.innerHTML = commentText;
+                } else {
 
-        }
+                }
 
-        // Update file preview with combined data
-        if (fileData && createdComment.data.createForumComment.file) {
-        const serverFileData = createdComment.data.createForumComment.file;
-        const cleanLink = typeof serverFileData === "string"
-        ? serverFileData.replace(/^"(.+)"$/, '$1')
-        : serverFileData.link;
+                // Update file preview with combined data
+                if (fileData && createdComment.data.createForumComment.file) {
+                    const serverFileData = createdComment.data.createForumComment.file;
+                    const cleanLink = typeof serverFileData === "string"
+                        ? serverFileData.replace(/^"(.+)"$/, '$1')
+                        : serverFileData.link;
 
-        const combinedFileData = {
-        name: fileData.name,
-        type: fileData.type,
-        link: cleanLink
-        };
-        const analyzedObject = analyzeFile(combinedFileData);
-        const filePreviewHtml = generateFilePreview(analyzedObject);
-        const filePreviewContainer = tempEl.querySelector(".filePreviewContainer");
-        if (filePreviewContainer) {
-        filePreviewContainer.innerHTML = filePreviewHtml || "";
-        } else {
+                    const combinedFileData = {
+                        name: fileData.name,
+                        type: fileData.type,
+                        link: cleanLink
+                    };
+                    const analyzedObject = analyzeFile(combinedFileData);
+                    const filePreviewHtml = generateFilePreview(analyzedObject);
+                    const filePreviewContainer = tempEl.querySelector(".filePreviewContainer");
+                    if (filePreviewContainer) {
+                        filePreviewContainer.innerHTML = filePreviewHtml || "";
+                    } else {
 
-        }
-        }
+                    }
+                }
 
-        fetchCommentCount(thisPost.getAttribute("current-post-id"));
-        } else {
-        throw new Error("createForumComment returned invalid data");
-        }
+                fetchCommentCount(thisPost.getAttribute("current-post-id"));
+            } else {
+                throw new Error("createForumComment returned invalid data");
+            }
         } catch (err) {
-        tempEl.remove();
-        alert("An error occurred while posting the comment.");
+            tempEl.remove();
+            alert("An error occurred while posting the comment.");
         } finally {
-        commentContainer.classList.remove("opacity-50", "pointer-events-none");
-        if (fileInputEl) {
-        fileInputEl.value = "";
+            commentContainer.classList.remove("opacity-50", "pointer-events-none");
+            if (fileInputEl) {
+                fileInputEl.value = "";
+            }
+            const previewContainer = commentContainer.querySelector("[previewcontainerforfiles]");
+            if (previewContainer) {
+                previewContainer.innerHTML = "";
+                previewContainer.classList.add("hidden");
+            }
+
+
+            commentContainer.querySelectorAll('.outlineButton.text-label').forEach(el => {
+                el.classList.add('hidden');
+            });
+            commentContainer.querySelector('.outlineButton.flex.relative').classList.remove('hidden');
+
+
         }
-        const previewContainer = commentContainer.querySelector("[previewcontainerforfiles]");
-        if (previewContainer) {
-        previewContainer.innerHTML = "";
-        previewContainer.classList.add("hidden");
-        }
+    }
 
-
-        commentContainer.querySelectorAll('.outlineButton.text-label').forEach(el => {
-        el.classList.add('hidden');
-        });
-        commentContainer.querySelector('.outlineButton.flex.relative').classList.remove('hidden');
-
-
-        }
-        }
-
-        function decodeAwsParam(awsParam) {
+    function decodeAwsParam(awsParam) {
         if (!awsParam) {
-        awsParam = window.awsParam;
+            awsParam = window.awsParam;
         }
 
         const serializedString = atob(awsParam);
@@ -887,212 +902,236 @@ $el.closest('button').classList.add('hidden');
         const expiryMatch = serializedString.match(/i:(\d+)/);
 
         return {
-        hash: hashMatch ? hashMatch[1] : null,
-        expiry: expiryMatch ? parseInt(expiryMatch[1], 10) : null,
+            hash: hashMatch ? hashMatch[1] : null,
+            expiry: expiryMatch ? parseInt(expiryMatch[1], 10) : null,
         };
-        }
+    }
 
 
-        function encodeAwsParam(hash, currentEpoch) {
+    function encodeAwsParam(hash, currentEpoch) {
         if (typeof currentEpoch !== "number") {
-        currentEpoch = Math.round(Date.now() / 1000);
+            currentEpoch = Math.round(Date.now() / 1000);
         }
         const expiry = new Date(currentEpoch * 1000);
 
         expiry.setTime(expiry.getTime() + 12 * 60 * 60 * 1000);
         return btoa(
-        `a:2:{s:4:"hash";s:${hash.length}:"${hash}";s:6:"expiry";i:${Math.round(
-        expiry.getTime() / 1000
-        )};}`
+            `a:2:{s:4:"hash";s:${hash.length}:"${hash}";s:6:"expiry";i:${Math.round(
+                expiry.getTime() / 1000
+            )};}`
         );
-        }
+    }
 
-        function createS3FileId(key, filename) {
+    function createS3FileId(key, filename) {
         return `${key.replace("_${filename}", "")}_${filename}`;
-        }
+    }
 
 
-        function getS3UploadParams(awsParam, url) {
+    function getS3UploadParams(awsParam, url) {
         if (typeof awsParam !== "string") {
-        awsParam = window.awsParam;
+            awsParam = window.awsParam;
         }
         if (typeof url !== "string") {
-        url = `//${window.location.host}/s/aws`;
+            url = `//${window.location.host}/s/aws`;
         }
         const formData = new FormData();
         formData.append("awsParam", JSON.stringify(awsParam));
         return fetch(url, {
-        method: "POST",
-        body: formData,
+            method: "POST",
+            body: formData,
         })
-        .then((res) => res.json())
-        .then((object) => {
-        if (object.code === 0 && object.data) {
-        return object.data;
-        }
+            .then((res) => res.json())
+            .then((object) => {
+                if (object.code === 0 && object.data) {
+                    return object.data;
+                }
 
-        return null;
-        });
+                return null;
+            });
 
-        }
+    }
 
-        function uploadFiles(filesToUpload, s3Params, toSubmit) {
+    function uploadFiles(filesToUpload, s3Params, toSubmit) {
         const paramsInputs = s3Params.inputs;
         const method = s3Params.attributes.method;
         const action = s3Params.attributes.action;
         const uploadPromises = filesToUpload.map(({ file, fieldName }) => {
-        return new Promise((resolve) => {
-        let s3FormData = new FormData();
+            return new Promise((resolve) => {
+                let s3FormData = new FormData();
 
-        for (const key in paramsInputs) {
-        s3FormData.append(key, paramsInputs[key]);
-        }
-        s3FormData.append("Content-Type", file.type);
-        s3FormData.append("file", file, file.name);
+                for (const key in paramsInputs) {
+                    s3FormData.append(key, paramsInputs[key]);
+                }
+                s3FormData.append("Content-Type", file.type);
+                s3FormData.append("file", file, file.name);
 
-        let xhr = new XMLHttpRequest();
-        xhr.open(method, action);
+                let xhr = new XMLHttpRequest();
+                xhr.open(method, action);
 
-        xhr.onloadend = function () {
-        if (xhr.status === 204) {
-        let s3Id = createS3FileId(paramsInputs.key, file.name);
-        const result = {
-        name: file.name,
-        type: file.type,
-        s3_id: s3Id,
-        };
-        if (toSubmit && fieldName) {
-        toSubmit[fieldName] = JSON.stringify(result);
-        }
-        resolve(result);
-        } else {
+                xhr.onloadend = function () {
+                    if (xhr.status === 204) {
+                        let s3Id = createS3FileId(paramsInputs.key, file.name);
+                        const result = {
+                            name: file.name,
+                            type: file.type,
+                            s3_id: s3Id,
+                        };
+                        if (toSubmit && fieldName) {
+                            toSubmit[fieldName] = JSON.stringify(result);
+                        }
+                        resolve(result);
+                    } else {
 
-        resolve(null);
-        }
-        };
+                        resolve(null);
+                    }
+                };
 
-        xhr.send(s3FormData);
-        });
+                xhr.send(s3FormData);
+            });
         });
 
         return Promise.all(uploadPromises);
-        }
+    }
 
-        function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
+    function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
         let awsParam;
         if (!awsParamHash) {
-        awsParam = window.awsParam;
+            awsParam = window.awsParam;
         } else if (typeof awsParamHash === "string") {
-        awsParam = encodeAwsParam(awsParamHash);
+            awsParam = encodeAwsParam(awsParamHash);
         }
 
         return getS3UploadParams(awsParam, awsParamUrl).then((s3Params) => {
-        if (!s3Params) {
-        const e = new Error("Failed to retrieve s3Params.");
-        e.failures = filesToUpload;
-        throw e;
-        }
-        return uploadFiles(filesToUpload, s3Params, toSubmit).then((result) => {
-        let error;
-        for (let i = 0; i < result.length; i++) { if (!result[i]) { if (!error) { error=new Error("One or more files
-            failed to upload."); error.failures=[]; } error.failures.push(filesToUpload[i]); } } if (error) { throw
-            error; } return toSubmit; }); }); } function decodeAwsParam(awsParam) { if (!awsParam) {
-            awsParam=window.awsParam; } // Decode base64. // The decoded string will look like this (serialized PHP
-            Array): // a:2:{s:4:"hash";s:32:"93be5a7f9d5fac17dfcc5c99870154a4";s:6:"expiry";i:1739195884;} const
-            serializedString=atob(awsParam); // Extract hash portion from serialized PHP array, which // is the `s:32:`
-            property in the example decoded string above. const hashMatch=serializedString.match(/s:\d+:"([a-f0-9]+)"/);
-            // Extract expiry portion from serialized PHP array, which // is the `i:` property in the example decoded
-            string above. const expiryMatch=serializedString.match(/i:(\d+)/); return { hash: hashMatch ? hashMatch[1] :
-            null, expiry: expiryMatch ? parseInt(expiryMatch[1], 10) : null, }; } function encodeAwsParam(hash,
-            currentEpoch) { if (typeof currentEpoch !=="number" ) { currentEpoch=Math.round(Date.now() / 1000); } const
-            expiry=new Date(currentEpoch * 1000); expiry.setTime(expiry.getTime() + 12 * 60 * 60 * 1000); return btoa(
-            `a:2:{s:4:"hash";s:${hash.length}:"${hash}";s:6:"expiry";i:${Math.round( expiry.getTime() / 1000 )};}` ); }
-            function createS3FileId(key, filename) { return `${key.replace("_${filename}", "" )}_${filename}`; }
-            function getS3UploadParams(awsParam, url) { if (typeof awsParam !=="string" ) { awsParam=window.awsParam; }
-            if (typeof url !=="string" ) { url=`//${window.location.host}/s/aws`; } const formData=new FormData();
-            formData.append("awsParam", JSON.stringify(awsParam)); return fetch(url, { method: "POST" , body: formData,
-            }) .then((res)=> res.json())
-            .then((object) => {
-            if (object.code === 0 && object.data) {
-            return object.data;
-            }
-
-            return null;
-            });
-            // Uncomment to implement your own error handling process.
-            // .catch(e => {})
-            }
-
-
-            function uploadFiles(filesToUpload, s3Params, toSubmit) {
-            const paramsInputs = s3Params.inputs;
-            const method = s3Params.attributes.method;
-            const action = s3Params.attributes.action;
-            const uploadPromises = filesToUpload.map(({ file, fieldName }) => {
-            return new Promise((resolve) => {
-            let s3FormData = new FormData();
-
-            // Append all required S3 fields
-            for (const key in paramsInputs) {
-            s3FormData.append(key, paramsInputs[key]);
-            }
-            // Append the actual file
-            s3FormData.append("Content-Type", file.type);
-            s3FormData.append("file", file, file.name);
-
-            let xhr = new XMLHttpRequest();
-            xhr.open(method, action);
-
-            xhr.onloadend = function () {
-            if (xhr.status === 204) {
-            let s3Id = createS3FileId(paramsInputs.key, file.name);
-            const result = {
-            name: file.name,
-            type: file.type,
-            s3_id: s3Id,
-            };
-            if (toSubmit && fieldName) {
-            toSubmit[fieldName] = JSON.stringify(result);
-            }
-            resolve(result);
-            } else {
-            resolve(null);
-            }
-            };
-
-            xhr.send(s3FormData);
-            });
-            });
-
-            return Promise.all(uploadPromises);
-            }
-
-            function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
-            let awsParam;
-            if (!awsParamHash) {
-            awsParam = window.awsParam;
-            } else if (typeof awsParamHash === "string") {
-            awsParam = encodeAwsParam(awsParamHash);
-            }
-
-            return getS3UploadParams(awsParam, awsParamUrl).then((s3Params) => {
             if (!s3Params) {
-            const e = new Error("Failed to retrieve s3Params.");
-            e.failures = filesToUpload;
-            throw e;
+                const e = new Error("Failed to retrieve s3Params.");
+                e.failures = filesToUpload;
+                throw e;
             }
             return uploadFiles(filesToUpload, s3Params, toSubmit).then((result) => {
-            let error;
-            for (let i = 0; i < result.length; i++) { if (!result[i]) { if (!error) { error=new Error("One or more files
-                failed to upload."); error.failures=[]; } error.failures.push(filesToUpload[i]); } } if (error) { throw
-                error; } return toSubmit; }); }); } function gatherMentionsFromElement(el) { const
-                mentionEls=el.querySelectorAll(".mention-handle[data-mention-id]"); return [...mentionEls].map(m=>
-                m.getAttribute("data-mention-id"));
+                let error;
+                for (let i = 0; i < result.length; i++) {
+                    if (!result[i]) {
+                        if (!error) {
+                            error = new Error("One or more files
+            failed to upload."); error.failures=[]; } error.failures.push(filesToUpload[i]); } } if (error) { throw
+            error;
+                        } return toSubmit;
+                    });
+        });
+    } function decodeAwsParam(awsParam) {
+        if (!awsParam) {
+            awsParam = window.awsParam;
+        } // Decode base64. // The decoded string will look like this (serialized PHP
+            Array): // a:2:{s:4:"hash";s:32:"93be5a7f9d5fac17dfcc5c99870154a4";s:6:"expiry";i:1739195884;} const
+        serializedString = atob(awsParam); // Extract hash portion from serialized PHP array, which // is the `s:32:`
+        property in the example decoded string above.const hashMatch = serializedString.match(/s:\d+:"([a-f0-9]+)"/);
+            // Extract expiry portion from serialized PHP array, which // is the `i:` property in the example decoded
+            string above.const expiryMatch = serializedString.match(/i:(\d+)/); return {
+            hash: hashMatch ? hashMatch[1] :
+                null, expiry: expiryMatch ? parseInt(expiryMatch[1], 10) : null,
+        };
+    } function encodeAwsParam(hash,
+        currentEpoch) {
+            if (typeof currentEpoch !== "number") { currentEpoch = Math.round(Date.now() / 1000); } const
+                expiry = new Date(currentEpoch * 1000); expiry.setTime(expiry.getTime() + 12 * 60 * 60 * 1000); return btoa(
+                    `a:2:{s:4:"hash";s:${hash.length}:"${hash}";s:6:"expiry";i:${Math.round(expiry.getTime() / 1000)};}`);
+    }
+    function createS3FileId(key, filename) { return `${key.replace("_${filename}", "")}_${filename}`; }
+    function getS3UploadParams(awsParam, url) {
+        if (typeof awsParam !== "string") { awsParam = window.awsParam; }
+        if (typeof url !== "string") { url = `//${window.location.host}/s/aws`; } const formData = new FormData();
+        formData.append("awsParam", JSON.stringify(awsParam)); return fetch(url, {
+            method: "POST", body: formData,
+        }).then((res) => res.json())
+            .then((object) => {
+                if (object.code === 0 && object.data) {
+                    return object.data;
                 }
-                let globalTribute = null;
-                let mentionArrays = {};
-                async function fetchContactsAndInitializeTribute(classId) {
-                const combinedQueryForAdminTeacherAndStudents = `
+
+                return null;
+            });
+        // Uncomment to implement your own error handling process.
+        // .catch(e => {})
+    }
+
+
+    function uploadFiles(filesToUpload, s3Params, toSubmit) {
+        const paramsInputs = s3Params.inputs;
+        const method = s3Params.attributes.method;
+        const action = s3Params.attributes.action;
+        const uploadPromises = filesToUpload.map(({ file, fieldName }) => {
+            return new Promise((resolve) => {
+                let s3FormData = new FormData();
+
+                // Append all required S3 fields
+                for (const key in paramsInputs) {
+                    s3FormData.append(key, paramsInputs[key]);
+                }
+                // Append the actual file
+                s3FormData.append("Content-Type", file.type);
+                s3FormData.append("file", file, file.name);
+
+                let xhr = new XMLHttpRequest();
+                xhr.open(method, action);
+
+                xhr.onloadend = function () {
+                    if (xhr.status === 204) {
+                        let s3Id = createS3FileId(paramsInputs.key, file.name);
+                        const result = {
+                            name: file.name,
+                            type: file.type,
+                            s3_id: s3Id,
+                        };
+                        if (toSubmit && fieldName) {
+                            toSubmit[fieldName] = JSON.stringify(result);
+                        }
+                        resolve(result);
+                    } else {
+                        resolve(null);
+                    }
+                };
+
+                xhr.send(s3FormData);
+            });
+        });
+
+        return Promise.all(uploadPromises);
+    }
+
+    function processFileFields(toSubmit, filesToUpload, awsParamHash, awsParamUrl) {
+        let awsParam;
+        if (!awsParamHash) {
+            awsParam = window.awsParam;
+        } else if (typeof awsParamHash === "string") {
+            awsParam = encodeAwsParam(awsParamHash);
+        }
+
+        return getS3UploadParams(awsParam, awsParamUrl).then((s3Params) => {
+            if (!s3Params) {
+                const e = new Error("Failed to retrieve s3Params.");
+                e.failures = filesToUpload;
+                throw e;
+            }
+            return uploadFiles(filesToUpload, s3Params, toSubmit).then((result) => {
+                let error;
+                for (let i = 0; i < result.length; i++) {
+                    if (!result[i]) {
+                        if (!error) {
+                            error = new Error("One or more files
+                failed to upload."); error.failures=[]; } error.failures.push(filesToUpload[i]); } } if (error) { throw
+                error;
+                        } return toSubmit;
+                    });
+        });
+    } function gatherMentionsFromElement(el) {
+        const
+        mentionEls = el.querySelectorAll(".mention-handle[data-mention-id]"); return [...mentionEls].map(m =>
+            m.getAttribute("data-mention-id"));
+    }
+    let globalTribute = null;
+    let mentionArrays = {};
+    async function fetchContactsAndInitializeTribute(classId) {
+        const combinedQueryForAdminTeacherAndStudents = `
                 query calcContacts($class_id: AwcClassID, $id: AwcClassID) {
                 calcContacts(
                 query: [
@@ -1113,48 +1152,48 @@ $el.closest('button').classList.add('hidden');
                 }
                 }
                 `;
-                const variables = { class_id: classId, id: classId };
-                const defaultImageUrl =
-                "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA";
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        const variables = { class_id: classId, id: classId };
+        const defaultImageUrl =
+            "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA";
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify({
-                query: combinedQueryForAdminTeacherAndStudents,
-                variables
+                    query: combinedQueryForAdminTeacherAndStudents,
+                    variables
                 })
-                });
-                if (!response.ok) throw new Error("HTTP Error");
-                const result = await response.json();
-                if (!result?.data?.calcContacts) {
+            });
+            if (!response.ok) throw new Error("HTTP Error");
+            const result = await response.json();
+            if (!result?.data?.calcContacts) {
                 console.error("Invalid response structure:", result);
                 return;
-                }
-                // const finalContacts = result.data.calcContacts.map(contact => {
-                const finalContacts = result.data.calcContacts
+            }
+            // const finalContacts = result.data.calcContacts.map(contact => {
+            const finalContacts = result.data.calcContacts
                 .filter(contact => contact.Display_Name)
                 .map(contact => {
-                let userType = "(Student)";
-                if (contact.Is_Admin) {
-                userType = "(Admin)";
-                } else if (contact.Is_Instructor) {
-                userType = "(Tutor)";
-                }
-                return {
-                key: `${contact.Display_Name} ${userType}`,
-                value: String(contact.Contact_ID),
-                image: contact.Profile_Image || defaultImageUrl
-                };
+                    let userType = "(Student)";
+                    if (contact.Is_Admin) {
+                        userType = "(Admin)";
+                    } else if (contact.Is_Instructor) {
+                        userType = "(Tutor)";
+                    }
+                    return {
+                        key: `${contact.Display_Name} ${userType}`,
+                        value: String(contact.Contact_ID),
+                        image: contact.Profile_Image || defaultImageUrl
+                    };
                 });
-                globalTribute = new Tribute({
+            globalTribute = new Tribute({
 
                 values: finalContacts,
                 menuItemTemplate: function (item) {
-                return `
+                    return `
                 <div class="cursor-pointer inline-flex items-center gap-x-1">
                     <img src="${item.original.image}" style="object-fit:cover;height:20px;width:20px;border-radius:50%">
                     <span>${item.string}</span>
@@ -1162,73 +1201,73 @@ $el.closest('button').classList.add('hidden');
                 `;
                 },
                 selectTemplate: function (item) {
-                return `<span class="mention-handle label bg-[#C7E6E6] py-1 px-2 rounded text-dark small-text"
+                    return `<span class="mention-handle label bg-[#C7E6E6] py-1 px-2 rounded text-dark small-text"
                     data-mention-id="${item.original.value}">@${item.original.key}</span>`;
                 }
 
 
-                });
-                document.querySelectorAll(".mentionable").forEach(el => {
+            });
+            document.querySelectorAll(".mentionable").forEach(el => {
                 globalTribute.attach(el);
-                });
-                } catch (e) {
-                console.error("Error fetching contacts:", e);
-                }
-                }
-                fetchContactsAndInitializeTribute(classId);
+            });
+        } catch (e) {
+            console.error("Error fetching contacts:", e);
+        }
+    }
+    fetchContactsAndInitializeTribute(classId);
 
-                function handleRepliesCount(el) {
+    function handleRepliesCount(el) {
 
-                const commentElement = el.closest("[comment-id]");
+        const commentElement = el.closest("[comment-id]");
 
-                if (!commentElement) {
+        if (!commentElement) {
 
-                return;
-                }
+            return;
+        }
 
-                // Retrieve the comment ID properly (without square brackets)
-                const commentNumber = Number(commentElement.getAttribute("comment-id"));
+        // Retrieve the comment ID properly (without square brackets)
+        const commentNumber = Number(commentElement.getAttribute("comment-id"));
 
-                if (commentNumber) {
-                handleReplyCount(commentNumber);
-                } else {
+        if (commentNumber) {
+            handleReplyCount(commentNumber);
+        } else {
 
-                }
-                }
+        }
+    }
 
-                function handleCommentCounts(el) {
-                let postContainer = el.closest('[current-post-id]');
+    function handleCommentCounts(el) {
+        let postContainer = el.closest('[current-post-id]');
 
-                if (!postContainer) {
+        if (!postContainer) {
 
-                return;
-                }
+            return;
+        }
 
-                let postId = parseInt(postContainer.getAttribute('current-post-id'), 10);
+        let postId = parseInt(postContainer.getAttribute('current-post-id'), 10);
 
-                if (!isNaN(postId)) {
-                if (typeof fetchCommentCount === 'function') {
+        if (!isNaN(postId)) {
+            if (typeof fetchCommentCount === 'function') {
                 fetchCommentCount(postId);
-                } else {
+            } else {
 
-                }
-                } else {
+            }
+        } else {
 
-                }
-                }
+        }
+    }
 
-                async function fetchReplyCounts(commentIDs) {
+    async function fetchReplyCounts(commentIDs) {
 
-                for (const replyID of commentIDs) {
-                await handleReplyCount(replyID);
-                }
+        for (const replyID of commentIDs) {
+            await handleReplyCount(replyID);
+        }
 
-                }
+    }
 
-                async function handleReplyCount(replyID) {
+    async function handleReplyCount(replyID) {
 
-                const query = {
-                query: `
+        const query = {
+            query: `
                 query calcForumComments {
                 calcForumComments(
                 query: [{ where: { reply_to_comment_id: ${replyID} } }]
@@ -1237,114 +1276,111 @@ $el.closest('button').classList.add('hidden');
                 }
                 }
                 `
-                };
+        };
 
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify(query)
-                });
+            });
 
-                const data = await response.json();
-                const replyCount = data.data?.calcForumComments?.[0]?.totalCount || 0;
+            const data = await response.json();
+            const replyCount = data.data?.calcForumComments?.[0]?.totalCount || 0;
 
 
 
-                const commentContainer = document.querySelector(`[comment-id="${replyID}"]`);
+            const commentContainer = document.querySelector(`[comment-id="${replyID}"]`);
 
-                if (commentContainer) {
+            if (commentContainer) {
                 const replyCountElement = commentContainer.querySelector(`[id^="replieCountForComments"]`);
 
                 if (replyCountElement) {
-                replyCountElement.innerHTML = `${replyCount} Replies`;
+                    replyCountElement.innerHTML = `${replyCount} Replies`;
                 } else {
 
                 }
-                } else {
+            } else {
 
-                }
-
-
+            }
 
 
-                } catch (error) {
 
-                }
-                }
 
-                async function fetchCommentCount(postId) {
-                const query = `
+        } catch (error) {
+
+        }
+    }
+
+    async function fetchCommentCount(postId) {
+        const query = `
                 query calcForumPosts($id: AwcForumPostID) {
-                calcForumPosts(query: [
-                { where: { id: $id } }
-                { andwhere: { post_status: "Published - Not flagged" } }
-                ]) {
+                calcForumPosts(query: [{ where: { id: $id } }]) {
                 ForumCommentsTotalCount: countDistinct(
                 args: [{ field: ["ForumComments", "id"] }]
                 )
                 }
                 }
                 `;
-                const variables = { id: postId };
+        const variables = { id: postId };
 
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify({ query, variables })
-                });
+            });
 
-                if (!response.ok) {
+            if (!response.ok) {
 
                 return;
-                }
+            }
 
-                const result = await response.json();
+            const result = await response.json();
 
-                if (result?.data?.calcForumPosts?.length > 0) {
+            if (result?.data?.calcForumPosts?.length > 0) {
 
                 document.querySelector(
-                `#commentCountsForPost-${postId}`
+                    `#commentCountsForPost-${postId}`
                 ).innerHTML = `${result.data.calcForumPosts[0].ForumCommentsTotalCount} Comments`;
-                } else {
+            } else {
 
-                }
-                } catch (error) {
+            }
+        } catch (error) {
 
-                }
-                }
+        }
+    }
 
-                async function processPosts(posts) {
-                if (!Array.isArray(posts) || posts.length === 0) {
-                return;
-                }
+    async function processPosts(posts) {
+        if (!Array.isArray(posts) || posts.length === 0) {
+            return;
+        }
 
-                for (const post of posts) {
-                if (post.ID) {
+        for (const post of posts) {
+            if (post.ID) {
                 await fetchCommentCount(post.ID);
-                } else {
+            } else {
 
-                }
-                }
-                }
+            }
+        }
+    }
 
-                let uploadedFile;
-                const fileInputClassChat = document.querySelector(".formFileInputForClassChat");
-                fileInputClassChat.addEventListener("change", () => {
-                const postFile = fileInputClassChat.files[0];
-                uploadedFile = postFile;
-                });
+    let uploadedFile;
+    const fileInputClassChat = document.querySelector(".formFileInputForClassChat");
+    fileInputClassChat.addEventListener("change", () => {
+        const postFile = fileInputClassChat.files[0];
+        uploadedFile = postFile;
+    });
 
 
-                async function updateForumComment(newComment, commentId) {
-                const graphqlMutation = `
+    async function updateForumComment(newComment, commentId) {
+        const graphqlMutation = `
                 mutation updateForumComment($payload: ForumCommentUpdateInput = null) {
                 updateForumComment(
                 query: [{ where: { id: $id } }]
@@ -1354,44 +1390,44 @@ $el.closest('button').classList.add('hidden');
                 }
                 }`;
 
-                const graphqlVariables = {
-                id: commentId,
-                payload: {
+        const graphqlVariables = {
+            id: commentId,
+            payload: {
                 comment: newComment
-                }
-                };
+            }
+        };
 
-                const httpRequestOptions = {
-                method: "POST",
-                headers: {
+        const httpRequestOptions = {
+            method: "POST",
+            headers: {
                 "Content-Type": "application/json",
                 "Api-Key": apiAccessKey
-                },
-                body: JSON.stringify({
+            },
+            body: JSON.stringify({
                 query: graphqlMutation,
                 variables: graphqlVariables
-                })
-                };
+            })
+        };
 
-                try {
-                const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
-                const responseData = await httpResponse.json();
+        try {
+            const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
+            const responseData = await httpResponse.json();
 
-                if (responseData.errors) {
+            if (responseData.errors) {
 
                 return null;
-                } else {
+            } else {
 
                 return responseData.data.updateForumComment.comment;
-                }
-                } catch (error) {
+            }
+        } catch (error) {
 
-                return null;
-                }
-                }
+            return null;
+        }
+    }
 
-                async function updateForumPost(newPostContent, id) {
-                const graphqlMutation = `
+    async function updateForumPost(newPostContent, id) {
+        const graphqlMutation = `
                 mutation updateForumPost(
                 $id: AwcForumPostID
                 $payload: ForumPostUpdateInput = null
@@ -1406,44 +1442,44 @@ $el.closest('button').classList.add('hidden');
 
                 `;
 
-                const graphqlVariables = {
-                id: id,
-                payload: {
+        const graphqlVariables = {
+            id: id,
+            payload: {
                 post_copy: newPostContent
-                }
-                };
+            }
+        };
 
-                const httpRequestOptions = {
-                method: "POST",
-                headers: {
+        const httpRequestOptions = {
+            method: "POST",
+            headers: {
                 "Content-Type": "application/json",
                 "Api-Key": apiAccessKey
-                },
-                body: JSON.stringify({
+            },
+            body: JSON.stringify({
                 query: graphqlMutation,
                 variables: graphqlVariables
-                })
-                };
+            })
+        };
 
-                try {
-                const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
-                const responseData = await httpResponse.json();
+        try {
+            const httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions);
+            const responseData = await httpResponse.json();
 
-                if (responseData.errors) {
+            if (responseData.errors) {
 
                 return null;
-                } else {
+            } else {
 
                 return responseData.data.updateForumPost.post_copy;
-                }
-                } catch (error) {
-                return null;
-                }
-                }
+            }
+        } catch (error) {
+            return null;
+        }
+    }
 
-                async function createForumPost(payload) {
-                //DISCLAIMER: this creates a forum post without mentions and file attachments. Just a string.
-                const mutation = `
+    async function createForumPost(payload) {
+        //DISCLAIMER: this creates a forum post without mentions and file attachments. Just a string.
+        const mutation = `
                 mutation createForumPost($payload: ForumPostCreateInput!) {
                 createForumPost(payload: $payload) {
                 post_copy
@@ -1451,7 +1487,6 @@ $el.closest('button').classList.add('hidden');
                 class_id
                 file
                 post_image
-                post_status
                 Mentions {
                 id
                 }
@@ -1459,43 +1494,43 @@ $el.closest('button').classList.add('hidden');
                 }
                 `;
 
-                const requestBody = {
-                query: mutation,
-                variables: { payload }
-                };
+        const requestBody = {
+            query: mutation,
+            variables: { payload }
+        };
 
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify(requestBody)
-                });
+            });
 
-                if (!response.ok) {
+            if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
-                }
+            }
 
-                const data = await response.json();
-                let currentPostID = Object.values(data?.extensions?.pkMap)?.[0];
-                let fileURLThing = data.data.createForumPost.file;
+            const data = await response.json();
+            let currentPostID = Object.values(data?.extensions?.pkMap)?.[0];
+            let fileURLThing = data.data.createForumPost.file;
 
 
-                if (currentPostID) {
+            if (currentPostID) {
                 return [currentPostID, fileURLThing];
-                } else {
+            } else {
                 throw new Error("Current Post Id was not received From the server.");
-                }
-                } catch (error) {
+            }
+        } catch (error) {
 
-                }
-                }
+        }
+    }
 
-                async function fetchLikesForReplies(commentId) {
+    async function fetchLikesForReplies(commentId) {
 
-                const query = `
+        const query = `
                 query calcMemberCommentUpvotesForumCommentUpvotesMany($limit: IntScalar, $offset: IntScalar) {
                 calcMemberCommentUpvotesForumCommentUpvotesMany(
                 query: [{ where: { forum_comment_upvote_id: ${commentId} } }]
@@ -1515,57 +1550,57 @@ $el.closest('button').classList.add('hidden');
                 }
                 `;
 
-                const variables = {
-                limit: 100,
-                offset: 0
-                };
+        const variables = {
+            limit: 100,
+            offset: 0
+        };
 
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify({
-                query,
-                variables
+                    query,
+                    variables
                 })
-                });
+            });
 
-                const result = await response.json();
+            const result = await response.json();
 
-                if (result.errors) {
+            if (result.errors) {
 
                 return;
-                }
+            }
 
-                const likesData =
+            const likesData =
                 result.data.calcMemberCommentUpvotesForumCommentUpvotesMany;
 
-                const uniqueLikes = Array.from(
+            const uniqueLikes = Array.from(
                 new Map(
-                likesData.map((like) => [like.Member_Comment_Upvote_Contact_ID, like])
+                    likesData.map((like) => [like.Member_Comment_Upvote_Contact_ID, like])
                 ).values()
-                );
+            );
 
-                const userLike = uniqueLikes.find(
+            const userLike = uniqueLikes.find(
                 (like) =>
-                like.Member_Comment_Upvote_Contact_ID.toString() ===
-                visitorContactID
-                );
+                    like.Member_Comment_Upvote_Contact_ID.toString() ===
+                    visitorContactID
+            );
 
-                const hasUserLiked = Boolean(userLike);
+            const hasUserLiked = Boolean(userLike);
 
-                const userLikeID = hasUserLiked ? userLike.ID : null;
-                return [uniqueLikes.length, hasUserLiked, userLikeID];
-                } catch (error) {
+            const userLikeID = hasUserLiked ? userLike.ID : null;
+            return [uniqueLikes.length, hasUserLiked, userLikeID];
+        } catch (error) {
 
-                }
-                }
+        }
+    }
 
-                async function createVoteForComments(memberId, commentId) {
-                const query = `
+    async function createVoteForComments(memberId, commentId) {
+        const query = `
                 mutation createMemberCommentUpvotesForumCommentUpvotes($payload:
                 MemberCommentUpvotesForumCommentUpvotesCreateInput = null) {
                 createMemberCommentUpvotesForumCommentUpvotes(payload: $payload) {
@@ -1575,41 +1610,41 @@ $el.closest('button').classList.add('hidden');
                 }
                 `;
 
-                const payload = {
-                member_comment_upvote_id: memberId,
-                forum_comment_upvote_id: commentId
-                };
+        const payload = {
+            member_comment_upvote_id: memberId,
+            forum_comment_upvote_id: commentId
+        };
 
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify({ query, variables: { payload } })
-                });
+            });
 
-                if (!response.ok) {
+            if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
-                }
+            }
 
-                const result = await response.json();
+            const result = await response.json();
 
-                if (result.errors) {
-
-                return null;
-                }
-
-                return result;
-                } catch (error) {
+            if (result.errors) {
 
                 return null;
-                }
-                }
+            }
 
-                const deleteVoteCount = async (id) => {
-                const query = `
+            return result;
+        } catch (error) {
+
+            return null;
+        }
+    }
+
+    const deleteVoteCount = async (id) => {
+        const query = `
                 mutation deleteMemberCommentUpvotesForumCommentUpvotes(
                 $id: AwcMemberCommentUpvotesForumCommentUpvotesID
                 ) {
@@ -1621,31 +1656,31 @@ $el.closest('button').classList.add('hidden');
                 }
                 `;
 
-                const variables = {
-                id
-                };
+        const variables = {
+            id
+        };
 
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify({
-                query,
-                variables
+                    query,
+                    variables
                 })
-                });
+            });
 
-                const result = await response.json();
-                return result;
-                } catch (error) {
+            const result = await response.json();
+            return result;
+        } catch (error) {
 
-                }
-                };
+        }
+    };
 
-                const calcMemberCommentUpvotesQuery = `
+    const calcMemberCommentUpvotesQuery = `
                 query calcMemberCommentUpvotesForumCommentUpvotesMany($id: AwcForumCommentID) {
                 calcMemberCommentUpvotesForumCommentUpvotesMany(
                 query: [
@@ -1662,37 +1697,37 @@ $el.closest('button').classList.add('hidden');
                 }
                 }
                 `;
-                async function fetchCommentUpvotes(commentId) {
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+    async function fetchCommentUpvotes(commentId) {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify({
-                query: calcMemberCommentUpvotesQuery,
-                variables: {
-                id: commentId
-                }
+                    query: calcMemberCommentUpvotesQuery,
+                    variables: {
+                        id: commentId
+                    }
                 })
-                });
+            });
 
-                const result = await response.json();
-                if (response.ok) {
+            const result = await response.json();
+            if (response.ok) {
                 return result.data.calcMemberCommentUpvotesForumCommentUpvotesMany;
-                } else {
+            } else {
 
                 throw new Error("Failed to fetch data");
-                }
-                } catch (error) {
+            }
+        } catch (error) {
 
-                throw error;
-                }
-                }
+            throw error;
+        }
+    }
 
-                const createReply = async (payload) => {
-                const query = `
+    const createReply = async (payload) => {
+        const query = `
                 mutation createForumComment($payload: ForumCommentCreateInput) {
                 createForumComment(payload: $payload) {
                 Mentions{
@@ -1714,29 +1749,29 @@ $el.closest('button').classList.add('hidden');
                 }
                 `;
 
-                const variables = { payload };
+        const variables = { payload };
 
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
                 },
                 body: JSON.stringify({
-                query,
-                variables
+                    query,
+                    variables
                 })
-                });
+            });
 
-                const result = await response.json();
-                return result.data.createForumComment;
-                } catch (error) {
+            const result = await response.json();
+            return result.data.createForumComment;
+        } catch (error) {
 
-                }
-                };
+        }
+    };
 
-                const mutation = `
+    const mutation = `
                 mutation createMemberPostUpvotesPostUpvotes(
                 $payload: MemberPostUpvotesPostUpvotesCreateInput = null
                 ) {
@@ -1747,47 +1782,47 @@ $el.closest('button').classList.add('hidden');
                 }
                 `;
 
-                async function createVote(payload) {
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+    async function createVote(payload) {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Api-Key": apiAccessKey,
-                "Content-Type": "application/json"
+                    "Api-Key": apiAccessKey,
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                query: mutation,
-                variables: { payload }
+                    query: mutation,
+                    variables: { payload }
                 })
-                });
+            });
 
-                if (!response.ok) {
+            if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const result = await response.json();
+            }
+            const result = await response.json();
 
-                if (result.errors) {
+            if (result.errors) {
                 throw new Error(
-                `GraphQL error: ${result.errors.map((err) => err.message).join(", ")}`
+                    `GraphQL error: ${result.errors.map((err) => err.message).join(", ")}`
                 );
-                }
+            }
 
-                const pkMapValue = result.extensions?.pkMap
+            const pkMapValue = result.extensions?.pkMap
                 ? Object.values(result.extensions.pkMap)[0]
                 : null;
 
-                if (pkMapValue === null) {
+            if (pkMapValue === null) {
                 throw new Error("pkMap value not found in the response.");
-                }
+            }
 
-                return pkMapValue;
-                } catch (error) {
+            return pkMapValue;
+        } catch (error) {
 
-                throw error;
-                }
-                }
+            throw error;
+        }
+    }
 
-                const deleteMutation = `
+    const deleteMutation = `
                 mutation deleteMemberPostUpvotesPostUpvotes(
                 $id: AwcMemberPostUpvotesPostUpvotesID
                 ) {
@@ -1799,44 +1834,44 @@ $el.closest('button').classList.add('hidden');
                 }
                 `;
 
-                async function deleteVote(id) {
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+    async function deleteVote(id) {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: {
-                "Api-Key": apiAccessKey,
-                "Content-Type": "application/json"
+                    "Api-Key": apiAccessKey,
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                query: deleteMutation,
-                variables: { id }
+                    query: deleteMutation,
+                    variables: { id }
                 })
-                });
+            });
 
-                if (!response.ok) {
+            if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+            }
 
-                const result = await response.json();
+            const result = await response.json();
 
-                if (result.errors) {
+            if (result.errors) {
                 throw new Error(
-                `GraphQL error: ${result.errors.map((err) => err.message).join(", ")}`
+                    `GraphQL error: ${result.errors.map((err) => err.message).join(", ")}`
                 );
-                }
+            }
 
-                return result.data.deleteMemberPostUpvotesPostUpvotes.id;
-                } catch (error) {
+            return result.data.deleteMemberPostUpvotesPostUpvotes.id;
+        } catch (error) {
 
-                throw error;
-                }
-                }
+            throw error;
+        }
+    }
 
 
-                const currentUserId = Number(visitorContactID);
+    const currentUserId = Number(visitorContactID);
 
-                async function fetchPostUpvotes(postId) {
-                const query = `
+    async function fetchPostUpvotes(postId) {
+        const query = `
                 query calcMemberPostUpvotesPostUpvotesMany($id: AwcForumPostID) {
                 calcMemberPostUpvotesPostUpvotesMany(
                 query: [
@@ -1849,56 +1884,64 @@ $el.closest('button').classList.add('hidden');
                 }
                 }
                 `;
-                const variables = { id: postId };
+        const variables = { id: postId };
 
-                const headers = {
-                "Content-Type": "application/json",
-                "Api-Key": apiAccessKey
-                };
+        const headers = {
+            "Content-Type": "application/json",
+            "Api-Key": apiAccessKey
+        };
 
-                try {
-                const response = await fetch(graphqlApiEndpoint, {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
                 method: "POST",
                 headers: headers,
                 body: JSON.stringify({ query, variables })
-                });
+            });
 
-                if (!response.ok) {
+            if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
-                }
+            }
 
-                const data = await response.json();
-                return data;
-                } catch (error) {
-                return null;
-                }
-                }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            return null;
+        }
+    }
 
-                function getUserUpvoteID(upvotes, userId) {
-                for (let i = 0; i < upvotes.length; i++) { if (upvotes[i].Member_Post_Upvote_ID===userId) { return
-                    upvotes[i].ID; } } return null; } async function fetchAndDisplayAllUpvotes() { const
-                    posts=document.querySelectorAll(".forum-post"); for (const post of posts) { const
-                    postId=post.getAttribute("current-post-id"); if (!postId) { continue; } const data=await
-                    fetchPostUpvotes(postId); if ( data && data.data &&
-                    Array.isArray(data.data.calcMemberPostUpvotesPostUpvotesMany) ) { const
-                    upvotes=data.data.calcMemberPostUpvotesPostUpvotesMany; const uniqueMemberIds=new Set(
-                    upvotes.map((upvote)=> upvote.Member_Post_Upvote_ID)
-                    );
-                    const upvoteCount = uniqueMemberIds.size;
-                    post.setAttribute("updated-upVoteCount", upvoteCount);
+    function getUserUpvoteID(upvotes, userId) {
+        for (let i = 0; i < upvotes.length; i++) {
+            if (upvotes[i].Member_Post_Upvote_ID === userId) {
+                return
+                upvotes[i].ID;
+            }
+        } return null;
+    } async function fetchAndDisplayAllUpvotes() {
+        const
+        posts = document.querySelectorAll(".forum-post"); for (const post of posts) {
+            const
+            postId = post.getAttribute("current-post-id"); if (!postId) { continue; } const data = await
+                fetchPostUpvotes(postId); if (data && data.data &&
+                    Array.isArray(data.data.calcMemberPostUpvotesPostUpvotesMany)) {
+                        const
+                        upvotes = data.data.calcMemberPostUpvotesPostUpvotesMany; const uniqueMemberIds = new Set(
+                            upvotes.map((upvote) => upvote.Member_Post_Upvote_ID)
+                        );
+                const upvoteCount = uniqueMemberIds.size;
+                post.setAttribute("updated-upVoteCount", upvoteCount);
 
-                    const voteCounter_chat = post.querySelector(".voteCounter_chat");
-                    if (voteCounter_chat) {
+                const voteCounter_chat = post.querySelector(".voteCounter_chat");
+                if (voteCounter_chat) {
                     voteCounter_chat.textContent = upvoteCount;
-                    } else {
+                } else {
 
-                    }
+                }
 
-                    if (uniqueMemberIds.has(currentUserId)) {
+                if (uniqueMemberIds.has(currentUserId)) {
                     const voteButton_chat = post.querySelector(".voteButton_chat");
                     if (voteButton_chat) {
-                    voteButton_chat.classList.add("upVoted");
-                    post.setAttribute("user-liked-post", "true");
+                        voteButton_chat.classList.add("upVoted");
+                        post.setAttribute("user-liked-post", "true");
                     } else {
 
                     }
@@ -1906,30 +1949,30 @@ $el.closest('button').classList.add('hidden');
                     const userUpvoteID = getUserUpvoteID(upvotes, currentUserId);
 
                     if (userUpvoteID !== null) {
-                    post.setAttribute("member-upvote-id", userUpvoteID);
+                        post.setAttribute("member-upvote-id", userUpvoteID);
                     } else {
 
                     }
-                    } else {
+                } else {
                     const voteButton_chat = post.querySelector(".voteButton_chat");
                     if (voteButton_chat) {
-                    voteButton_chat.classList.remove("upVoted");
-                    post.setAttribute("user-liked-post", "false");
+                        voteButton_chat.classList.remove("upVoted");
+                        post.setAttribute("user-liked-post", "false");
                     } else {
 
                     }
 
                     post.removeAttribute("member-upvote-id");
-                    }
-                    } else {
+                }
+            } else {
 
-                    }
-                    }
-                    }
+            }
+        }
+    }
 
 
-                    async function deleteForumPost(postId) {
-                    const mutation = `
+    async function deleteForumPost(postId) {
+        const mutation = `
                     mutation deleteForumPost($postId: AwcForumPostID!) {
                     deleteForumPost(query: [{ where: { id: $postId } }]) {
                     id
@@ -1937,36 +1980,36 @@ $el.closest('button').classList.add('hidden');
                     }
                     `;
 
-                    const variables = { postId };
+        const variables = { postId };
 
-                    try {
-                    const response = await fetch(graphqlApiEndpoint, {
-                    method: "POST",
-                    headers: {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
+                method: "POST",
+                headers: {
                     "Api-Key": apiAccessKey,
                     "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ query: mutation, variables })
-                    });
+                },
+                body: JSON.stringify({ query: mutation, variables })
+            });
 
-                    const json = await response.json();
-                    return json;
+            const json = await response.json();
+            return json;
 
-                    if (json.errors) {
+            if (json.errors) {
 
-                    return null;
-                    }
+                return null;
+            }
 
-                    return json.data.deleteForumPost;
-                    } catch (error) {
+            return json.data.deleteForumPost;
+        } catch (error) {
 
-                    return null;
-                    }
-                    }
+            return null;
+        }
+    }
 
 
-                    async function postComment(postId, authorId, commentText, mentionIDs, file) {
-                    const addCommentMutationQuery = `
+    async function postComment(postId, authorId, commentText, mentionIDs, file) {
+        const addCommentMutationQuery = `
                     mutation createForumComment($payload: ForumCommentCreateInput!) {
                     createForumComment(payload: $payload) {
                     Mentions {
@@ -1985,62 +2028,62 @@ $el.closest('button').classList.add('hidden');
                     }
                     `;
 
-                    // Build the payload with required fields.
-                    const payload = {
-                    forum_post_id: postId,
-                    author_id: authorId,
-                    comment: commentText,
-                    Mentions: mentionIDs.length > 0 ? mentionIDs : [],
-                    };
+        // Build the payload with required fields.
+        const payload = {
+            forum_post_id: postId,
+            author_id: authorId,
+            comment: commentText,
+            Mentions: mentionIDs.length > 0 ? mentionIDs : [],
+        };
 
-                    // Include the file if provided.
-                    if (file) {
-                    payload.file = file;
-                    }
+        // Include the file if provided.
+        if (file) {
+            payload.file = file;
+        }
 
-                    const requestBodyForComment = {
-                    query: addCommentMutationQuery,
-                    variables: {
-                    payload
-                    }
-                    };
+        const requestBodyForComment = {
+            query: addCommentMutationQuery,
+            variables: {
+                payload
+            }
+        };
 
-                    try {
-                    const responseFromComment = await fetch(graphqlApiEndpoint, {
-                    method: "POST",
-                    headers: {
+        try {
+            const responseFromComment = await fetch(graphqlApiEndpoint, {
+                method: "POST",
+                headers: {
                     "Content-Type": "application/json",
                     "Api-Key": apiAccessKey
-                    },
-                    body: JSON.stringify(requestBodyForComment)
-                    });
+                },
+                body: JSON.stringify(requestBodyForComment)
+            });
 
-                    if (!responseFromComment.ok) {
-                    throw new Error(`GraphQL HTTP error! Status: ${responseFromComment.status}`);
-                    }
+            if (!responseFromComment.ok) {
+                throw new Error(`GraphQL HTTP error! Status: ${responseFromComment.status}`);
+            }
 
-                    const responseJson = await responseFromComment.json();
+            const responseJson = await responseFromComment.json();
 
-                    if (responseJson.data && responseJson.data.createForumComment) {
-                    return responseJson;
-                    } else {
+            if (responseJson.data && responseJson.data.createForumComment) {
+                return responseJson;
+            } else {
 
-                    }
-                    } catch (error) {
+            }
+        } catch (error) {
 
-                    alert(`Error submitting comment: ${error.message}`);
-                    }
-                    }
+            alert(`Error submitting comment: ${error.message}`);
+        }
+    }
 
 
 
-                    async function deleteForumComment(commentId) {
-                    if (!commentId || typeof commentId !== "string") {
+    async function deleteForumComment(commentId) {
+        if (!commentId || typeof commentId !== "string") {
 
-                    return null;
-                    }
+            return null;
+        }
 
-                    const mutation = `
+        const mutation = `
                     mutation deleteForumComment($id: AwcForumCommentID!) {
                     deleteForumComment(query: [{ where: { id: $id } }]) {
                     id
@@ -2048,58 +2091,58 @@ $el.closest('button').classList.add('hidden');
                     }
                     `;
 
-                    const variables = { id: commentId };
+        const variables = { id: commentId };
 
-                    try {
-                    const response = await fetch(graphqlApiEndpoint, {
-                    method: "POST",
-                    headers: {
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
+                method: "POST",
+                headers: {
                     "Api-Key": apiAccessKey,
                     "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ query: mutation, variables })
-                    });
+                },
+                body: JSON.stringify({ query: mutation, variables })
+            });
 
-                    if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
-                    const json = await response.json();
+            const json = await response.json();
 
-                    if (json.errors) {
+            if (json.errors) {
 
-                    return null;
-                    }
+                return null;
+            }
 
-                    const deleted = json.data.deleteForumComment;
-
-
-
-                    if (deleted && deleted.id) {
-
-
-                    return deleted;
-                    }
-
-                    return null;
-                    } catch (error) {
-
-                    return null;
-                    }
-                    }
+            const deleted = json.data.deleteForumComment;
 
 
 
+            if (deleted && deleted.id) {
 
-                    function createPostsFetcher() {
-                    let limit = 3, offset = 0;
-                    let loadingThePosts = false;
-                    let lastFetchedTime = 0;
-                    const cooldownTime = 500;
-                    return async function fetchForumPosts() {
-                    const now = Date.now();
-                    if (loadingThePosts || now - lastFetchedTime < cooldownTime) { return []; } loadingThePosts=true;
-                        lastFetchedTime=now; const graphqlQuery=` query calcForumPosts($class_id: AwcClassID, $limit:
+
+                return deleted;
+            }
+
+            return null;
+        } catch (error) {
+
+            return null;
+        }
+    }
+
+
+
+
+    function createPostsFetcher() {
+        let limit = 3, offset = 0;
+        let loadingThePosts = false;
+        let lastFetchedTime = 0;
+        const cooldownTime = 500;
+        return async function fetchForumPosts() {
+            const now = Date.now();
+            if (loadingThePosts || now - lastFetchedTime < cooldownTime) { return []; } loadingThePosts = true;
+            lastFetchedTime = now; const graphqlQuery = ` query calcForumPosts($class_id: AwcClassID, $limit:
                         IntScalar, $offset: IntScalar) { calcForumPosts( query: [{ where: { class_id: $class_id } }]
                         limit: $limit offset: $offset orderBy: [{ path: ["created_at"], type: desc }] ) {
                         Author_Profile_Image: field(arg: ["Author", "profile_image" ]) Author_Display_Name: field(arg:
@@ -2109,91 +2152,99 @@ $el.closest('button').classList.add('hidden');
                         field(arg: ["author_id"]) File: field(arg: ["file"]) ID: field(arg: ["id"]) ClassID: field(arg:
                         ["Class", "id" ]) Author_Is_Instructor: field(arg: ["Author", "is_instructor" ])
                         ForumCommentsTotalCount: countDistinct(args: [{ field: ["ForumComments", "id" ] }])
-                        Author_Is_Admin: field(arg: ["Author", "is_admin" ]) } }`; const variables={ class_id:
-                        Number(currentClassID), limit: limit, offset: offset }; const httpRequestOptions={
-                        method: "POST" , headers: { "Content-Type" : "application/json" , "Api-Key" : apiAccessKey },
-                        body: JSON.stringify({ query: graphqlQuery, variables: variables }) }; try { const
-                        httpResponse=await fetch(graphqlApiEndpoint, httpRequestOptions); const responseData=await
-                        httpResponse.json(); if (responseData.errors) { console.error("GraphQL Errors
-                        (fetchForumPosts):", responseData.errors); return []; } else { offset +=limit; return
-                        responseData.data.calcForumPosts || []; } } catch (error) { console.error("Error while fetching
-                        forum posts:", error); return []; } finally { setTimeout(()=> {
+                        Author_Is_Admin: field(arg: ["Author", "is_admin" ]) } }`; const variables = {
+                class_id:
+                    Number(currentClassID), limit: limit, offset: offset
+            }; const httpRequestOptions = {
+                method: "POST", headers: { "Content-Type": "application/json", "Api-Key": apiAccessKey },
+                body: JSON.stringify({ query: graphqlQuery, variables: variables })
+            }; try {
+                const
+                httpResponse = await fetch(graphqlApiEndpoint, httpRequestOptions); const responseData = await
+                    httpResponse.json(); if (responseData.errors) {
+                        console.error("GraphQL Errors
+                            (fetchForumPosts): ", responseData.errors); return []; } else { offset +=limit; return
+                        responseData.data.calcForumPosts || [];
+                    }
+            } catch (error) {
+                console.error("Error while fetching
+                        forum posts: ", error); return []; } finally { setTimeout(()=> {
                         loadingThePosts = false;
-                        }, cooldownTime);
-                        }
-                        };
-                        }
-
-
-                        function renderForumPosts(posts) {
-                        const forumContainer = document.getElementById("parentAllAnnouncements");
-                        if (!forumContainer) {
-
-                        return;
-                        }
-
-                        // forumContainer.innerHTML = "";
-                        posts.forEach((post, index) => {
-                        const postDate = post.Date_Added
-                        ? new Date(post.Date_Added * 1000).toLocaleString()
-                        : "N/A";
-
-                        const profileImage = post.Author_Profile_Image || "";
-                        //const authorFullName = post.Author_Display_Name || "Anoynomous";
-                        const authorFullName = post.Author_Display_Name || ((post.Author_First_Name ||
-                        post.Author_Last_Name) ? `${post.Author_First_Name ?? ''} ${post.Author_Last_Name ?? ''}`.trim()
-                        : "Anonymous");
-                        const postContent = post.Post_Copy || "N/A";
-                        const authorId = post.Author_ID;
-                        const actualPostID = post.ID;
-                        const postFile = post.File;
-                        const isTeacher = post.Author_Is_Instructor;
-                        const ForumCommentsTotalCount = post.ForumCommentsTotalCount;
-                        const isAuthorAnAdmin = post.Author_Is_Admin;
-
-                        const embeedableUrls = extractAndConvertToEmbedUrls(postContent);
-
-                        // Declare and initialize postHTML properly before using it
-                        const postHTML = templateForForumPost(
-                        profileImage,
-                        authorFullName,
-                        postDate,
-                        embeedableUrls.formattedPostText,
-                        authorId,
-                        actualPostID,
-                        postFile,
-                        isTeacher,
-                        ForumCommentsTotalCount,
-                        isAuthorAnAdmin
-                        );
-
-                        // Check if postHTML is valid
-                        if (!postHTML) {
-
-                        return;
-                        }
-
-                        const postWrapper = document.createElement("div");
-                        postWrapper.innerHTML = postHTML;
-
-                        // Handling embedded URLs
-                        if (embeedableUrls.embeddableUrls.length > 0) {
-                        let randomNumber = Math.floor(Math.random() * embeedableUrls.embeddableUrls.length);
-                        let iframe = postWrapper.firstElementChild.querySelector("iframe");
-                        if (iframe) {
-                        iframe.src = embeedableUrls.embeddableUrls[randomNumber];
-                        iframe.classList.remove("hidden");
-                        }
-                        }
-
-                        forumContainer.appendChild(postWrapper.firstElementChild);
-                        });
+            }, cooldownTime);
+        }
+    };
                         }
 
 
+    function renderForumPosts(posts) {
+        const forumContainer = document.getElementById("parentAllAnnouncements");
+        if (!forumContainer) {
 
-                        async function getCommentsByPostId(postId) {
-                        const query = `
+            return;
+        }
+
+        // forumContainer.innerHTML = "";
+        posts.forEach((post, index) => {
+            const postDate = post.Date_Added
+                ? new Date(post.Date_Added * 1000).toLocaleString()
+                : "N/A";
+
+            const profileImage = post.Author_Profile_Image || "";
+            //const authorFullName = post.Author_Display_Name || "Anoynomous";
+            const authorFullName = post.Author_Display_Name || ((post.Author_First_Name ||
+                post.Author_Last_Name) ? `${post.Author_First_Name ?? ''} ${post.Author_Last_Name ?? ''}`.trim()
+                : "Anonymous");
+            const postContent = post.Post_Copy || "N/A";
+            const authorId = post.Author_ID;
+            const actualPostID = post.ID;
+            const postFile = post.File;
+            const isTeacher = post.Author_Is_Instructor;
+            const ForumCommentsTotalCount = post.ForumCommentsTotalCount;
+            const isAuthorAnAdmin = post.Author_Is_Admin;
+
+            const embeedableUrls = extractAndConvertToEmbedUrls(postContent);
+
+            // Declare and initialize postHTML properly before using it
+            const postHTML = templateForForumPost(
+                profileImage,
+                authorFullName,
+                postDate,
+                embeedableUrls.formattedPostText,
+                authorId,
+                actualPostID,
+                postFile,
+                isTeacher,
+                ForumCommentsTotalCount,
+                isAuthorAnAdmin
+            );
+
+            // Check if postHTML is valid
+            if (!postHTML) {
+
+                return;
+            }
+
+            const postWrapper = document.createElement("div");
+            postWrapper.innerHTML = postHTML;
+
+            // Handling embedded URLs
+            if (embeedableUrls.embeddableUrls.length > 0) {
+                let randomNumber = Math.floor(Math.random() * embeedableUrls.embeddableUrls.length);
+                let iframe = postWrapper.firstElementChild.querySelector("iframe");
+                if (iframe) {
+                    iframe.src = embeedableUrls.embeddableUrls[randomNumber];
+                    iframe.classList.remove("hidden");
+                }
+            }
+
+            forumContainer.appendChild(postWrapper.firstElementChild);
+        });
+    }
+
+
+
+    async function getCommentsByPostId(postId) {
+        const query = `
                         query calcForumComments($postId: AwcForumPostID) {
                         calcForumComments(
                         query: [
@@ -2230,154 +2281,167 @@ $el.closest('button').classList.add('hidden');
                         }
                         `;
 
-                        try {
-                        const response = await fetch(graphqlApiEndpoint, {
-                        method: "POST",
-                        headers: {
-                        "Api-Key": apiAccessKey,
-                        "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                        query,
-                        variables: { postId }
-                        })
-                        });
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
+                method: "POST",
+                headers: {
+                    "Api-Key": apiAccessKey,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    query,
+                    variables: { postId }
+                })
+            });
 
-                        if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
-                        const result = await response.json();
+            const result = await response.json();
 
-                        return result.data?.calcForumComments || [];
-                        } catch (error) {
+            return result.data?.calcForumComments || [];
+        } catch (error) {
 
-                        return [];
-                        }
-                        }
+            return [];
+        }
+    }
 
-                        // Function to fetch upvotes for each reply
-                        async function fetchUpVotesForReplies(replies) {
-                        const promises = replies.map(async (reply) => {
-                        try {
-                        const likesData = await fetchLikesForReplies(reply.ID);
-                        return likesData;
-                        } catch (error) {
+    // Function to fetch upvotes for each reply
+    async function fetchUpVotesForReplies(replies) {
+        const promises = replies.map(async (reply) => {
+            try {
+                const likesData = await fetchLikesForReplies(reply.ID);
+                return likesData;
+            } catch (error) {
 
-                        return [0, false, null];
-                        }
-                        });
-                        return Promise.all(promises);
-                        }
+                return [0, false, null];
+            }
+        });
+        return Promise.all(promises);
+    }
 
-                        // Function to process and render replies for a given commentId
-                        async function renderRepliesForComment(commentId) {
-                        try {
-                        const replyShowContainer = document
-                        .querySelector(`[comment-id="${commentId}"]`)
-                        .querySelector(".replyShowContainer");
-                        if (!replyShowContainer) {
-                        return;
-                        } else {
+    // Function to process and render replies for a given commentId
+    async function renderRepliesForComment(commentId) {
+        try {
+            const replyShowContainer = document
+                .querySelector(`[comment-id="${commentId}"]`)
+                .querySelector(".replyShowContainer");
+            if (!replyShowContainer) {
+                return;
+            } else {
 
-                        }
+            }
 
-                        let replies = await fetchRepliesByCommentId(commentId);
+            let replies = await fetchRepliesByCommentId(commentId);
 
-                        if (Array.isArray(replies) && replies.length > 0) {
+            if (Array.isArray(replies) && replies.length > 0) {
 
-                        const likesData = await fetchUpVotesForReplies(replies);
+                const likesData = await fetchUpVotesForReplies(replies);
 
-                        $.views.helpers({
-                        elapsedTime: convertToElapsedTime
-                        });
-                        const replyTmpl = $.templates("#replyTemplate");
-                        const replyHTML = replyTmpl.render(replies);
-                        replyShowContainer.innerHTML = replyHTML;
+                $.views.helpers({
+                    elapsedTime: convertToElapsedTime
+                });
+                const replyTmpl = $.templates("#replyTemplate");
+                const replyHTML = replyTmpl.render(replies);
+                replyShowContainer.innerHTML = replyHTML;
 
 
-                        const allReplies = Array.from(replyShowContainer.children);
-                        for (let i = 0; i < allReplies.length; i++) { const replyElement=allReplies[i]; // Set an
-                            attribute based on whether the user liked the reply if (likesData[i][1]===false) {
-                            replyElement.setAttribute("user-liked-reply", "false" ); } else {
-                            replyElement.setAttribute("user-liked-reply", "true" );
-                            replyElement.querySelector("button").classList.add("upVoted");
-                            replyElement.setAttribute("user-liked-id", likesData[i][2]); } // Update the vote counter
-                            with the number of unique likes const
-                            currentVoteBtn=replyElement.querySelector(".voteCounter_chat");
-                            currentVoteBtn.innerHTML=likesData[i][0]; } } } catch (error) { } } async function
-                            renderCommentsForPost(postId) { const
-                            postElement=document.querySelector(`[current-post-id="${postId}" ]`); if (!postElement) {
-                            return; } // Fetch comments for the post const comments=await getCommentsByPostId(postId);
-                            if (!Array.isArray(comments)) { return; } const
-                            commentContainer=postElement.querySelector( "#allCommentsForPostContainer" ); if
-                            (!commentContainer) { return; } commentContainer.innerHTML="" ; $.views.helpers({
-                            elapsedTime: convertToElapsedTime, filePreview: function (file) { if (file) { var
-                            analyzedObject=analyzeFile(file); return generateFilePreview(analyzedObject); } return "" ;
-                            } }); const commentTmpl=$.templates("#commentTemplate"); const
-                            commentHTML=commentTmpl.render(comments); commentContainer.innerHTML=commentHTML; // Process
-                            upvotes for each comment const commentIDs=comments.map((c)=> c.ID).filter(Boolean);
+                const allReplies = Array.from(replyShowContainer.children);
+                for (let i = 0; i < allReplies.length; i++) {
+                    const replyElement = allReplies[i]; // Set an
+                            attribute based on whether the user liked the reply if (likesData[i][1] === false) {
+                        replyElement.setAttribute("user-liked-reply", "false");
+                    } else {
+                        replyElement.setAttribute("user-liked-reply", "true");
+                        replyElement.querySelector("button").classList.add("upVoted");
+                        replyElement.setAttribute("user-liked-id", likesData[i][2]);
+                    } // Update the vote counter
+                    with the number of unique likes const
+                        currentVoteBtn = replyElement.querySelector(".voteCounter_chat");
+                    currentVoteBtn.innerHTML = likesData[i][0];
+                }
+            }
+        } catch (error) { }
+    } async function
+        renderCommentsForPost(postId) {
+            const
+            postElement = document.querySelector(`[current-post-id="${postId}" ]`); if (!postElement) {
+                return;
+            } // Fetch comments for the post const comments=await getCommentsByPostId(postId);
+        if (!Array.isArray(comments)) { return; } const
+            commentContainer = postElement.querySelector("#allCommentsForPostContainer"); if
+            (!commentContainer) { return; } commentContainer.innerHTML = ""; $.views.helpers({
+                elapsedTime: convertToElapsedTime, filePreview: function (file) {
+                    if (file) {
+                        var
+                        analyzedObject = analyzeFile(file); return generateFilePreview(analyzedObject);
+                    } return "";
+                }
+            }); const commentTmpl = $.templates("#commentTemplate"); const
+                commentHTML = commentTmpl.render(comments); commentContainer.innerHTML = commentHTML; // Process
+                            upvotes for each comment const commentIDs = comments.map((c) => c.ID).filter(Boolean);
 
-                            // fetchReplyCounts(commentIDs);
+        // fetchReplyCounts(commentIDs);
 
-                            for (const commentId of commentIDs) {
-                            try {
-                            const upvoteData = await fetchCommentUpvotes(commentId);
-                            const visitorIdNum = Number(contactIdOfThisVisitor);
-                            function getUpvoteId() {
-                            for (const upvote of upvoteData) {
-                            if (upvote.Member_Comment_Upvote_ID === visitorIdNum) {
+        for (const commentId of commentIDs) {
+            try {
+                const upvoteData = await fetchCommentUpvotes(commentId);
+                const visitorIdNum = Number(contactIdOfThisVisitor);
+                function getUpvoteId() {
+                    for (const upvote of upvoteData) {
+                        if (upvote.Member_Comment_Upvote_ID === visitorIdNum) {
                             return upvote.ID;
-                            }
-                            }
-                            return null;
-                            }
-                            const uniqueMemberIds = new Set(
-                            (upvoteData || []).map((item) => item.Member_Comment_Upvote_ID)
-                            );
-                            const upvoteCount = uniqueMemberIds.size;
-                            const hasUserUpvoted = uniqueMemberIds.has(visitorIdNum);
+                        }
+                    }
+                    return null;
+                }
+                const uniqueMemberIds = new Set(
+                    (upvoteData || []).map((item) => item.Member_Comment_Upvote_ID)
+                );
+                const upvoteCount = uniqueMemberIds.size;
+                const hasUserUpvoted = uniqueMemberIds.has(visitorIdNum);
 
-                            const specificCommentContainer = commentContainer.querySelector(
-                            `[comment-id="${commentId}"]`
-                            );
-                            if (!specificCommentContainer) {
+                const specificCommentContainer = commentContainer.querySelector(
+                    `[comment-id="${commentId}"]`
+                );
+                if (!specificCommentContainer) {
 
-                            continue;
-                            }
+                    continue;
+                }
 
-                            specificCommentContainer.setAttribute(
-                            "user-liked-comment",
-                            hasUserUpvoted ? "true" : "false"
-                            );
-                            if (hasUserUpvoted) {
-                            const theUpvoteId = getUpvoteId();
-                            if (theUpvoteId) {
-                            specificCommentContainer.setAttribute("user-upvote-id", theUpvoteId);
-                            }
-                            }
+                specificCommentContainer.setAttribute(
+                    "user-liked-comment",
+                    hasUserUpvoted ? "true" : "false"
+                );
+                if (hasUserUpvoted) {
+                    const theUpvoteId = getUpvoteId();
+                    if (theUpvoteId) {
+                        specificCommentContainer.setAttribute("user-upvote-id", theUpvoteId);
+                    }
+                }
 
-                            const voteButton_chatEl = specificCommentContainer.querySelector(
-                            `button.voteButton_chat[id="vote-${commentId}"]`
-                            );
-                            if (voteButton_chatEl) {
-                            voteButton_chatEl.classList.toggle("upVoted", hasUserUpvoted);
-                            const voteCounter_chatEl = voteButton_chatEl.querySelector(".voteCounter_chat");
-                            if (voteCounter_chatEl) {
-                            voteCounter_chatEl.textContent = upvoteCount;
-                            }
-                            }
-                            } catch (err) {
+                const voteButton_chatEl = specificCommentContainer.querySelector(
+                    `button.voteButton_chat[id="vote-${commentId}"]`
+                );
+                if (voteButton_chatEl) {
+                    voteButton_chatEl.classList.toggle("upVoted", hasUserUpvoted);
+                    const voteCounter_chatEl = voteButton_chatEl.querySelector(".voteCounter_chat");
+                    if (voteCounter_chatEl) {
+                        voteCounter_chatEl.textContent = upvoteCount;
+                    }
+                }
+            } catch (err) {
 
-                            }
-                            }
+            }
+        }
 
-                            }
+    }
 
 
 
-                            async function fetchRepliesByCommentId(reply_to_comment_id) {
-                            const query = `
+    async function fetchRepliesByCommentId(reply_to_comment_id) {
+        const query = `
                             query calcForumComments($reply_to_comment_id: AwcForumCommentID) {
                             calcForumComments(
                             query: [
@@ -2407,872 +2471,871 @@ $el.closest('button').classList.add('hidden');
                             }
                             `;
 
-                            try {
-                            const response = await fetch(graphqlApiEndpoint, {
-                            method: "POST",
-                            headers: {
-                            "Content-Type": "application/json",
-                            "Api-Key": apiAccessKey
-                            },
-                            body: JSON.stringify({
-                            query,
-                            variables: { reply_to_comment_id }
-                            })
-                            });
+        try {
+            const response = await fetch(graphqlApiEndpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Api-Key": apiAccessKey
+                },
+                body: JSON.stringify({
+                    query,
+                    variables: { reply_to_comment_id }
+                })
+            });
 
-                            const data = await response.json();
+            const data = await response.json();
 
-                            if (data.errors) {
+            if (data.errors) {
 
-                            return;
-                            }
+                return;
+            }
 
-                            const comments = data.data.calcForumComments || [];
+            const comments = data.data.calcForumComments || [];
 
-                            if (!comments.length) {
-                            return;
-                            }
+            if (!comments.length) {
+                return;
+            }
 
-                            return comments;
-                            } catch (error) {
+            return comments;
+        } catch (error) {
 
-                            }
-                            }
-
-
-
-
-                            async function attachAllListenerFns() {
-                            function resetAllUI() {
-                            document.querySelectorAll(".optionsContainerPosts").forEach((el) => {
-                            el.classList.add("opacity-0", "pointer-events-none");
-                            el.classList.remove("opacity-100", "pointer-events-auto");
-                            });
-                            document.querySelectorAll(".optionsContainerComments").forEach((el) => {
-                            el.classList.add("opacity-0", "pointer-events-none");
-                            el.classList.remove("opacity-100", "pointer-events-auto");
-                            });
-                            document.querySelectorAll(".optionsContainerReplies").forEach((el) => {
-                            el.classList.add("opacity-0", "pointer-events-none");
-                            el.classList.remove("opacity-100", "pointer-events-auto");
-                            });
-                            }
-                            document.addEventListener("focusin", (e) => {
-                            const m = e.target.closest(".mentionable");
-                            if (m && !m.dataset.tributeAttached && globalTribute) {
-                            globalTribute.attach(m);
-                            m.dataset.tributeAttached = "true";
-                            }
-                            });
-
-                            document.addEventListener("click", async (e) => {
-                            e.stopPropagation();
-                            resetAllUI();
-
-                            const editBtn = e.target.closest(".edit-post-btn");
-                            if (editBtn) {
-                            // Get the closest parent container that might have the ID attributes
-                            const container = editBtn.closest(
-                            "[current-post-id], [comment-id], [reply-id]"
-                            );
-                            if (!container) return;
-
-                            // Determine type based on which attribute exists
-                            let editType = null;
-                            if (container.hasAttribute("current-post-id")) {
-                            editType = "post";
-                            } else if (container.hasAttribute("comment-id")) {
-                            editType = "comment";
-                            } else if (container.hasAttribute("reply-id")) {
-                            editType = "reply";
-                            }
-
-                            // Extract data based on the determined type
-                            let id, authorId, currentText;
-                            switch (editType) {
-                            case "post":
-                            id = container.getAttribute("current-post-id");
-                            break;
-                            case "comment":
-                            id = container.getAttribute("comment-id");
-                            break;
-                            case "reply":
-                            id = container.getAttribute("reply-id");
-                            break;
-                            }
-
-                            authorId = container.getAttribute("author-id");
-                            currentText =
-                            container.querySelector(".text-bodyText")?.innerHTML.trim() || "";
+        }
+    }
 
 
 
-                            // Update modal
-                            const modalEl = document.getElementById("editModal");
-                            modalEl.dataset.editType = editType;
-                            modalEl.dataset.editId = id;
-                            modalEl.dataset.authorId = authorId;
-                            modalEl.querySelector(".comment-editor").innerHTML = currentText;
 
-                            return;
-                            }
+    async function attachAllListenerFns() {
+        function resetAllUI() {
+            document.querySelectorAll(".optionsContainerPosts").forEach((el) => {
+                el.classList.add("opacity-0", "pointer-events-none");
+                el.classList.remove("opacity-100", "pointer-events-auto");
+            });
+            document.querySelectorAll(".optionsContainerComments").forEach((el) => {
+                el.classList.add("opacity-0", "pointer-events-none");
+                el.classList.remove("opacity-100", "pointer-events-auto");
+            });
+            document.querySelectorAll(".optionsContainerReplies").forEach((el) => {
+                el.classList.add("opacity-0", "pointer-events-none");
+                el.classList.remove("opacity-100", "pointer-events-auto");
+            });
+        }
+        document.addEventListener("focusin", (e) => {
+            const m = e.target.closest(".mentionable");
+            if (m && !m.dataset.tributeAttached && globalTribute) {
+                globalTribute.attach(m);
+                m.dataset.tributeAttached = "true";
+            }
+        });
 
-                            const updateButton = e.target.closest("#updateNowButton");
-                            if (updateButton) {
-                            const modalEl = document.getElementById("editModal");
+        document.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            resetAllUI();
 
-                            // Retrieve dataset info (populated when .edit-post-btn is clicked)
-                            const editType = modalEl.dataset.editType;
-                            const editId = modalEl.dataset.editId;
-                            const authorId = modalEl.dataset.authorId;
+            const editBtn = e.target.closest(".edit-post-btn");
+            if (editBtn) {
+                // Get the closest parent container that might have the ID attributes
+                const container = editBtn.closest(
+                    "[current-post-id], [comment-id], [reply-id]"
+                );
+                if (!container) return;
 
-                            const updatedText =
-                            modalEl.querySelector(".comment-editor")?.innerHTML.trim() || "";
+                // Determine type based on which attribute exists
+                let editType = null;
+                if (container.hasAttribute("current-post-id")) {
+                    editType = "post";
+                } else if (container.hasAttribute("comment-id")) {
+                    editType = "comment";
+                } else if (container.hasAttribute("reply-id")) {
+                    editType = "reply";
+                }
+
+                // Extract data based on the determined type
+                let id, authorId, currentText;
+                switch (editType) {
+                    case "post":
+                        id = container.getAttribute("current-post-id");
+                        break;
+                    case "comment":
+                        id = container.getAttribute("comment-id");
+                        break;
+                    case "reply":
+                        id = container.getAttribute("reply-id");
+                        break;
+                }
+
+                authorId = container.getAttribute("author-id");
+                currentText =
+                    container.querySelector(".text-bodyText")?.innerHTML.trim() || "";
 
 
-                            if (editType === "post") {
 
-                            const result = await updateForumPost(updatedText, editId);
+                // Update modal
+                const modalEl = document.getElementById("editModal");
+                modalEl.dataset.editType = editType;
+                modalEl.dataset.editId = id;
+                modalEl.dataset.authorId = authorId;
+                modalEl.querySelector(".comment-editor").innerHTML = currentText;
 
-                            if (result !== null) {
-                            modalEl.querySelector(".comment-editor").innerHTML = result;
-                            document.querySelector(
+                return;
+            }
+
+            const updateButton = e.target.closest("#updateNowButton");
+            if (updateButton) {
+                const modalEl = document.getElementById("editModal");
+
+                // Retrieve dataset info (populated when .edit-post-btn is clicked)
+                const editType = modalEl.dataset.editType;
+                const editId = modalEl.dataset.editId;
+                const authorId = modalEl.dataset.authorId;
+
+                const updatedText =
+                    modalEl.querySelector(".comment-editor")?.innerHTML.trim() || "";
+
+
+                if (editType === "post") {
+
+                    const result = await updateForumPost(updatedText, editId);
+
+                    if (result !== null) {
+                        modalEl.querySelector(".comment-editor").innerHTML = result;
+                        document.querySelector(
                             `[current-post-id="${editId}"] .text-bodyText`
-                            ).innerHTML = result;
-                            } else {
+                        ).innerHTML = result;
+                    } else {
 
-                            }
-
-
-                            } else if (editType === "comment") {
+                    }
 
 
-                            const result = await updateForumComment(updatedText, editId);
+                } else if (editType === "comment") {
 
-                            if (result !== null) {
-                            //
-                            document.querySelector(
+
+                    const result = await updateForumComment(updatedText, editId);
+
+                    if (result !== null) {
+                        //
+                        document.querySelector(
                             `[comment-id="${editId}"] .text-bodyText`
-                            ).innerHTML = String(result);
+                        ).innerHTML = String(result);
 
-                            }
-                            } else if (editType === "reply") {
+                    }
+                } else if (editType === "reply") {
 
-                            // TODO: reply to the comment and commments are typically the same things. . .
-                            const result = await updateForumComment(updatedText, editId);
+                    // TODO: reply to the comment and commments are typically the same things. . .
+                    const result = await updateForumComment(updatedText, editId);
 
-                            if (result !== null) {
-                            //
-                            document.querySelector(
+                    if (result !== null) {
+                        //
+                        document.querySelector(
                             `[reply-id="${editId}"] .text-bodyText`
-                            ).innerHTML = String(result);
+                        ).innerHTML = String(result);
 
-                            }
-                            }
-                            }
-
-
-
-                            const postButton = e.target.closest("#postNowButtonForForumPost");
-                            if (postButton) {
-                            postButton
-                            .closest("#postOuterWrapper")
-                            .classList.add("opacity-50", "pointer-events-none");
+                    }
+                }
+            }
 
 
-                            let fileData = null;
-                            const fileFields = [];
-                            if (uploadedFile) {
-                            fileFields.push({
-                            fieldName: "file_content",
-                            file: uploadedFile
-                            });
-                            }
 
-                            if (fileFields.length > 0) {
-                            const toSubmitFields = {};
-                            await processFileFields(
-                            toSubmitFields,
-                            fileFields,
-                            awsParam,
-                            awsParamUrl
-                            );
-                            fileData =
-                            typeof toSubmitFields.file_content === "string"
+            const postButton = e.target.closest("#postNowButtonForForumPost");
+            if (postButton) {
+                postButton
+                    .closest("#postOuterWrapper")
+                    .classList.add("opacity-50", "pointer-events-none");
+
+
+                let fileData = null;
+                const fileFields = [];
+                if (uploadedFile) {
+                    fileFields.push({
+                        fieldName: "file_content",
+                        file: uploadedFile
+                    });
+                }
+
+                if (fileFields.length > 0) {
+                    const toSubmitFields = {};
+                    await processFileFields(
+                        toSubmitFields,
+                        fileFields,
+                        awsParam,
+                        awsParamUrl
+                    );
+                    fileData =
+                        typeof toSubmitFields.file_content === "string"
                             ? JSON.parse(toSubmitFields.file_content)
                             : toSubmitFields.file_content;
-                            fileData.name = fileData.name || uploadedFile.name;
-                            fileData.size = fileData.size || uploadedFile.size;
-                            fileData.type = fileData.type || uploadedFile.type;
-                            }
+                    fileData.name = fileData.name || uploadedFile.name;
+                    fileData.size = fileData.size || uploadedFile.size;
+                    fileData.type = fileData.type || uploadedFile.type;
+                }
 
-                            const textArea = postButton
-                            .closest("#postOuterWrapper")
-                            .querySelector(".mentionable");
-                            const postText = textArea.innerHTML.trim();
-                            const mentionIDs = gatherMentionsFromElement(textArea);
-                            textArea.innerHTML = "";
-                            textArea.removeAttribute("data-tributeAttached");
-                            const parentAllAnnouncements =
-                            postButton.closest("#postOuterWrapper").nextElementSibling;
-                            const newDiv = document.createElement("div");
-                            const embeedableUrls = extractAndConvertToEmbedUrls(postText);
-
-
-                            if (uploadedFile != undefined) {
-                            const awsFileObject = {
-                            link: "https://courses.writerscentre.com.au",
-                            name: uploadedFile.name,
-                            size: uploadedFile.size,
-                            type: uploadedFile.type,
-                            s3_id: "dummy_s3_id_" + uploadedFile.name
-                            };
-                            const awsFileString = JSON.stringify(awsFileObject);
-
-                            newDiv.innerHTML = templateForForumPost(
-                            visitorProfilePicture,
-                            visitorFirstName,
-                            visitorLastName,
-                            "Just Now",
-                            embeedableUrls.formattedPostText,
-                            Number(visitorContactID),
-                            "id",
-                            awsFileString,
-                            iscontactInstructor === "Yes" ? true : false,
-                            0,
-                            isContactAdmin === "No" ? false : true,
-
-                            );
-                            } else {
+                const textArea = postButton
+                    .closest("#postOuterWrapper")
+                    .querySelector(".mentionable");
+                const postText = textArea.innerHTML.trim();
+                const mentionIDs = gatherMentionsFromElement(textArea);
+                textArea.innerHTML = "";
+                textArea.removeAttribute("data-tributeAttached");
+                const parentAllAnnouncements =
+                    postButton.closest("#postOuterWrapper").nextElementSibling;
+                const newDiv = document.createElement("div");
+                const embeedableUrls = extractAndConvertToEmbedUrls(postText);
 
 
-                            newDiv.innerHTML = templateForForumPost(
-                            visitorProfilePicture,
-                            contactDisplayName,
-                            "Just Now",
-                            embeedableUrls.formattedPostText,
-                            Number(visitorContactID),
-                            "null",
-                            null,
-                            iscontactInstructor === "Yes" ? true : false,
-                            0,
-                            isContactAdmin === "No" ? false : true,
+                if (uploadedFile != undefined) {
+                    const awsFileObject = {
+                        link: "https://courses.writerscentre.com.au",
+                        name: uploadedFile.name,
+                        size: uploadedFile.size,
+                        type: uploadedFile.type,
+                        s3_id: "dummy_s3_id_" + uploadedFile.name
+                    };
+                    const awsFileString = JSON.stringify(awsFileObject);
 
-                            );
-                            }
+                    newDiv.innerHTML = templateForForumPost(
+                        visitorProfilePicture,
+                        visitorFirstName,
+                        visitorLastName,
+                        "Just Now",
+                        embeedableUrls.formattedPostText,
+                        Number(visitorContactID),
+                        "id",
+                        awsFileString,
+                        iscontactInstructor === "Yes" ? true : false,
+                        0,
+                        isContactAdmin === "No" ? false : true,
 
-                            const toBeAddedUpTemplate = newDiv.firstElementChild;
-                            toBeAddedUpTemplate.classList.add("opacity-50", "pointer-events-none");
-
-
-                            if (embeedableUrls.embeddableUrls.length > 0) {
-                            //
-                            let randomNumber = Math.floor(Math.random() * embeedableUrls.embeddableUrls.length);
-                            newDiv.firstElementChild.querySelector("iframe").src =
-                            embeedableUrls.embeddableUrls[randomNumber];
-                            newDiv.firstElementChild.querySelector("iframe").classList.remove("hidden");
-
-                            }
+                    );
+                } else {
 
 
-                            parentAllAnnouncements.prepend(toBeAddedUpTemplate);
+                    newDiv.innerHTML = templateForForumPost(
+                        visitorProfilePicture,
+                        contactDisplayName,
+                        "Just Now",
+                        embeedableUrls.formattedPostText,
+                        Number(visitorContactID),
+                        "null",
+                        null,
+                        iscontactInstructor === "Yes" ? true : false,
+                        0,
+                        isContactAdmin === "No" ? false : true,
 
-                            const result = await createForumPost({
-                            post_copy: postText,
-                            author_id: Number(contactIdOfThisVisitor),
-                            class_id: currentClassID,
-                            file: fileData ? fileData : null,
-                            post_status: "Published - Not flagged",
-                            Mentions: mentionIDs.map((id) => ({ id: Number(id) }))
-                            });
-                            if (result) {
-                            document.getElementById("showContainerForAllFiles").innerHTML = "";
-                            document.getElementById("replaceFileContainer").classList.add("hidden");
-                            document.getElementById("deleteFileContainer").classList.add("hidden");
-                            document.querySelector(".attachAFileForClassChat").classList.remove("hidden");
+                    );
+                }
 
-                            uploadedFile = undefined;
-                            postButton
-                            .closest("#postOuterWrapper")
-                            .classList.remove("opacity-50", "pointer-events-none");
-
-                            toBeAddedUpTemplate.classList.remove(
-                            "opacity-50",
-                            "pointer-events-none"
-                            );
-                            toBeAddedUpTemplate.setAttribute("current-post-id", result[0]);
-                            toBeAddedUpTemplate.setAttribute("user-liked-post", false);
-                            toBeAddedUpTemplate.setAttribute("author-id", visitorContactID);
+                const toBeAddedUpTemplate = newDiv.firstElementChild;
+                toBeAddedUpTemplate.classList.add("opacity-50", "pointer-events-none");
 
 
-                            // Find the element within `toBeAddedUpTemplate` that has an ID starting with
-                            "commentCountsForPost-"
-                            let currentIdOfTheTemplate =
-                            toBeAddedUpTemplate.querySelector('[id^="commentCountsForPost-"]');
+                if (embeedableUrls.embeddableUrls.length > 0) {
+                    //
+                    let randomNumber = Math.floor(Math.random() * embeedableUrls.embeddableUrls.length);
+                    newDiv.firstElementChild.querySelector("iframe").src =
+                        embeedableUrls.embeddableUrls[randomNumber];
+                    newDiv.firstElementChild.querySelector("iframe").classList.remove("hidden");
 
-                            if (currentIdOfTheTemplate && result.length > 0) {
-                            // Update the ID of the found element
-                            currentIdOfTheTemplate.id = `commentCountsForPost-${result[0]}`;
-                            }
-
+                }
 
 
-                            const anchorTagOfTheTemplate = toBeAddedUpTemplate.querySelector("a");
-                            const videoTagOfTheTemplate =
-                            toBeAddedUpTemplate.querySelector("video");
-                            const imageTagOfTheTemplate =
-                            toBeAddedUpTemplate.querySelector(".post-image");
-                            const audioTagOfTemplate = toBeAddedUpTemplate.querySelector("audio");
+                parentAllAnnouncements.prepend(toBeAddedUpTemplate);
 
-                            function extractUrl(text) {
-                            const urlMatch = text.match(/(https?:\/\/[^\s"]+)/);
+                const result = await createForumPost({
+                    post_copy: postText,
+                    author_id: Number(contactIdOfThisVisitor),
+                    class_id: currentClassID,
+                    file: fileData ? fileData : null,
+                    Mentions: mentionIDs.map((id) => ({ id: Number(id) }))
+                });
+                if (result) {
+                    document.getElementById("showContainerForAllFiles").innerHTML = "";
+                    document.getElementById("replaceFileContainer").classList.add("hidden");
+                    document.getElementById("deleteFileContainer").classList.add("hidden");
+                    document.querySelector(".attachAFileForClassChat").classList.remove("hidden");
 
-                            if (urlMatch) {
+                    uploadedFile = undefined;
+                    postButton
+                        .closest("#postOuterWrapper")
+                        .classList.remove("opacity-50", "pointer-events-none");
+
+                    toBeAddedUpTemplate.classList.remove(
+                        "opacity-50",
+                        "pointer-events-none"
+                    );
+                    toBeAddedUpTemplate.setAttribute("current-post-id", result[0]);
+                    toBeAddedUpTemplate.setAttribute("user-liked-post", false);
+                    toBeAddedUpTemplate.setAttribute("author-id", visitorContactID);
+
+
+                    // Find the element within `toBeAddedUpTemplate` that has an ID starting with
+                    "commentCountsForPost-"
+                    let currentIdOfTheTemplate =
+                        toBeAddedUpTemplate.querySelector('[id^="commentCountsForPost-"]');
+
+                    if (currentIdOfTheTemplate && result.length > 0) {
+                        // Update the ID of the found element
+                        currentIdOfTheTemplate.id = `commentCountsForPost-${result[0]}`;
+                    }
+
+
+
+                    const anchorTagOfTheTemplate = toBeAddedUpTemplate.querySelector("a");
+                    const videoTagOfTheTemplate =
+                        toBeAddedUpTemplate.querySelector("video");
+                    const imageTagOfTheTemplate =
+                        toBeAddedUpTemplate.querySelector(".post-image");
+                    const audioTagOfTemplate = toBeAddedUpTemplate.querySelector("audio");
+
+                    function extractUrl(text) {
+                        const urlMatch = text.match(/(https?:\/\/[^\s"]+)/);
+
+                        if (urlMatch) {
                             return urlMatch[1].replace(/\\+$/, "");
-                            } else {
+                        } else {
                             return "No URL found in the text";
-                            }
-                            }
+                        }
+                    }
 
-                            if (anchorTagOfTheTemplate) {
-                            let usableLink = extractUrl(result[1]);
+                    if (anchorTagOfTheTemplate) {
+                        let usableLink = extractUrl(result[1]);
 
-                            anchorTagOfTheTemplate.href = `${usableLink}`;
-                            } else if (imageTagOfTheTemplate) {
-                            let usableLink = extractUrl(result[1]);
-                            imageTagOfTheTemplate.src = `${usableLink}`;
-                            } else if (videoTagOfTheTemplate) {
-                            let usableLink = extractUrl(result[1]);
-                            const videoSource = videoTagOfTheTemplate;
-                            videoSource.setAttribute("src", usableLink);
-                            }
+                        anchorTagOfTheTemplate.href = `${usableLink}`;
+                    } else if (imageTagOfTheTemplate) {
+                        let usableLink = extractUrl(result[1]);
+                        imageTagOfTheTemplate.src = `${usableLink}`;
+                    } else if (videoTagOfTheTemplate) {
+                        let usableLink = extractUrl(result[1]);
+                        const videoSource = videoTagOfTheTemplate;
+                        videoSource.setAttribute("src", usableLink);
+                    }
 
-                            else if (audioTagOfTemplate) {
-                            let usableLink = extractUrl(result[1]);
-                            audioTagOfTemplate.src = usableLink;
+                    else if (audioTagOfTemplate) {
+                        let usableLink = extractUrl(result[1]);
+                        audioTagOfTemplate.src = usableLink;
 
 
-                            }
-                            else {
+                    }
+                    else {
 
-                            }
-                            } else {
-                            postButton
-                            .closest("#postOuterWrapper")
-                            .classList.remove("opacity-50", "pointer-events-none");
-                            toBeAddedUpTemplate.remove();
-                            }
-                            return;
-                            }
+                    }
+                } else {
+                    postButton
+                        .closest("#postOuterWrapper")
+                        .classList.remove("opacity-50", "pointer-events-none");
+                    toBeAddedUpTemplate.remove();
+                }
+                return;
+            }
 
-                            const voteButton_chat = e.target.closest(".voteButton_chat");
-                            if (voteButton_chat) {
-                            e.stopPropagation();
-                            const replyContainer = voteButton_chat.closest("[reply-id]");
-                            const commentContainer = voteButton_chat.closest("[comment-id]");
-                            const forumPost = voteButton_chat.closest(".forum-post");
-                            if (replyContainer) {
-                            const userLikedReply =
-                            replyContainer.getAttribute("user-liked-reply") === "true";
-                            //true or false in string
-                            const userUpvoteId = replyContainer.getAttribute("user-liked-id");
-                            //either undefined or number in string.
-                            const voteCounter_chatEl = voteButton_chat.querySelector(".voteCounter_chat");
-                            let currentVotes = parseInt(voteCounter_chatEl?.textContent || "0", 10);
-                            if (userLikedReply) {
-                            if (!userUpvoteId) return;
-                            voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                            try {
+            const voteButton_chat = e.target.closest(".voteButton_chat");
+            if (voteButton_chat) {
+                e.stopPropagation();
+                const replyContainer = voteButton_chat.closest("[reply-id]");
+                const commentContainer = voteButton_chat.closest("[comment-id]");
+                const forumPost = voteButton_chat.closest(".forum-post");
+                if (replyContainer) {
+                    const userLikedReply =
+                        replyContainer.getAttribute("user-liked-reply") === "true";
+                    //true or false in string
+                    const userUpvoteId = replyContainer.getAttribute("user-liked-id");
+                    //either undefined or number in string.
+                    const voteCounter_chatEl = voteButton_chat.querySelector(".voteCounter_chat");
+                    let currentVotes = parseInt(voteCounter_chatEl?.textContent || "0", 10);
+                    if (userLikedReply) {
+                        if (!userUpvoteId) return;
+                        voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                        try {
                             const deletionResult = await deleteVoteCount(userUpvoteId);
                             if (
-                            deletionResult?.data
-                            ?.deleteMemberCommentUpvotesForumCommentUpvotes
+                                deletionResult?.data
+                                    ?.deleteMemberCommentUpvotesForumCommentUpvotes
                             ) {
-                            replyContainer.setAttribute("user-liked-reply", "false");
-                            replyContainer.removeAttribute("user-liked-id");
-                            voteButton_chat.classList.remove("upVoted");
-                            currentVotes = Math.max(currentVotes - 1, 0);
-                            voteCounter_chatEl.textContent = currentVotes;
+                                replyContainer.setAttribute("user-liked-reply", "false");
+                                replyContainer.removeAttribute("user-liked-id");
+                                voteButton_chat.classList.remove("upVoted");
+                                currentVotes = Math.max(currentVotes - 1, 0);
+                                voteCounter_chatEl.textContent = currentVotes;
                             } else {
-                            throw new Error();
+                                throw new Error();
                             }
-                            } catch (err) {
+                        } catch (err) {
                             alert("Failed to remove your reply upvote.");
-                            } finally {
+                        } finally {
                             voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                            }
-                            } else {
-                            const replyId = replyContainer.getAttribute("reply-id");
-                            if (!replyId) return;
-                            const parentPost = replyContainer.closest(".forum-post");
-                            const authorId = Number(parentPost.getAttribute("author-id"));
-                            voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                            try {
+                        }
+                    } else {
+                        const replyId = replyContainer.getAttribute("reply-id");
+                        if (!replyId) return;
+                        const parentPost = replyContainer.closest(".forum-post");
+                        const authorId = Number(parentPost.getAttribute("author-id"));
+                        voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                        try {
                             const createResult = await createVoteForComments(authorId, replyId);
                             if (
-                            createResult?.data?.createMemberCommentUpvotesForumCommentUpvotes
+                                createResult?.data?.createMemberCommentUpvotesForumCommentUpvotes
                             ) {
-                            const newUpvoteId = Object.values(
-                            createResult.extensions.pkMap
-                            )[0];
-                            replyContainer.setAttribute("user-liked-reply", "true");
-                            replyContainer.setAttribute("user-liked-id", newUpvoteId);
-                            voteButton_chat.classList.add("upVoted");
-                            currentVotes += 1;
-                            voteCounter_chatEl.textContent = currentVotes;
+                                const newUpvoteId = Object.values(
+                                    createResult.extensions.pkMap
+                                )[0];
+                                replyContainer.setAttribute("user-liked-reply", "true");
+                                replyContainer.setAttribute("user-liked-id", newUpvoteId);
+                                voteButton_chat.classList.add("upVoted");
+                                currentVotes += 1;
+                                voteCounter_chatEl.textContent = currentVotes;
                             } else {
-                            throw new Error();
+                                throw new Error();
                             }
-                            } catch (err) {
+                        } catch (err) {
                             alert("Failed to upvote the reply.");
-                            } finally {
+                        } finally {
                             voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                            }
-                            }
-                            return;
-                            }
-                            if (commentContainer) {
-                            const userLikedComment =
-                            commentContainer.getAttribute("user-liked-comment") === "true";
-                            let userUpvoteId = commentContainer.getAttribute("user-upvote-id");
-                            const voteCounter_chatEl = voteButton_chat.querySelector(".voteCounter_chat");
-                            let currentVotes = parseInt(voteCounter_chatEl?.textContent || "0", 10);
-                            if (userLikedComment) {
-                            if (!userUpvoteId) return;
-                            voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                            try {
+                        }
+                    }
+                    return;
+                }
+                if (commentContainer) {
+                    const userLikedComment =
+                        commentContainer.getAttribute("user-liked-comment") === "true";
+                    let userUpvoteId = commentContainer.getAttribute("user-upvote-id");
+                    const voteCounter_chatEl = voteButton_chat.querySelector(".voteCounter_chat");
+                    let currentVotes = parseInt(voteCounter_chatEl?.textContent || "0", 10);
+                    if (userLikedComment) {
+                        if (!userUpvoteId) return;
+                        voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                        try {
                             const deletionResult = await deleteVoteCount(userUpvoteId);
                             if (
-                            deletionResult?.data
-                            ?.deleteMemberCommentUpvotesForumCommentUpvotes
+                                deletionResult?.data
+                                    ?.deleteMemberCommentUpvotesForumCommentUpvotes
                             ) {
-                            commentContainer.setAttribute("user-liked-comment", "false");
-                            commentContainer.removeAttribute("user-upvote-id");
-                            voteButton_chat.classList.remove("upVoted");
-                            currentVotes = Math.max(currentVotes - 1, 0);
-                            voteCounter_chatEl.textContent = currentVotes;
+                                commentContainer.setAttribute("user-liked-comment", "false");
+                                commentContainer.removeAttribute("user-upvote-id");
+                                voteButton_chat.classList.remove("upVoted");
+                                currentVotes = Math.max(currentVotes - 1, 0);
+                                voteCounter_chatEl.textContent = currentVotes;
                             } else {
-                            throw new Error();
+                                throw new Error();
                             }
-                            } catch (err) {
+                        } catch (err) {
                             alert("Failed to remove your comment upvote.");
-                            } finally {
+                        } finally {
                             voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                            }
-                            } else {
-                            const commentId = commentContainer.getAttribute("comment-id");
-                            if (!commentId) return;
-                            voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                            try {
+                        }
+                    } else {
+                        const commentId = commentContainer.getAttribute("comment-id");
+                        if (!commentId) return;
+                        voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                        try {
                             const memberId = Number(contactIdOfThisVisitor);
                             const createResult = await createVoteForComments(
-                            memberId,
-                            commentId
+                                memberId,
+                                commentId
                             );
                             if (
-                            createResult?.data?.createMemberCommentUpvotesForumCommentUpvotes
+                                createResult?.data?.createMemberCommentUpvotesForumCommentUpvotes
                             ) {
-                            const newUpvoteId = Object.values(
-                            createResult.extensions.pkMap
-                            )[0];
-                            commentContainer.setAttribute("user-liked-comment", "true");
-                            commentContainer.setAttribute("user-upvote-id", newUpvoteId);
-                            voteButton_chat.classList.add("upVoted");
-                            currentVotes += 1;
-                            voteCounter_chatEl.textContent = currentVotes;
+                                const newUpvoteId = Object.values(
+                                    createResult.extensions.pkMap
+                                )[0];
+                                commentContainer.setAttribute("user-liked-comment", "true");
+                                commentContainer.setAttribute("user-upvote-id", newUpvoteId);
+                                voteButton_chat.classList.add("upVoted");
+                                currentVotes += 1;
+                                voteCounter_chatEl.textContent = currentVotes;
                             } else {
-                            throw new Error();
+                                throw new Error();
                             }
-                            } catch (err) {
+                        } catch (err) {
                             alert("Failed to upvote the comment.");
-                            } finally {
+                        } finally {
                             voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                            }
-                            }
-                            return;
-                            }
-                            if (!forumPost) return;
-                            const userLikedPost =
-                            forumPost.getAttribute("user-liked-post") === "true";
-                            let memberUpvoteId = forumPost.getAttribute("member-upvote-id");
-                            if (userLikedPost && !memberUpvoteId) return;
-                            const voteCounter_chat = voteButton_chat.querySelector(".voteCounter_chat");
-                            let currentVotes = parseInt(voteCounter_chat.textContent, 10) || 0;
-                            if (userLikedPost) {
-                            voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                            try {
-                            const deletionResult = await deleteVote(memberUpvoteId);
-                            if (deletionResult) {
+                        }
+                    }
+                    return;
+                }
+                if (!forumPost) return;
+                const userLikedPost =
+                    forumPost.getAttribute("user-liked-post") === "true";
+                let memberUpvoteId = forumPost.getAttribute("member-upvote-id");
+                if (userLikedPost && !memberUpvoteId) return;
+                const voteCounter_chat = voteButton_chat.querySelector(".voteCounter_chat");
+                let currentVotes = parseInt(voteCounter_chat.textContent, 10) || 0;
+                if (userLikedPost) {
+                    voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                    try {
+                        const deletionResult = await deleteVote(memberUpvoteId);
+                        if (deletionResult) {
                             forumPost.setAttribute("user-liked-post", "false");
                             forumPost.removeAttribute("member-upvote-id");
                             voteButton_chat.classList.remove("upVoted");
                             currentVotes = Math.max(currentVotes - 1, 0);
                             voteCounter_chat.textContent = currentVotes;
-                            } else {
+                        } else {
                             throw new Error();
-                            }
-                            } catch (err) {
-                            alert("Failed to remove your upvote.");
-                            } finally {
-                            voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                            }
-                            } else {
-                            const postId = Number(forumPost.getAttribute("current-post-id"));
-                            const currentUserId = Number(visitorContactID);
-                            if (!postId) return;
-                            voteButton_chat.classList.add("opacity-50", "pointer-events-none");
-                            try {
-                            const voteResponse = await createVote({
+                        }
+                    } catch (err) {
+                        alert("Failed to remove your upvote.");
+                    } finally {
+                        voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
+                    }
+                } else {
+                    const postId = Number(forumPost.getAttribute("current-post-id"));
+                    const currentUserId = Number(visitorContactID);
+                    if (!postId) return;
+                    voteButton_chat.classList.add("opacity-50", "pointer-events-none");
+                    try {
+                        const voteResponse = await createVote({
                             post_upvote_id: postId,
                             member_post_upvote_id: currentUserId
-                            });
-                            if (voteResponse) {
+                        });
+                        if (voteResponse) {
                             const newVoteId = voteResponse;
                             forumPost.setAttribute("user-liked-post", "true");
                             forumPost.setAttribute("member-upvote-id", newVoteId);
                             voteButton_chat.classList.add("upVoted");
                             currentVotes += 1;
                             voteCounter_chat.textContent = currentVotes;
-                            } else {
+                        } else {
                             throw new Error();
-                            }
-                            } catch (err) {
-                            alert("Failed to upvote.");
-                            } finally {
-                            voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
-                            }
-                            }
-                            return;
-                            }
-                            const tripleDot = e.target.closest(".tripleDotSVG");
-                            if (tripleDot) {
-                            if (tripleDot.closest("[reply-id]")) {
-                            const replyContainer = tripleDot.closest("[reply-id]");
-                            const optionsContainer = replyContainer.querySelector(
-                            ".optionsContainerReplies"
-                            );
-                            if (optionsContainer) {
-                            optionsContainer.classList.remove("opacity-0", "pointer-events-none");
-                            optionsContainer.classList.add("opacity-100", "pointer-events-auto");
-                            }
-                            return;
-                            }
-                            if (tripleDot.closest("[comment-id]")) {
-                            const commentContainer = tripleDot.closest("[comment-id]");
-                            const optionsContainer = commentContainer.querySelector(
-                            ".optionsContainerComments"
-                            );
-                            if (optionsContainer) {
-                            optionsContainer.classList.remove("opacity-0", "pointer-events-none");
-                            optionsContainer.classList.add("opacity-100", "pointer-events-auto");
-                            }
-                            return;
-                            }
-                            if (tripleDot.closest(".forum-post")) {
-                            const postContainer = tripleDot.closest(".forum-post");
-                            const optionsContainer = postContainer.querySelector(
-                            ".optionsContainerPosts"
-                            );
-                            if (optionsContainer) {
-                            optionsContainer.classList.remove("opacity-0", "pointer-events-none");
-                            optionsContainer.classList.add("opacity-100", "pointer-events-auto");
-                            }
-                            return;
-                            }
-                            }
+                        }
+                    } catch (err) {
+                        alert("Failed to upvote.");
+                    } finally {
+                        voteButton_chat.classList.remove("opacity-50", "pointer-events-none");
+                    }
+                }
+                return;
+            }
+            const tripleDot = e.target.closest(".tripleDotSVG");
+            if (tripleDot) {
+                if (tripleDot.closest("[reply-id]")) {
+                    const replyContainer = tripleDot.closest("[reply-id]");
+                    const optionsContainer = replyContainer.querySelector(
+                        ".optionsContainerReplies"
+                    );
+                    if (optionsContainer) {
+                        optionsContainer.classList.remove("opacity-0", "pointer-events-none");
+                        optionsContainer.classList.add("opacity-100", "pointer-events-auto");
+                    }
+                    return;
+                }
+                if (tripleDot.closest("[comment-id]")) {
+                    const commentContainer = tripleDot.closest("[comment-id]");
+                    const optionsContainer = commentContainer.querySelector(
+                        ".optionsContainerComments"
+                    );
+                    if (optionsContainer) {
+                        optionsContainer.classList.remove("opacity-0", "pointer-events-none");
+                        optionsContainer.classList.add("opacity-100", "pointer-events-auto");
+                    }
+                    return;
+                }
+                if (tripleDot.closest(".forum-post")) {
+                    const postContainer = tripleDot.closest(".forum-post");
+                    const optionsContainer = postContainer.querySelector(
+                        ".optionsContainerPosts"
+                    );
+                    if (optionsContainer) {
+                        optionsContainer.classList.remove("opacity-0", "pointer-events-none");
+                        optionsContainer.classList.add("opacity-100", "pointer-events-auto");
+                    }
+                    return;
+                }
+            }
 
-                            const deleteBtn = e.target.closest(".delete-post-btn");
-                            if (deleteBtn) {
-                            const replyEl = deleteBtn.closest("[reply-id]");
-                            if (replyEl) {
-                            const replyId = replyEl.getAttribute("reply-id");
-                            replyEl.style.opacity = "0.5";
-                            replyEl.style.pointerEvents = "none";
-                            try {
-                            const del = await deleteForumComment(replyId);
-                            if (del) replyEl.remove();
+            const deleteBtn = e.target.closest(".delete-post-btn");
+            if (deleteBtn) {
+                const replyEl = deleteBtn.closest("[reply-id]");
+                if (replyEl) {
+                    const replyId = replyEl.getAttribute("reply-id");
+                    replyEl.style.opacity = "0.5";
+                    replyEl.style.pointerEvents = "none";
+                    try {
+                        const del = await deleteForumComment(replyId);
+                        if (del) replyEl.remove();
 
-                            else throw new Error();
-                            } catch (err) {
-                            replyEl.style.opacity = "1";
-                            replyEl.style.pointerEvents = "auto";
-                            alert("Failed to delete the comment.");
-                            }
-                            return;
-                            }
+                        else throw new Error();
+                    } catch (err) {
+                        replyEl.style.opacity = "1";
+                        replyEl.style.pointerEvents = "auto";
+                        alert("Failed to delete the comment.");
+                    }
+                    return;
+                }
 
-                            const commentEl = deleteBtn.closest("[comment-id]");
-                            if (commentEl) {
-                            const commentId = commentEl.getAttribute("comment-id");
-                            commentEl.style.opacity = "0.5";
-                            commentEl.style.pointerEvents = "none";
-                            try {
-                            const del = await deleteForumComment(commentId);
-                            handleCommentCounts(commentEl);
+                const commentEl = deleteBtn.closest("[comment-id]");
+                if (commentEl) {
+                    const commentId = commentEl.getAttribute("comment-id");
+                    commentEl.style.opacity = "0.5";
+                    commentEl.style.pointerEvents = "none";
+                    try {
+                        const del = await deleteForumComment(commentId);
+                        handleCommentCounts(commentEl);
 
-                            if (del) {
+                        if (del) {
                             commentEl.remove();
 
-                            }
+                        }
 
 
-                            else throw new Error();
-                            } catch (err) {
-                            commentEl.style.opacity = "1";
-                            commentEl.style.pointerEvents = "auto";
-                            alert("Failed to delete the comment.");
-                            }
-                            return;
-                            }
-                            const postEl = deleteBtn.closest(".forum-post");
-                            if (postEl) {
-                            const postId = postEl.getAttribute("current-post-id");
-                            postEl.classList.add("opacity-50", "pointer-events-none");
-                            try {
-                            const deletionResult = await deleteForumPost(postId);
-                            if (deletionResult) postEl.remove();
-                            else throw new Error();
-                            } catch (err) {
-                            postEl.classList.remove("opacity-50", "pointer-events-none");
-                            alert("Failed to delete the post.");
-                            }
-                            return;
-                            }
-                            return;
-                            }
+                        else throw new Error();
+                    } catch (err) {
+                        commentEl.style.opacity = "1";
+                        commentEl.style.pointerEvents = "auto";
+                        alert("Failed to delete the comment.");
+                    }
+                    return;
+                }
+                const postEl = deleteBtn.closest(".forum-post");
+                if (postEl) {
+                    const postId = postEl.getAttribute("current-post-id");
+                    postEl.classList.add("opacity-50", "pointer-events-none");
+                    try {
+                        const deletionResult = await deleteForumPost(postId);
+                        if (deletionResult) postEl.remove();
+                        else throw new Error();
+                    } catch (err) {
+                        postEl.classList.remove("opacity-50", "pointer-events-none");
+                        alert("Failed to delete the post.");
+                    }
+                    return;
+                }
+                return;
+            }
 
 
-                            });
+        });
 
-                            }
+    }
 
-                            const postClosureInstance = createPostsFetcher();
+    const postClosureInstance = createPostsFetcher();
 
-                            async function fetchAndDisplayForumPosts() {
+    async function fetchAndDisplayForumPosts() {
 
-                            const posts = await postClosureInstance();
-                            loadingThePosts = false;
+        const posts = await postClosureInstance();
+        loadingThePosts = false;
 
-                            renderForumPosts(posts);
-                            fetchAndDisplayAllUpvotes();
+        renderForumPosts(posts);
+        fetchAndDisplayAllUpvotes();
 
-                            }
-
-
-
+    }
 
 
 
-                            document.addEventListener('DOMContentLoaded', () => {
-                            attachAllListenerFns();
-                            const footerElement = document.getElementById('footerOfClassChat');
-                            loadingThePosts = false;
-
-                            const handleIntersection = (entries, observer) => {
-                            entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                            if (loadingThePosts === false) {
-                            fetchAndDisplayForumPosts(loadingThePosts);
-                            }
-
-                            else {
-                            }
-
-
-                            }
-                            });
-                            };
-
-                            const options = {
-                            root: null,
-                            rootMargin: '0px',
-                            threshold: 0.1
-                            };
-
-                            const observer = new IntersectionObserver(handleIntersection, options);
 
 
 
-                            if (footerElement) {
-                            observer.observe(footerElement);
-                            } else {
-                            const documentObserver = new MutationObserver(() => {
-                            const element = document.getElementById('footerOfClassChat');
-                            if (element) {
-                            observer.observe(element);
-                            documentObserver.disconnect();
-                            }
-                            });
+    document.addEventListener('DOMContentLoaded', () => {
+        attachAllListenerFns();
+        const footerElement = document.getElementById('footerOfClassChat');
+        loadingThePosts = false;
 
-                            documentObserver.observe(document.body, { childList: true, subtree: true });
-                            }
-                            });
+        const handleIntersection = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (loadingThePosts === false) {
+                        fetchAndDisplayForumPosts(loadingThePosts);
+                    }
+
+                    else {
+                    }
+
+
+                }
+            });
+        };
+
+        const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver(handleIntersection, options);
 
 
 
-                            let authorID = LOGGED_IN_USER_ID;
+        if (footerElement) {
+            observer.observe(footerElement);
+        } else {
+            const documentObserver = new MutationObserver(() => {
+                const element = document.getElementById('footerOfClassChat');
+                if (element) {
+                    observer.observe(element);
+                    documentObserver.disconnect();
+                }
+            });
 
-                            document.addEventListener("DOMContentLoaded", () => {
-                            const parentAllAnnouncements = document.querySelector("#parentAllAnnouncements");
-                            const container = document.getElementById("allAnnouncementsContainer");
-                            const children = container.querySelectorAll(".text-button");
+            documentObserver.observe(document.body, { childList: true, subtree: true });
+        }
+    });
 
-                            container.addEventListener("click", (event) => {
-                            const target = event.target;
 
-                            if (target !== container && target.classList.contains("text-button")) {
-                            children.forEach((child) => {
-                            child.classList.remove("border-b-[#007c8f]");
-                            child.classList.add("border-transparent");
-                            });
 
-                            target.classList.remove("border-transparent");
-                            target.classList.add("border-b-[#007c8f]");
+    let authorID = LOGGED_IN_USER_ID;
 
-                            const index = Array.from(children).indexOf(target);
+    document.addEventListener("DOMContentLoaded", () => {
+        const parentAllAnnouncements = document.querySelector("#parentAllAnnouncements");
+        const container = document.getElementById("allAnnouncementsContainer");
+        const children = container.querySelectorAll(".text-button");
 
-                            const posts = parentAllAnnouncements.children;
+        container.addEventListener("click", (event) => {
+            const target = event.target;
 
-                            Array.from(posts).forEach((post) => {
-                            const authorPostId = post.getAttribute("author-ID");
+            if (target !== container && target.classList.contains("text-button")) {
+                children.forEach((child) => {
+                    child.classList.remove("border-b-[#007c8f]");
+                    child.classList.add("border-transparent");
+                });
 
-                            if (index === 0) {
+                target.classList.remove("border-transparent");
+                target.classList.add("border-b-[#007c8f]");
+
+                const index = Array.from(children).indexOf(target);
+
+                const posts = parentAllAnnouncements.children;
+
+                Array.from(posts).forEach((post) => {
+                    const authorPostId = post.getAttribute("author-ID");
+
+                    if (index === 0) {
+                        post.classList.remove("hidden");
+                    } else if (index === 1) {
+                        if (authorPostId === authorID) {
                             post.classList.remove("hidden");
-                            } else if (index === 1) {
-                            if (authorPostId === authorID) {
-                            post.classList.remove("hidden");
-                            } else {
+                        } else {
                             post.classList.add("hidden");
-                            }
-                            }
-                            });
-                            }
-                            });
-                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
 
 
 
 
 
 
-                            function analyzeFile(fileData) {
-                            try {
-                            let result = {
-                            fileType: null,
-                            category: 'unknown',
-                            fileLink: null,
-                            fileName: null
-                            };
-                            let fileObject;
+    function analyzeFile(fileData) {
+        try {
+            let result = {
+                fileType: null,
+                category: 'unknown',
+                fileLink: null,
+                fileName: null
+            };
+            let fileObject;
 
-                            // Handle input
-                            if (typeof fileData === 'string') {
-                            if (fileData.startsWith('http')) {
-                            fileObject = { link: fileData };
-                            } else {
-                            try {
-                            fileObject = JSON.parse(fileData);
-                            } catch (e) {
-                            fileObject = { name: fileData };
-                            }
-                            }
-                            } else if (typeof fileData === 'object') {
-                            fileObject = fileData;
-                            } else {
-                            throw new Error('Invalid input type');
-                            }
+            // Handle input
+            if (typeof fileData === 'string') {
+                if (fileData.startsWith('http')) {
+                    fileObject = { link: fileData };
+                } else {
+                    try {
+                        fileObject = JSON.parse(fileData);
+                    } catch (e) {
+                        fileObject = { name: fileData };
+                    }
+                }
+            } else if (typeof fileData === 'object') {
+                fileObject = fileData;
+            } else {
+                throw new Error('Invalid input type');
+            }
 
-                            // Assign link and name
-                            if (fileObject.link) {
-                            result.fileLink = fileObject.link;
-                            }
-                            if (fileObject.name) {
-                            result.fileName = fileObject.name;
-                            }
+            // Assign link and name
+            if (fileObject.link) {
+                result.fileLink = fileObject.link;
+            }
+            if (fileObject.name) {
+                result.fileName = fileObject.name;
+            }
 
-                            // Extract file extension from link or name
-                            function getFileExtension(str) {
-                            if (!str) return null;
-                            try {
-                            const decodedStr = decodeURIComponent(str);
-                            // Look for the last occurrence of a file extension before query params
-                            const match = decodedStr.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/i);
-                            if (match) return match[1].toLowerCase();
+            // Extract file extension from link or name
+            function getFileExtension(str) {
+                if (!str) return null;
+                try {
+                    const decodedStr = decodeURIComponent(str);
+                    // Look for the last occurrence of a file extension before query params
+                    const match = decodedStr.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/i);
+                    if (match) return match[1].toLowerCase();
 
-                            // Fallback: search anywhere in the string for a known extension
-                            const knownExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'mp4', 'mp3'];
-                            for (const ext of knownExtensions) {
-                            if (decodedStr.toLowerCase().includes(`.${ext}`)) return ext;
-                            }
-                            return null;
-                            } catch (e) {
-                            return null;
-                            }
-                            }
-                            const mimeTypeMap = {
-                            'image/jpeg': { type: 'jpg', category: 'image' },
-                            'image/png': { type: 'png', category: 'image' },
-                            'image/gif': { type: 'gif', category: 'image' },
-                            'image/webp': { type: 'webp', category: 'image' },
-                            'application/pdf': { type: 'pdf', category: 'document' },
-                            'video/mp4': { type: 'mp4', category: 'video' },
-                            'audio/mpeg': { type: 'mp3', category: 'audio' }
-                            };
+                    // Fallback: search anywhere in the string for a known extension
+                    const knownExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'mp4', 'mp3'];
+                    for (const ext of knownExtensions) {
+                        if (decodedStr.toLowerCase().includes(`.${ext}`)) return ext;
+                    }
+                    return null;
+                } catch (e) {
+                    return null;
+                }
+            }
+            const mimeTypeMap = {
+                'image/jpeg': { type: 'jpg', category: 'image' },
+                'image/png': { type: 'png', category: 'image' },
+                'image/gif': { type: 'gif', category: 'image' },
+                'image/webp': { type: 'webp', category: 'image' },
+                'application/pdf': { type: 'pdf', category: 'document' },
+                'video/mp4': { type: 'mp4', category: 'video' },
+                'audio/mpeg': { type: 'mp3', category: 'audio' }
+            };
 
-                            if (fileObject.type && mimeTypeMap[fileObject.type]) {
-                            result.fileType = mimeTypeMap[fileObject.type].type;
-                            result.category = mimeTypeMap[fileObject.type].category;
-                            } else {
-                            const extension = getFileExtension(result.fileLink) || getFileExtension(result.fileName);
-                            if (extension) {
-                            const extensionCategories = {
-                            'jpg': 'image', 'jpeg': 'image', 'png': 'image', 'gif': 'image', 'webp': 'image',
-                            'pdf': 'document', 'doc': 'document', 'docx': 'document', 'txt': 'document',
-                            'mp4': 'video', 'mov': 'video', 'avi': 'video',
-                            'mp3': 'audio', 'wav': 'audio'
-                            };
-                            if (extensionCategories[extension]) {
-                            result.fileType = extension;
-                            result.category = extensionCategories[extension];
-                            }
-                            }
-                            }
-
-
-                            return result;
-                            } catch (error) {
-
-                            return { fileType: null, category: 'unknown', fileLink: null, fileName: null };
-                            }
-                            }
-
-                            function generateFilePreview(fileInfo) {
-
-                            if (!fileInfo || !fileInfo.fileLink) return '';
-
-                            const fileLink = fileInfo.fileLink;
-                            const escapedLink = fileLink.replace(/"/g, '&quot;');
-
-                            // Strip surrounding quotes from fileLink if present
-                            const fileName = fileInfo.fileName || "Unnamed File";
-                            // Remove unnecessary escaping unless quotes are embedded in the string
-                            const escapedFileName = fileName.replace(/"/g, '&quot;');
+            if (fileObject.type && mimeTypeMap[fileObject.type]) {
+                result.fileType = mimeTypeMap[fileObject.type].type;
+                result.category = mimeTypeMap[fileObject.type].category;
+            } else {
+                const extension = getFileExtension(result.fileLink) || getFileExtension(result.fileName);
+                if (extension) {
+                    const extensionCategories = {
+                        'jpg': 'image', 'jpeg': 'image', 'png': 'image', 'gif': 'image', 'webp': 'image',
+                        'pdf': 'document', 'doc': 'document', 'docx': 'document', 'txt': 'document',
+                        'mp4': 'video', 'mov': 'video', 'avi': 'video',
+                        'mp3': 'audio', 'wav': 'audio'
+                    };
+                    if (extensionCategories[extension]) {
+                        result.fileType = extension;
+                        result.category = extensionCategories[extension];
+                    }
+                }
+            }
 
 
+            return result;
+        } catch (error) {
+
+            return { fileType: null, category: 'unknown', fileLink: null, fileName: null };
+        }
+    }
+
+    function generateFilePreview(fileInfo) {
+
+        if (!fileInfo || !fileInfo.fileLink) return '';
+
+        const fileLink = fileInfo.fileLink;
+        const escapedLink = fileLink.replace(/"/g, '&quot;');
+
+        // Strip surrounding quotes from fileLink if present
+        const fileName = fileInfo.fileName || "Unnamed File";
+        // Remove unnecessary escaping unless quotes are embedded in the string
+        const escapedFileName = fileName.replace(/"/g, '&quot;');
 
 
-                            switch (fileInfo.category) {
-                            case 'image':
-                            const imageHtml = `
+
+
+        switch (fileInfo.category) {
+            case 'image':
+                const imageHtml = `
                             <div class="post-image-container h-[450px] w-full">
                                 <img src="${fileLink}" alt="${fileName}" class="post-image"
                                     style="height: 100%; width: 100%; object-fit: cover">
                             </div>`;
 
-                            return imageHtml;
+                return imageHtml;
 
-                            case 'video':
-                            return `
+            case 'video':
+                return `
                             <!-- Video modal component -->
                             <div class="[&_[x-cloak]]:hidden" x-data="{
 videoModal: false,
@@ -3369,8 +3432,8 @@ el.style.visibility = '';
                             </div> `;
 
 
-                            case 'audio':
-                            return `
+            case 'audio':
+                return `
                             <div class="flex flex-col gap-y-4  p-4 bg-[#ebf6f6] rounded" x-init="initPlayer()"
                                 x-data="audioPlayer();">
 
@@ -3460,9 +3523,9 @@ el.style.visibility = '';
 
                             `;
 
-                            case 'document':
-                            if (fileInfo.fileType === 'pdf' || fileInfo.fileType === "zip") {
-                            return `
+            case 'document':
+                if (fileInfo.fileType === 'pdf' || fileInfo.fileType === "zip") {
+                    return `
                             <div class="post-pdf-container p-4 bg-[#c7e6e6] rounded">
                                 <!--iframe src="${escapedLink}" class="pdf-preview "></iframe-->
 
@@ -3501,10 +3564,10 @@ el.style.visibility = '';
 
                                 </div>
                             </div>`;
-                            }
+                }
 
-                            default:
-                            return `
+            default:
+                return `
                             <div class="post-pdf-container p-4 bg-[#c7e6e6] rounded">
                                 <!--iframe src="${escapedLink}" class="pdf-preview "></iframe-->
 
@@ -3540,182 +3603,182 @@ el.style.visibility = '';
 
                                 </div>
                             </div>`;
-                            }
-                            }
+        }
+    }
 
 
 
 
 
-                            document.addEventListener("alpine:init", () => {
-                            Alpine.data("videoModal", (videoUrl) => ({
-                            modalOpen: false,
-                            videoSrc: videoUrl,
-                            thumbnail: "https://via.placeholder.com/768x432?text=Loading+Thumbnail",
-                            openModal() {
-                            this.modalOpen = true;
-                            this.stopOtherVideos();
-                            this.$nextTick(() => {
-                            this.$refs.videoPlayer.play();
-                            });
-                            },
-                            closeModal() {
-                            this.modalOpen = false;
-                            this.$nextTick(() => {
-                            this.$refs.videoPlayer.pause();
-                            });
-                            },
-                            stopOtherVideos() {
-                            document.querySelectorAll("video").forEach((video) => {
-                            if (video !== this.$refs.videoPlayer) {
-                            video.pause();
-                            }
-                            });
-                            },
-                            generateThumbnail() {
-                            const video = document.createElement("video");
-                            video.src = this.videoSrc;
-                            video.crossOrigin = "anonymous";
-                            video.muted = true;
+    document.addEventListener("alpine:init", () => {
+        Alpine.data("videoModal", (videoUrl) => ({
+            modalOpen: false,
+            videoSrc: videoUrl,
+            thumbnail: "https://via.placeholder.com/768x432?text=Loading+Thumbnail",
+            openModal() {
+                this.modalOpen = true;
+                this.stopOtherVideos();
+                this.$nextTick(() => {
+                    this.$refs.videoPlayer.play();
+                });
+            },
+            closeModal() {
+                this.modalOpen = false;
+                this.$nextTick(() => {
+                    this.$refs.videoPlayer.pause();
+                });
+            },
+            stopOtherVideos() {
+                document.querySelectorAll("video").forEach((video) => {
+                    if (video !== this.$refs.videoPlayer) {
+                        video.pause();
+                    }
+                });
+            },
+            generateThumbnail() {
+                const video = document.createElement("video");
+                video.src = this.videoSrc;
+                video.crossOrigin = "anonymous";
+                video.muted = true;
 
-                            video.addEventListener("loadeddata", () => {
-                            const canvas = document.createElement("canvas");
-                            const ctx = canvas.getContext("2d");
+                video.addEventListener("loadeddata", () => {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
 
-                            canvas.width = video.videoWidth;
-                            canvas.height = video.videoHeight;
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
 
-                            video.currentTime = 2;
+                    video.currentTime = 2;
 
-                            video.addEventListener("seeked", () => {
-                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                            this.thumbnail = canvas.toDataURL("image/png");
-                            });
-                            });
-                            },
-                            init() {
-                            this.generateThumbnail();
-                            }
-                            }));
-                            });
-
-
+                    video.addEventListener("seeked", () => {
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        this.thumbnail = canvas.toDataURL("image/png");
+                    });
+                });
+            },
+            init() {
+                this.generateThumbnail();
+            }
+        }));
+    });
 
 
-                            function extractAndConvertToEmbedUrls(data) {
-                            const urlRegex = /https?:\/\/[^\s]+/g;
 
-                            const urls = data.match(urlRegex) || [];
 
-                            const embeddableUrls = urls.map(url => {
-                            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                            return convertYouTubeUrlToEmbed(url);
-                            } else if (url.includes('vimeo.com')) {
-                            return convertVimeoUrlToEmbed(url);
-                            } else if (url.includes('loom.com')) {
-                            return convertLoomUrlToEmbed(url);
-                            } else {
-                            return null;
-                            }
-                            }).filter(url => url !== null);
+    function extractAndConvertToEmbedUrls(data) {
+        const urlRegex = /https?:\/\/[^\s]+/g;
 
-                            const formattedPostText = data.replace(urlRegex, url => {
-                            return `<a href="${url}" target="_blank"
+        const urls = data.match(urlRegex) || [];
+
+        const embeddableUrls = urls.map(url => {
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                return convertYouTubeUrlToEmbed(url);
+            } else if (url.includes('vimeo.com')) {
+                return convertVimeoUrlToEmbed(url);
+            } else if (url.includes('loom.com')) {
+                return convertLoomUrlToEmbed(url);
+            } else {
+                return null;
+            }
+        }).filter(url => url !== null);
+
+        const formattedPostText = data.replace(urlRegex, url => {
+            return `<a href="${url}" target="_blank"
                                 style="color: blue; text-decoration: underline;">${url}</a>`;
-                            });
+        });
 
-                            return {
-                            embeddableUrls: embeddableUrls,
-                            formattedPostText: formattedPostText
-                            };
-                            }
-
-
-                            function convertYouTubeUrlToEmbed(url) {
-                            const youtubeRegex =
-                            /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-                            const match = url.match(youtubeRegex);
-                            if (match && match[1]) {
-                            return `https://www.youtube.com/embed/${match[1]}`;
-                            }
-                            return null;
-                            }
+        return {
+            embeddableUrls: embeddableUrls,
+            formattedPostText: formattedPostText
+        };
+    }
 
 
-                            function convertVimeoUrlToEmbed(url) {
-                            const vimeoRegex = /(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/;
-                            const match = url.match(vimeoRegex);
-                            if (match && match[1]) {
-                            return `https://player.vimeo.com/video/${match[1]}`;
-                            }
-                            return null;
-                            }
+    function convertYouTubeUrlToEmbed(url) {
+        const youtubeRegex =
+            /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+        const match = url.match(youtubeRegex);
+        if (match && match[1]) {
+            return `https://www.youtube.com/embed/${match[1]}`;
+        }
+        return null;
+    }
 
 
-                            function convertLoomUrlToEmbed(url) {
-                            const loomRegex = /(?:https?:\/\/)?(?:www\.)?loom\.com\/share\/([a-zA-Z0-9]+)/;
-                            const match = url.match(loomRegex);
-                            if (match && match[1]) {
-                            return `https://www.loom.com/embed/${match[1]}`;
-                            }
-                            return null;
-                            }
+    function convertVimeoUrlToEmbed(url) {
+        const vimeoRegex = /(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/;
+        const match = url.match(vimeoRegex);
+        if (match && match[1]) {
+            return `https://player.vimeo.com/video/${match[1]}`;
+        }
+        return null;
+    }
 
 
-
-                            document.addEventListener("DOMContentLoaded", function () {
-                            const images = document.querySelectorAll("img");
-
-                            const newSrc =
-                            "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA";
-
-                            images.forEach(img => {
-                            let src = img.getAttribute("src")?.trim();
-                            if (src) {
-                            src = src.replace(/^['"]|['"]$/g, "");
-                            }
-
-                            if (!src || src === "https://i.ontraport.com/abc.jpg" || src ===
-                            "https://i.ontraport.com/265848.e4eb6c354950b9d6fcd6df912e177552.JPEG") {
-                            img.src = newSrc;
-                            }
-                            });
-                            });
+    function convertLoomUrlToEmbed(url) {
+        const loomRegex = /(?:https?:\/\/)?(?:www\.)?loom\.com\/share\/([a-zA-Z0-9]+)/;
+        const match = url.match(loomRegex);
+        if (match && match[1]) {
+            return `https://www.loom.com/embed/${match[1]}`;
+        }
+        return null;
+    }
 
 
 
-                            function populatePreviewContainer(el) {
-                            // Get preview container reference first
-                            const previewContainer = el.closest(".flex.items-center.justify-end.gap-2")
-                            ?.previousElementSibling;
+    document.addEventListener("DOMContentLoaded", function () {
+        const images = document.querySelectorAll("img");
 
-                            if (!previewContainer) {
+        const newSrc =
+            "https://file.ontraport.com/media/d297d307c0b44ab987c4c3ea6ce4f4d1.phpn85eue?Expires=4894682981&Signature=ITOEXhMnfN8RhJFBAPNE1r88KEv0EiFdNUDs1XFJWHGM-VHUgvnRlmbUxX6NrMESiC0IcQBi~Ev-jWHzgWDaUhEQOkljQgB2uLQHrxc2wlH~coXW8ZHT0aOWH160uZd5a6gUgnZWzNoIFU01RQZsxHjvc4Ds~lUpCiIeAKycYgwvZsPv5ir1tKuH~o7HUjfmCNdbStVMhSzfmyvsgP6uDCFspM19KtePjXy~rWteI8vFqltP28VLVNhUVCJ3jT29DiHdZRMYMeDUWVdYFBgebh~cCepChYOMG1ZGlfun9YtYDLuA7O93C2COEScR~gfomDrBDU5dgFXspiXnbTp58w__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA";
 
-                            return;
-                            }
+        images.forEach(img => {
+            let src = img.getAttribute("src")?.trim();
+            if (src) {
+                src = src.replace(/^['"]|['"]$/g, "");
+            }
 
-                            // Handle file selection
-                            if (el.files && el.files[0]) {
-                            const file = el.files[0];
+            if (!src || src === "https://i.ontraport.com/abc.jpg" || src ===
+                "https://i.ontraport.com/265848.e4eb6c354950b9d6fcd6df912e177552.JPEG") {
+                img.src = newSrc;
+            }
+        });
+    });
 
-                            if (file.type.startsWith('image')) {
-                            const reader = new FileReader();
 
-                            reader.onload = function (e) {
-                            previewContainer.classList.remove('hidden');
-                            previewContainer.innerHTML = `
+
+    function populatePreviewContainer(el) {
+        // Get preview container reference first
+        const previewContainer = el.closest(".flex.items-center.justify-end.gap-2")
+            ?.previousElementSibling;
+
+        if (!previewContainer) {
+
+            return;
+        }
+
+        // Handle file selection
+        if (el.files && el.files[0]) {
+            const file = el.files[0];
+
+            if (file.type.startsWith('image')) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    previewContainer.classList.remove('hidden');
+                    previewContainer.innerHTML = `
                             <img src="${e.target.result}" class="w-full max-h-full object-cover h-[450px]"
                                 alt="Image preview">
                             `;
-                            };
+                };
 
-                            reader.readAsDataURL(file);
-                            } else if (file.type.startsWith('audio')) {
-                            const audioUrl = URL.createObjectURL(file);
-                            previewContainer.classList.remove('hidden');
-                            previewContainer.innerHTML = '';
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('audio')) {
+                const audioUrl = URL.createObjectURL(file);
+                previewContainer.classList.remove('hidden');
+                previewContainer.innerHTML = '';
 
-                            const audioPlayerHTML = `
+                const audioPlayerHTML = `
                             <div class="flex flex-col gap-y-4  p-4 bg-[#ebf6f6]" x-init="initPlayer()"
                                 x-data="audioPlayer();">
                                 <div class=" flex items-center justify-between">
@@ -3788,34 +3851,34 @@ el.style.visibility = '';
                                     @ended="isPlaying = false" src=${audioUrl} controls></audio>
                             </div>
                             `;
-                            previewContainer.innerHTML = audioPlayerHTML;
-                            Alpine.initTree(previewContainer);
+                previewContainer.innerHTML = audioPlayerHTML;
+                Alpine.initTree(previewContainer);
 
-                            }
+            }
 
-                            else if (file.type.startsWith('video')) {
-                            // Show video player
+            else if (file.type.startsWith('video')) {
+                // Show video player
 
-                            const videoUrl = URL.createObjectURL(file);
-                            previewContainer.classList.remove('hidden');
-                            previewContainer.innerHTML = '';
-                            const videoPlayerHTML = `
+                const videoUrl = URL.createObjectURL(file);
+                previewContainer.classList.remove('hidden');
+                previewContainer.innerHTML = '';
+                const videoPlayerHTML = `
                             <video class="w-full h-[450px]" controls>
                                 <source src="${videoUrl}" type="${file.type}">
                                 `;
-                                previewContainer.innerHTML = videoPlayerHTML;
+                previewContainer.innerHTML = videoPlayerHTML;
 
 
 
-                                }
+            }
 
-                                else {
+            else {
 
-                                const documentURl = URL.createObjectURL(file);
+                const documentURl = URL.createObjectURL(file);
 
-                                previewContainer.classList.remove('hidden');
-                                previewContainer.innerHTML = '';
-                                const otherFileHTML = `<span
+                previewContainer.classList.remove('hidden');
+                previewContainer.innerHTML = '';
+                const otherFileHTML = `<span
                                     class="bg-[#c7e6e6] text-[#007c82] p-4  rounded flex items-center justify-between">
                                     <span class="flex items-center gap-x-2">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -3835,10 +3898,10 @@ el.style.visibility = '';
                                         </svg>
                                     </span>
                                 </span>`;
-                                previewContainer.innerHTML = otherFileHTML;
-                                }
-                                } else {
-                                // Hide container when no file selected
-                                previewContainer.classList.add('hidden');
-                                }
-                                }
+                previewContainer.innerHTML = otherFileHTML;
+            }
+        } else {
+            // Hide container when no file selected
+            previewContainer.classList.add('hidden');
+        }
+    }
