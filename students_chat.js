@@ -2290,7 +2290,7 @@ function createPostsFetcher() {
         query calcForumPosts($class_id: AwcClassID, $limit: IntScalar, $offset: IntScalar) {
             calcForumPosts(
                 query: [
-                { where: { class_id: $class_id } },
+                { where: { class_id: $class_id } }
                 { andWhere: { post_status: "Published - Not flagged" } }
                 ]
                 limit: $limit
