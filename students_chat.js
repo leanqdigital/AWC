@@ -1614,6 +1614,7 @@ author_id
 class_id 
 file 
 post_image 
+post_status 
 Mentions { 
 id  
 } 
@@ -2948,6 +2949,7 @@ async function attachAllListenerFns() {
                 author_id: Number(contactIdOfThisVisitor),
                 class_id: currentClassID,
                 file: fileData ? fileData : null,
+                post_status: "Published - Not flagged",
                 Mentions: mentionIDs.map((id) => ({ id: Number(id) }))
             });
             if (result) {
