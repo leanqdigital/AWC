@@ -210,19 +210,19 @@ let message = '';
 let messageContent= '';
 const usersId = Number(CONTACTss_ID);
 if (notification_Type === 'Posts') {
-      if (postMentionID && postMentionID === usersId) { //Check for mentions and update mentioned contact id here
+      if (postMentionID && postMentionID === usersId) {
           message = `${notification_course_name} - You have been mentioned in a post`;
-          messageContent = `${postFullName} mentioned You in a post`; //Post author either display name or full name
+          messageContent = `${postFullName} mentioned You in a post`;
       } else {
           message = `${notification_course_name} - A new post has been added`;
           messageContent = `${postFullName} added a new post`;
       }
   }
   else if (notification_Type === 'Post Comments') {
-      if (commentMentionID && commentMentionID === usersId) { //Check for mentions and update mentioned contact id here
+      if (commentMentionID && commentMentionID === usersId) { 
           message = `${notification_course_name} - You have been mentioned in a comment in a post`;
-          messageContent = `${commentFullName} mentioned you in a comment in a post`; // Comment author either display name or full name
-      } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === usersId) { // Parent post author id of this comment
+          messageContent = `${commentFullName} mentioned you in a comment in a post`; 
+      } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === usersId) { 
           message = `${notification_course_name} -  A comment has been added in your post`;
           messageContent = `${commentFullName} added a comment in your post`;
       }
@@ -232,15 +232,28 @@ if (notification_Type === 'Posts') {
       }
   }
 else if (notification_Type === 'Announcements') {
-      if (announcementMentionID && announcementMentionID === usersId) { //Check for mentions and update mentioned contact id here
+      if (announcementMentionID && announcementMentionID === usersId) { 
           message = `${notification_course_name} - You have been mentioned in an announcement`;
-          messageContent = `${instructorDisplayName} mentioned You in an announcement`; //Post author either display name or full name
+          messageContent = `${instructorDisplayName} mentioned You in an announcement`; 
       } else {
           message = `${notification_course_name} - A new announcement has been added`;
           messageContent = `${instructorDisplayName} added a new announcement`;
       }
   }
-  
+
+    else if (notification_Type === 'Announcement Comments') {
+      if (commentMentionID && commentMentionID === usersId) { 
+          message = `${notification_course_name} - You have been mentioned in a comment in an announcement`;
+          messageContent = `${commentFullName} mentioned you in a comment in an announcement`; 
+      } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === usersId) { 
+          message = `${notification_course_name} -  A comment has been added in your announcement`;
+          messageContent = `${commentFullName} added a comment in your announcement`;
+      }
+      else {
+          message = `${notification_course_name} - A new comment has been added in an announcement`;
+          messageContent = `${postFullName} added a new comment in an announcement`;
+      }
+  }
 
 card.className = "notification-card cursor-pointer";
 card.innerHTML = `
