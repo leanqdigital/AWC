@@ -206,10 +206,6 @@ const instructorDisplayName =notification.Instructor_Display_Name
   || `${notification.Instructor_First_Name || ''} ${notification.Instructor_Last_Name || ''}`.trim() 
   || 'Someone';  
 
-
-  
-
-
   
 let message = '';
 let messageContent= '';
