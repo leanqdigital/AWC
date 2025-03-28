@@ -124,7 +124,7 @@ async function initializeSocket() {
         break;
 
     case "Submissions":
-        if ((user_Preference_Comments_On_My_Submissions === "Yes" && notification.Enrolment_Student_ID === userId) ||
+        if ((user_Preference_Submissions === "Yes" && notification.Enrolment_Student_ID === userId) ||
             (user_Preference_Submission_Mentions === "Yes" && notification.Contact_Contact_ID1 === userId)) {
             return false;
         }
@@ -139,7 +139,7 @@ async function initializeSocket() {
         break;
 
     case "Announcements":
-        if ((user_Preference_Comments_On_My_Announcements === "Yes" && notification.Instructor_ID === userId) ||
+        if ((user_Preference_Announcements === "Yes" && notification.Instructor_ID === userId) ||
             (user_Preference_Announcement_Mentions === "Yes" && notification.Mentions_Contact_ID === userId)) {
             return false;
         }
