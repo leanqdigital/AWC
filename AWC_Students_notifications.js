@@ -107,50 +107,51 @@ async function initializeSocket() {
         const submission_mention_contact_id =notification.Contact_Contact_ID1;
 
       
-        if(notification_type ==="Posts"){
-           if (postAuthor === userId){
-             return false;
-           }else{
-             return true;
-           }
-        } else if(notification_type === "Post Comments" || notification_type === "Submission Comments" || notification_type === "Announcement Comments"){
-           if (commentAuthor === userId){
-             return false;
-           }else{
-             return true;
-           }
-        } else if(notification_type ==="Submissions"){
-           if (enroll_std_id === userId){
-             return false;
-           }else{
-             return true;
-           }
-        }  else if(notification_type ==="Announcements"){
-           if (instID === userId){
-             return false;
-           }else{
-             return true;
-           }
-        } else if(notification_type ==="Post Mentions"){
-           if (post_Mention_Contact_Id === userId){
-             return false;
-           }else{
-             return true;
-           }
-        } else if(notification_type ==="Announcement Mentions"){
-           if (announcement_mention_contact_id === userId){
-             return false;
-           }else{
-             return true;
-           }
-        } else if(notification_type ==="Submission Mentions"){
-           if (submission_mention_contact_id === userId){
-             return false;
-           }else{
-             return true;
-           }
-        } 
+    switch (notification_type) {
+    case "Posts":
+        if ((user_Preference_Comments_On_My_Posts === "Yes" && notification.Post_Author_ID === userId) ||
+            (user_Preference_Post_Mentions === "Yes" && notification.Contact_Contact_ID === userId)) {
+            return false;
+        }
+        break;
 
+    case "Post Comments":
+        if ((user_Preference_Post_Comments === "Yes" && notification.Comment_Author_ID === userId) ||
+            (user_Preference_Post_Comment_Mentions === "Yes" && notification.Contact_Contact_ID === userId)) {
+            return false;
+        }
+        break;
+
+    case "Submissions":
+        if ((user_Preference_Comments_On_My_Submissions === "Yes" && notification.Enrolment_Student_ID === userId) ||
+            (user_Preference_Submission_Mentions === "Yes" && notification.Contact_Contact_ID1 === userId)) {
+            return false;
+        }
+        break;
+
+    case "Submission Comments":
+        if ((user_Preference_Submission_Comments === "Yes" && notification.Comment_Author_ID === userId) ||
+            (user_Preference_Submission_Comment_Mentions === "Yes" && notification.Contact_Contact_ID1 === userId)) {
+            return false;
+        }
+        break;
+
+    case "Announcements":
+        if ((user_Preference_Comments_On_My_Announcements === "Yes" && notification.Instructor_ID === userId) ||
+            (user_Preference_Announcement_Mentions === "Yes" && notification.Mentions_Contact_ID === userId)) {
+            return false;
+        }
+        break;
+
+    case "Announcement Comments":
+        if ((user_Preference_Announcement_Comments === "Yes" && notification.Comment_Author_ID === userId) ||
+            (user_Preference_Announcement_Comment_Mentions === "Yes" && notification.Mentions_Contact_ID === userId)) {
+            return false;
+        }
+        break;
+}
+
+return true;
 
       
      
