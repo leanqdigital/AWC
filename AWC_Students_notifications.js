@@ -102,6 +102,9 @@ async function initializeSocket() {
         const userId = Number(CONTACTss_ID);
         const notification_type = notification.Notification_Type;
         const enroll_std_id = notification.Enrolment_Student_ID;
+        const post_Mention_Contact_Id = notification.Contact_Contact_ID;
+        const announcement_mention_contact_id = notification.Mentions_Contact_ID;
+        const submission_mention_contact_id =notification.Contact_Contact_ID1;
 
       
         if(notification_type ==="Posts"){
@@ -116,14 +119,32 @@ async function initializeSocket() {
            }else{
              return true;
            }
-        } else if(notification_type ==="Submission"){
+        } else if(notification_type ==="Submissions"){
            if (enroll_std_id === userId){
              return false;
            }else{
              return true;
            }
-        }  else if(notification_type ==="Announcement"){
+        }  else if(notification_type ==="Announcements"){
            if (instID === userId){
+             return false;
+           }else{
+             return true;
+           }
+        } else if(notification_type ==="Post Mentions"){
+           if (post_Mention_Contact_Id === userId){
+             return false;
+           }else{
+             return true;
+           }
+        } else if(notification_type ==="Announcement Mentions"){
+           if (announcement_mention_contact_id === userId){
+             return false;
+           }else{
+             return true;
+           }
+        } else if(notification_type ==="Submission Mentions"){
+           if (submission_mention_contact_id === userId){
              return false;
            }else{
              return true;
