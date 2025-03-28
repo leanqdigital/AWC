@@ -185,21 +185,44 @@ function createNotificationCard(notification, isRead) {
 const card = document.createElement("div");
   const notification_Type = notification.Notification_Type;
   const notification_course_name = notification.Course_Course_Name;
+  const commentMentionID = notification.Contact_Contact_ID1;
+  const postMentionID = notification.Contact_Contact_ID;
+
+  
   const postFullName = notification.Contact_Display_Name 
   || `${notification.Contact_First_Name || ''} ${notification.Contact_Last_Name || ''}`.trim() 
   || 'Someone';
-
+  const commentFullname = notification.Contact_Display_Name2 
+  || `${notification.Contact_First_Name2 || ''} ${notification.Contact_Last_Name2 || ''}`.trim() 
+  || 'Someone';  
+ 
 let message = '';
 let messageContent= '';
+
 if (notification_Type === 'Posts') {
-if (notification.Contact_Contact_ID && notification.Contact_Contact_ID === userId) {
-  message = `${notification_course_name} - You have been mentioned in a post`;
-  messageContent = `${postFullName} Mentioned You in a post`;
-} else {
-  message = `${notification_course_name} - A new post has been added`;
-  messageContent = `${postFullName} added a new post`;
-}
-}
+      if (postMentionID && postMentionID === userId) { //Check for mentions and update mentioned contact id here
+          message = `${notification_course_name} - You have been mentioned in a post`;
+          messageContent = `${postFullName} mentioned You in a post`; //Post author either display name or full name
+      } else {
+          message = `${notification_course_name} - A new post has been added`;
+          messageContent = `${postFullName} added a new post`;
+      }
+  }
+  else if (notification_Type === 'Post Comments') {
+      if (commentMentionID && commentMentionID === userId) { //Check for mentions and update mentioned contact id here
+          message = `${notification_course_name} - You have been mentioned in a comment in a post`;
+          messageContent = `${commentFullName} mentioned you in a comment in a post`; // Comment author either display name or full name
+      } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === userId) { // Parent post author id of this comment
+          message = `${notification_course_name} -  A comment has been added in your post`;
+          messageContent = `${commentFullName} added a comment in your post`;
+      }
+      else {
+          message = `${notification_course_name} - A new comment has been added in a post`;
+          messageContent = `${postFullName} added a new comment in a post`;
+      }
+  }
+
+  
 
   const messageContent =  notification_Type === 'Posts' 
     ? `${postFullName} added a new post` 
