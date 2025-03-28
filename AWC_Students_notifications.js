@@ -185,10 +185,15 @@ function createNotificationCard(notification, isRead) {
 const card = document.createElement("div");
   const notification_Type = notification.Notification_Type;
   const notification_course_name = notification.Course_Course_Name;
-  const commentMentionID = notification.Contact_Contact_ID1;
-  const postMentionID = notification.Contact_Contact_ID;
-  const announcementMentionID = notification.Mentions_Contact_ID;
+  
+  // const commentMentionID = notification.Contact_Contact_ID1;
+  // const postMentionID = notification.Contact_Contact_ID;
+  // const announcementMentionID = notification.Mentions_Contact_ID;
 
+const commentMentionID = String(notification.Contact_Contact_ID1);
+const postMentionID = String(notification.Contact_Contact_ID);
+const announcementMentionID = String(notification.Mentions_Contact_ID);
+const forumPostAuthorID = String(notification.ForumPost_Author_ID);
   
   const postFullName = notification.Contact_Display_Name 
   || `${notification.Contact_First_Name || ''} ${notification.Contact_Last_Name || ''}`.trim() 
@@ -208,7 +213,7 @@ const instructorDisplayName =notification.Instructor_Display_Name
   
 let message = '';
 let messageContent= '';
-const usersId = Number(CONTACTss_ID);
+const usersId = String(CONTACTss_ID);
 if (notification_Type === 'Posts') {
       if (postMentionID && postMentionID === usersId) {
           message = `${notification_course_name} - You have been mentioned in a post`;
@@ -222,7 +227,7 @@ if (notification_Type === 'Posts') {
       if (commentMentionID && commentMentionID === usersId) { 
           message = `${notification_course_name} - You have been mentioned in a comment in a post`;
           messageContent = `${commentFullname} mentioned you in a comment in a post`; 
-      } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === usersId) { 
+      } else if (forumPostAuthorID && forumPostAuthorID === usersId) { 
           message = `${notification_course_name} -  A comment has been added in your post`;
           messageContent = `${commentFullname} added a comment in your post`;
       }
@@ -245,7 +250,7 @@ else if (notification_Type === 'Announcements') {
       if (commentMentionID && commentMentionID === usersId) { 
           message = `${notification_course_name} - You have been mentioned in a comment in an announcement`;
           messageContent = `${commentFullname} mentioned you in a comment in an announcement`; 
-      } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === usersId) { 
+      } else if (forumPostAuthorID && forumPostAuthorID === usersId) { 
           message = `${notification_course_name} -  A comment has been added in your announcement`;
           messageContent = `${commentFullname} added a comment in your announcement`;
       }
