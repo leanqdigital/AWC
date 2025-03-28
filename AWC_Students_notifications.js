@@ -100,10 +100,42 @@ async function initializeSocket() {
         const commentAuthor = notification.Comment_Author_ID;
         const instID = notification.Instructor_ID;
         const userId = Number(CONTACTss_ID);
-        if (postAuthor === userId || commentAuthor === userId ||  instID  === userId ){
-          return false;
-        }else{
-        return true;}
+        const notification_type = notification.Notification_Type;
+        const enroll_std_id = notification.Enrolment_Student_ID;
+
+      
+        if(notification_type ==="Posts"){
+           if (postAuthor === userId){
+             return false;
+           }else{
+             return true;
+           }
+        } else if(notification_type === "Post Comments" || notification_type === "Submission Comments" || notification_type === "Announcement Comments"){
+           if (commentAuthor === userId){
+             return false;
+           }else{
+             return true;
+           }
+        } else if(notification_type ==="Submission"){
+           if (enroll_std_id === userId){
+             return false;
+           }else{
+             return true;
+           }
+        }  else if(notification_type ==="Announcement"){
+           if (instID === userId){
+             return false;
+           }else{
+             return true;
+           }
+        } 
+
+
+      
+     
+
+
+      
     });
 
     if (filteredNotifications.length === 0) {
