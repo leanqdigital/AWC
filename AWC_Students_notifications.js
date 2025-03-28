@@ -185,8 +185,15 @@ function createNotificationCard(notification, isRead) {
 const card = document.createElement("div");
   const notification_Type = notification.Notification_Type;
   const notification_course_name = notification.Course_Course_Name;
+  const postFullName = notification.Contact_Display_Name 
+  || `${notification.Contact_First_Name || ''} ${notification.Contact_Last_Name || ''}`.trim() 
+  || 'Someone';
+
   const message = notification_Type === 'Posts' 
     ? `${notification_course_name} - A new post has been added` 
+    : 'Dummy Title';
+  const messageContent =  notification_Type === 'Posts' 
+    ? `${postFullName} added anew post` 
     : 'Dummy Title';
 card.className = "notification-card cursor-pointer";
 card.innerHTML = `
