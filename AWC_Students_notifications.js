@@ -198,9 +198,9 @@ const card = document.createElement("div");
  
 let message = '';
 let messageContent= '';
-
+const usersId = Number(CONTACTss_ID);
 if (notification_Type === 'Posts') {
-      if (postMentionID && postMentionID === userId) { //Check for mentions and update mentioned contact id here
+      if (postMentionID && postMentionID === usersId) { //Check for mentions and update mentioned contact id here
           message = `${notification_course_name} - You have been mentioned in a post`;
           messageContent = `${postFullName} mentioned You in a post`; //Post author either display name or full name
       } else {
@@ -209,10 +209,10 @@ if (notification_Type === 'Posts') {
       }
   }
   else if (notification_Type === 'Post Comments') {
-      if (commentMentionID && commentMentionID === userId) { //Check for mentions and update mentioned contact id here
+      if (commentMentionID && commentMentionID === usersId) { //Check for mentions and update mentioned contact id here
           message = `${notification_course_name} - You have been mentioned in a comment in a post`;
           messageContent = `${commentFullName} mentioned you in a comment in a post`; // Comment author either display name or full name
-      } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === userId) { // Parent post author id of this comment
+      } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === usersId) { // Parent post author id of this comment
           message = `${notification_course_name} -  A comment has been added in your post`;
           messageContent = `${commentFullName} added a comment in your post`;
       }
