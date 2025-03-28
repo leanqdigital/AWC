@@ -193,7 +193,7 @@ const card = document.createElement("div");
     ? `${notification_course_name} - A new post has been added` 
     : 'Dummy Title';
   const messageContent =  notification_Type === 'Posts' 
-    ? `${postFullName} added anew post` 
+    ? `${postFullName} added a new post` 
     : 'Dummy Title';
 card.className = "notification-card cursor-pointer";
 card.innerHTML = `
