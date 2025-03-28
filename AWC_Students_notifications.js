@@ -221,10 +221,10 @@ if (notification_Type === 'Posts') {
   else if (notification_Type === 'Post Comments') {
       if (commentMentionID && commentMentionID === usersId) { 
           message = `${notification_course_name} - You have been mentioned in a comment in a post`;
-          messageContent = `${commentFullName} mentioned you in a comment in a post`; 
+          messageContent = `${commentFullname} mentioned you in a comment in a post`; 
       } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === usersId) { 
           message = `${notification_course_name} -  A comment has been added in your post`;
-          messageContent = `${commentFullName} added a comment in your post`;
+          messageContent = `${commentFullname} added a comment in your post`;
       }
       else {
           message = `${notification_course_name} - A new comment has been added in a post`;
@@ -244,10 +244,10 @@ else if (notification_Type === 'Announcements') {
     else if (notification_Type === 'Announcement Comments') {
       if (commentMentionID && commentMentionID === usersId) { 
           message = `${notification_course_name} - You have been mentioned in a comment in an announcement`;
-          messageContent = `${commentFullName} mentioned you in a comment in an announcement`; 
+          messageContent = `${commentFullname} mentioned you in a comment in an announcement`; 
       } else if (notification.ForumPost_Author_ID && notification.ForumPost_Author_ID === usersId) { 
           message = `${notification_course_name} -  A comment has been added in your announcement`;
-          messageContent = `${commentFullName} added a comment in your announcement`;
+          messageContent = `${commentFullname} added a comment in your announcement`;
       }
       else {
           message = `${notification_course_name} - A new comment has been added in an announcement`;
