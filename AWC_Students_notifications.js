@@ -109,15 +109,16 @@ async function initializeSocket() {
       
     switch (notification_type) {
     case "Posts":
-        if ((user_Preference_Comments_On_My_Posts === "Yes" && notification.Post_Author_ID === userId) ||
+        if ((user_Preference_Posts === "Yes" && notification.Post_Author_ID === userId) ||
             (user_Preference_Post_Mentions === "Yes" && notification.Contact_Contact_ID === userId)) {
             return false;
-        }
+        } 
         break;
 
     case "Post Comments":
         if ((user_Preference_Post_Comments === "Yes" && notification.Comment_Author_ID === userId) ||
-            (user_Preference_Post_Comment_Mentions === "Yes" && notification.Contact_Contact_ID === userId)) {
+            (user_Preference_Post_Comment_Mentions === "Yes" && notification.Contact_Contact_ID === userId) || 
+            (user_Preference_Comments_On_My_Posts === "Yes" && notification.Comment_Author_ID === userId)) {
             return false;
         }
         break;
@@ -131,7 +132,8 @@ async function initializeSocket() {
 
     case "Submission Comments":
         if ((user_Preference_Submission_Comments === "Yes" && notification.Comment_Author_ID === userId) ||
-            (user_Preference_Submission_Comment_Mentions === "Yes" && notification.Contact_Contact_ID1 === userId)) {
+            (user_Preference_Submission_Comment_Mentions === "Yes" && notification.Contact_Contact_ID1 === userId) || 
+            (user_Preference_Comments_On_My_Submissions === "Yes" && notification.Comment_Author_ID === userId)) {
             return false;
         }
         break;
@@ -145,7 +147,8 @@ async function initializeSocket() {
 
     case "Announcement Comments":
         if ((user_Preference_Announcement_Comments === "Yes" && notification.Comment_Author_ID === userId) ||
-            (user_Preference_Announcement_Comment_Mentions === "Yes" && notification.Mentions_Contact_ID === userId)) {
+            (user_Preference_Announcement_Comment_Mentions === "Yes" && notification.Mentions_Contact_ID === userId) || 
+            (user_Preference_Comments_On_My_Announcements === "Yes" && notification.Comment_Author_ID === userId)) {
             return false;
         }
         break;
