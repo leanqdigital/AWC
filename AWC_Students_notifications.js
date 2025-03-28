@@ -252,7 +252,7 @@ else if (notification_Type === 'Announcements') {
       }
       else {
           message = `${notification_course_name} - A new comment has been added in an announcement`;
-          messageContent = `${postFullName} added a new comment in an announcement`;
+          messageContent = `${commentFullname} added a new comment in an announcement`;
       }
   }
 
