@@ -187,6 +187,7 @@ const card = document.createElement("div");
   const notification_course_name = notification.Course_Course_Name;
   const commentMentionID = notification.Contact_Contact_ID1;
   const postMentionID = notification.Contact_Contact_ID;
+  const announcementMentionID = notification.Mentions_Contact_ID;
 
   
   const postFullName = notification.Contact_Display_Name 
@@ -195,7 +196,16 @@ const card = document.createElement("div");
   const commentFullname = notification.Contact_Display_Name2 
   || `${notification.Contact_First_Name2 || ''} ${notification.Contact_Last_Name2 || ''}`.trim() 
   || 'Someone';  
- 
+
+const instructorDisplayName =notification.Instructor_Display_Name 
+  || `${notification.Instructor_First_Name || ''} ${notification.Instructor_Last_Name || ''}`.trim() 
+  || 'Someone';  
+
+
+  
+
+
+  
 let message = '';
 let messageContent= '';
 const usersId = Number(CONTACTss_ID);
@@ -221,7 +231,15 @@ if (notification_Type === 'Posts') {
           messageContent = `${postFullName} added a new comment in a post`;
       }
   }
-
+else if (notification_Type === 'Announcements') {
+      if (announcementMentionID && announcementMentionID === usersId) { //Check for mentions and update mentioned contact id here
+          message = `${notification_course_name} - You have been mentioned in an announcement`;
+          messageContent = `${instructorDisplayName} mentioned You in an announcement`; //Post author either display name or full name
+      } else {
+          message = `${notification_course_name} - A new announcement has been added`;
+          messageContent = `${instructorDisplayName} added a new announcement`;
+      }
+  }
   
 
 card.className = "notification-card cursor-pointer";
