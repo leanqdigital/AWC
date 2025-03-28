@@ -94,8 +94,8 @@ async function initializeSocket() {
       
         return;
     }
-    const notifications = Array.isArray(result) ? result : [result];
-    const filteredNotifications = notifications.filter(notification => {
+        const notifications = Array.isArray(result) ? result : [result];
+        const filteredNotifications = notifications.filter(notification => {
         const postAuthor = notification.Post_Author_ID;
         const commentAuthor = notification.Comment_Author_ID;
         const instID = notification.Instructor_ID;
@@ -189,9 +189,18 @@ const card = document.createElement("div");
   || `${notification.Contact_First_Name || ''} ${notification.Contact_Last_Name || ''}`.trim() 
   || 'Someone';
 
-  const message = notification_Type === 'Posts' 
-    ? `${notification_course_name} - A new post has been added` 
-    : 'Dummy Title';
+let message = '';
+let messageContent= '';
+if (notification_Type === 'Posts') {
+if (notification.Contact_Contact_ID && notification.Contact_Contact_ID === userId) {
+  message = `${notification_course_name} - You have been mentioned in a post`;
+  messageContent = `${postFullName} Mentioned You in a post`;
+} else {
+  message = `${notification_course_name} - A new post has been added`;
+  messageContent = `${postFullName} added a new post`;
+}
+}
+
   const messageContent =  notification_Type === 'Posts' 
     ? `${postFullName} added a new post` 
     : 'Dummy Title';
