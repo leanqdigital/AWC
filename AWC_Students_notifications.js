@@ -202,7 +202,7 @@ card.innerHTML = `
             <div class="text-[#414042] text-xs font-semibold">
             ${message}
             </div>
-            <div class="extra-small-text text-dark line-clamp-2">${notification.Content}</div>
+            <div class="extra-small-text text-dark line-clamp-2">${messageContent}</div>
             <div class="text-[#586A80] extra-small-text">${notification.Course_Course_Name}</div>
         </div>
         <div class="extra-small-text text-[#586A80] text-nowrap">${timeAgo(notification.Date_Added)}</div>
