@@ -224,9 +224,6 @@ if (notification_Type === 'Posts') {
 
   
 
-  const messageContent =  notification_Type === 'Posts' 
-    ? `${postFullName} added a new post` 
-    : 'Dummy Title';
 card.className = "notification-card cursor-pointer";
 card.innerHTML = `
     <div data-my-id ="${notification.ID} "class="p-2  items-start gap-2 rounded justify-between notification-content w-full ${isRead ? "bg-white" : "bg-unread"} ${notification.Status==="Draft" ? "hidden":"flex" }">
