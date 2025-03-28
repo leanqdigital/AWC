@@ -154,13 +154,7 @@ async function initializeSocket() {
         break;
 }
 
-return true;
-
-      
-     
-
-
-      
+return true;  
     });
 
     if (filteredNotifications.length === 0) {
@@ -186,15 +180,21 @@ return true;
         };
     });
 }
-
 initializeSocket();
 function createNotificationCard(notification, isRead) {
 const card = document.createElement("div");
+  const notification_Type = notification.Notification_Type;
+  const notification_course_name = notification.Course_Course_Name;
+  const message = notification_Type === 'Posts' 
+    ? `${notification_course_name} - A new post has been added` 
+    : 'Dummy Title';
 card.className = "notification-card cursor-pointer";
 card.innerHTML = `
     <div data-my-id ="${notification.ID} "class="p-2  items-start gap-2 rounded justify-between notification-content w-full ${isRead ? "bg-white" : "bg-unread"} ${notification.Status==="Draft" ? "hidden":"flex" }">
         <div class="flex flex-col gap-1">
-            <div class="text-[#414042] text-xs font-semibold">${notification.Title}</div>
+            <div class="text-[#414042] text-xs font-semibold">
+            ${message}
+            </div>
             <div class="extra-small-text text-dark line-clamp-2">${notification.Content}</div>
             <div class="text-[#586A80] extra-small-text">${notification.Course_Course_Name}</div>
         </div>
