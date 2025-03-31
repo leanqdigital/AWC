@@ -193,6 +193,7 @@ const card = document.createElement("div");
 const commentMentionID = String(notification.Contact_Contact_ID1);
 const postMentionID = String(notification.Contact_Contact_ID);
 const announcementMentionID = String(notification.Mentions_Contact_ID);
+  const submissionMentionID = String(notification.Contact_Contact_IDSubmission);
 const forumPostAuthorID = String(notification.ForumPost_Author_ID);
   
   const postFullName = notification.Contact_Display_Name 
@@ -205,6 +206,11 @@ const forumPostAuthorID = String(notification.ForumPost_Author_ID);
 const instructorDisplayName =notification.Instructor_Display_Name 
   || `${notification.Instructor_First_Name || ''} ${notification.Instructor_Last_Name || ''}`.trim() 
   || 'Someone';  
+
+  const submissionDisplayName = notification.Contact_Display_Name5 
+  || `${notification.Contact_First_Name5 || ''} ${notification.Contact_Last_Name5 || ''}`.trim() 
+  || 'Someone';  
+
 
   
 let message = '';
@@ -255,6 +261,33 @@ else if (notification_Type === 'Announcements') {
           messageContent = `${commentFullname} added a new comment in an announcement`;
       }
   }
+
+  else if (notification_Type === 'Submissions') {
+      if (submissionMentionID && submissionMentionID === usersId) { 
+          message = `${notification_course_name} - You have been mentioned in a submission`;
+          messageContent = `${submissionDisplayName} mentioned You in a submission`; 
+      } else {
+          message = `${notification_course_name} - A new submission has been added`;
+          messageContent = `${submissionDisplayName} added a new submission`;
+      }
+  }
+
+
+  else if (notification_Type === 'Submission Comments') {
+      if (commentMentionID && commentMentionID === usersId) { 
+          message = `${notification_course_name} - You have been mentioned in a comment in a submission`;
+          messageContent = `${commentFullname} mentioned you in a comment in a submission`; 
+      } else if (forumPostAuthorID && forumPostAuthorID === usersId) { 
+          message = `${notification_course_name} -  A comment has been added in your submission`;
+          messageContent = `${commentFullname} added a comment in your announcement`;
+      }
+      else {
+          message = `${notification_course_name} - A new comment has been added in a submission`;
+          messageContent = `${commentFullname} added a new comment in a submission`;
+      }
+  }
+
+  
 
 card.className = "notification-card cursor-pointer";
 card.innerHTML = `
