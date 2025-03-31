@@ -304,14 +304,14 @@ card.innerHTML = `
 `;
 card.addEventListener("click", async function () { 
   const id = Number(notification.ID);
-  const type = notification.Type;
+  const type = notification.notification_Type;
   const loader = document.getElementById("loader");
   loader.classList.remove("fade-out");
   if (!readAnnouncements.has(id) && !pendingAnnouncements.has(id)) {
       await markAsRead(id);
   }
 
-  if (type === 'Comment' || type === 'Post') {
+  if (type === 'Posts') {
       window.location.href = `https://courses.writerscentre.com.au/students/course-details/${notification.Course_Unique_ID}?eid=${notification.EnrolmentID}&selectedTab=courseChat?current-post-id=${notification.Post_ID}`;
   } else if (type === 'Submissions') {
       window.location.href = `https://courses.writerscentre.com.au/course-details/content/${notification.Lesson_Unique_ID1}?eid=${notification.EnrolmentID}`;
