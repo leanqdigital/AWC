@@ -195,12 +195,15 @@ const postMentionID = String(notification.Contact_Contact_ID);
 const announcementMentionID = String(notification.Mentions_Contact_ID);
 const submissionMentionID = String(notification.Contact_Contact_IDSubmission);
 const forumPostAuthorID = String(notification.ForumPost_Author_ID);
+const announcementCommentMentionContactId = String(notification.AnnouncementContact_Contact_ID);
+  //for teachers/admin
+const annuncementInstId = String(notification.Announcement_Instructor_ID); 
   
   const postFullName = notification.Contact_Display_Name 
   || `${notification.Contact_First_Name || ''} ${notification.Contact_Last_Name || ''}`.trim() 
   || 'Someone';
-  const commentFullname = notification.Contact_Display_Name2 
-  || `${notification.Contact_First_Name2 || ''} ${notification.Contact_Last_Name2 || ''}`.trim() 
+  const commentFullname = notification.CommentContact_Display_Name 
+  || `${notification.CommentContact_First_Name || ''} ${notification.CommentContact_Last_Name || ''}`.trim() 
   || 'Someone';  
 
 const instructorDisplayName =notification.Instructor_Display_Name 
@@ -217,6 +220,7 @@ const instructorDisplayName =notification.Instructor_Display_Name
   const announcerrDisplayName =  notification.AnnContact_Display_Name 
   || `${notification.AnnContact_First_Name1 || ''} ${notification.AnnContact_Last_Name || ''}`.trim() 
   || 'Someone'; 
+
 
   
 let message = '';
@@ -255,12 +259,12 @@ else if (notification_Type === 'Announcements') {
   }
 
     else if (notification_Type === 'Announcement Comments') {
-      if (commentMentionID && commentMentionID === usersId) { 
+       if (commentMentionID && commentMentionID === usersId) { 
           message = `${notification_course_name} - You have been mentioned in a comment in an announcement`;
-          messageContent = `${announcerrDisplayName} mentioned you in a comment in an announcement`; 
-      } else if (forumPostAuthorID && forumPostAuthorID === usersId) { 
+          messageContent = `${commentFullname} mentioned you in a comment in an announcement`; 
+      } else if (annuncementInstId && annuncementInstId === usersId)  { 
           message = `${notification_course_name} -  A comment has been added in your announcement`;
-          messageContent = `${announcerrDisplayName} added a comment in your announcement`;
+          messageContent = `${commentFullname} added a comment in your announcement`;
       }
       else {
           message = `${notification_course_name} - A new comment has been added in an announcement`;
