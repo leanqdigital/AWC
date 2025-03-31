@@ -28,10 +28,31 @@ return "Just now";
 }
 async function fetchClassIds() {
 const query = `
+// query calcEnrolments {
+// calcEnrolments(query: [{ where: { student_id: ${CONTACTss_ID} } }]) {
+//   Class_ID: field(arg: ["class_id"])
+// }
+// }
 query calcEnrolments {
-calcEnrolments(query: [{ where: { student_id: ${CONTACTss_ID} } }]) {
-  Class_ID: field(arg: ["class_id"])
-}
+  calcEnrolments(
+    query: [
+      { where: { student_id: ${CONTACTss_ID} } }
+      {
+        andWhereGroup: [
+          { where: { format: "Online Live" } }
+          { orWhere: { format: "Online Tutor-led" } }
+        ]
+      }
+      {
+        andWhereGroup: [
+          { where: { status: "New" } }
+          { orWhere: { status: "Active" } }
+        ]
+      }
+    ]
+  ) {
+    Class_ID: field(arg: ["class_id"])
+  }
 }
 `;
 try {
