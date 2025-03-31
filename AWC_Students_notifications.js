@@ -314,7 +314,7 @@ card.innerHTML = `
 `;
 card.addEventListener("click", async function () { 
   const id = Number(notification.ID);
-  const type = notification.notification_Type;
+  const type = notification.Notification_Type;
   const loader = document.getElementById("loader");
   loader.classList.remove("fade-out");
   if (!readAnnouncements.has(id) && !pendingAnnouncements.has(id)) {
