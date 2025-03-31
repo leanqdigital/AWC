@@ -342,9 +342,9 @@ card.addEventListener("click", async function () {
       await markAsRead(id);
   }
 
-  if (type === 'Posts') {
+  if (type === 'Posts' || type === 'Post Comments') {
       window.location.href = `https://courses.writerscentre.com.au/students/course-details/${notification.Course_Unique_ID}?eid=${notification.EnrolmentID}&selectedTab=courseChat?current-post-id=${notification.Post_ID}`;
-  } else if (type === 'Submissions') {
+  } else if (type === 'Submissions' || type === 'Submission Comments') {
       window.location.href = `https://courses.writerscentre.com.au/course-details/content/${notification.Lesson_Unique_ID1}?eid=${notification.EnrolmentID}`;
   } else {
       window.location.href = `https://courses.writerscentre.com.au/students/course-details/${notification.Course_Unique_ID}?eid=${notification.EnrolmentID}&selectedTab=anouncemnt?data-announcement-template-id=${anouncementScrollId}`;
