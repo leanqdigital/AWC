@@ -193,7 +193,7 @@ const card = document.createElement("div");
 const commentMentionID = String(notification.Contact_Contact_ID1);
 const postMentionID = String(notification.Contact_Contact_ID);
 const announcementMentionID = String(notification.Mentions_Contact_ID);
-  const submissionMentionID = String(notification.Contact_Contact_IDSubmission);
+const submissionMentionID = String(notification.Contact_Contact_IDSubmission);
 const forumPostAuthorID = String(notification.ForumPost_Author_ID);
   
   const postFullName = notification.Contact_Display_Name 
@@ -211,6 +211,12 @@ const instructorDisplayName =notification.Instructor_Display_Name
   || `${notification.Contact_First_Name5 || ''} ${notification.Contact_Last_Name5 || ''}`.trim() 
   || 'Someone';  
 
+  const submissitterDisplayName =  notification.SubContact_Display_Name 
+  || `${notification.SubContact_First_Name || ''} ${notification.SubContact_Last_Name || ''}`.trim() 
+  || 'Someone';  
+  const announcerrDisplayName =  notification.AnnContact_Display_Name 
+  || `${notification.AnnContact_First_Name1 || ''} ${notification.AnnContact_Last_Name || ''}`.trim() 
+  || 'Someone'; 
 
   
 let message = '';
@@ -251,10 +257,10 @@ else if (notification_Type === 'Announcements') {
     else if (notification_Type === 'Announcement Comments') {
       if (commentMentionID && commentMentionID === usersId) { 
           message = `${notification_course_name} - You have been mentioned in a comment in an announcement`;
-          messageContent = `${commentFullname} mentioned you in a comment in an announcement`; 
+          messageContent = `${announcerrDisplayName} mentioned you in a comment in an announcement`; 
       } else if (forumPostAuthorID && forumPostAuthorID === usersId) { 
           message = `${notification_course_name} -  A comment has been added in your announcement`;
-          messageContent = `${commentFullname} added a comment in your announcement`;
+          messageContent = `${announcerrDisplayName} added a comment in your announcement`;
       }
       else {
           message = `${notification_course_name} - A new comment has been added in an announcement`;
@@ -268,7 +274,7 @@ else if (notification_Type === 'Announcements') {
           messageContent = `${submissionDisplayName} mentioned You in a submission`; 
       } else {
           message = `${notification_course_name} - A new submission has been added`;
-          messageContent = `${submissionDisplayName} added a new submission`;
+          messageContent = `${submissitterDisplayName} added a new submission`;
       }
   }
 
