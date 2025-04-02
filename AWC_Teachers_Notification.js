@@ -6,102 +6,108 @@ const cardMap = new Map();
 const notificationIDs = new Set(); 
 const notificationData = [];
 function getQueryParamss(param) {
-const urlParams = new URLSearchParams(window.location.search);
-return urlParams.get(param);
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
 }
-const enrollID = getQueryParamss('eid');
+const enrollID = getQueryParamss("eid");
 function timeAgo(unixTimestamp) {
-const now = new Date();
-const date = new Date(unixTimestamp * 1000);
-const seconds = Math.floor((now - date) / 1000);
-let interval = Math.floor(seconds / 31536000);
-if (interval >= 1) return interval + " year" + (interval > 1 ? "s" : "") + " ago";
-interval = Math.floor(seconds / 2592000);
-if (interval >= 1) return interval + " month" + (interval > 1 ? "s" : "") + " ago";
-interval = Math.floor(seconds / 86400);
-if (interval >= 1) return interval + " day" + (interval > 1 ? "s" : "") + " ago";
-interval = Math.floor(seconds / 3600);
-if (interval >= 1) return interval + " hour" + (interval > 1 ? "s" : "") + " ago";
-interval = Math.floor(seconds / 60);
-if (interval >= 1) return interval + " min" + (interval > 1 ? "s" : "") + " ago";
-return "Just now";
+  const now = new Date();
+  const date = new Date(unixTimestamp * 1000);
+  const seconds = Math.floor((now - date) / 1000);
+  let interval = Math.floor(seconds / 31536000);
+  if (interval >= 1)
+    return interval + " year" + (interval > 1 ? "s" : "") + " ago";
+  interval = Math.floor(seconds / 2592000);
+  if (interval >= 1)
+    return interval + " month" + (interval > 1 ? "s" : "") + " ago";
+  interval = Math.floor(seconds / 86400);
+  if (interval >= 1)
+    return interval + " day" + (interval > 1 ? "s" : "") + " ago";
+  interval = Math.floor(seconds / 3600);
+  if (interval >= 1)
+    return interval + " hour" + (interval > 1 ? "s" : "") + " ago";
+  interval = Math.floor(seconds / 60);
+  if (interval >= 1)
+    return interval + " min" + (interval > 1 ? "s" : "") + " ago";
+  return "Just now";
 }
+
 async function fetchClassIds() {
-const query = `
+  const query = `
 query calcClasses {
-  calcClasses(query: [{ where: { teacher_id: ${CONTACTss_ID} } }]) {
+  calcClasses{
     ID: field(arg: ["id"])
   }
 }
 `;
 
-try {
-  const response = await fetch(HTTP_ENDPOINT, {
+  try {
+    const response = await fetch(HTTP_ENDPOINT, {
       method: "POST",
       headers: {
-          "Content-Type": "application/json",
-          "Api-Key": APIii_KEY,
+        "Content-Type": "application/json",
+        "Api-Key": APIii_KEY,
       },
       body: JSON.stringify({ query }),
-  });
-  const result = await response.json();
-  if (result.data && result.data.calcClasses) {
-      return result.data.calcClasses.map(cls => cls.ID);
+    });
+
+    const result = await response.json();
+
+    if (result.data && result.data.calcClasses) {
+      return result.data.calcClasses.map((cls) => cls.ID);
+    }
+    return [];
+  } catch (error) {
+    return [];
   }
-  return [];
-} catch (error) {
+}
 
-  return [];
-}
-}
 async function initializeSocket() {
-    const classIds = await fetchClassIds(); 
-    if (!classIds || classIds.length === 0) {
-    
-        return;
-    }
+  const classIds = await fetchClassIds();
 
-    
+  if (!classIds || classIds.length === 0) {
+    return;
+  }
+  classIds.forEach((classId) => {
+    const socket = new WebSocket(WS_ENDPOINT, "vitalstats");
+    let keepAliveInterval;
 
-    classIds.forEach((classId) => {
-        const socket = new WebSocket(WS_ENDPOINT, "vitalstats"); 
-        let keepAliveInterval;
-        socket.onopen = () => {           
-            keepAliveInterval = setInterval(() => {
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify({ type: "KEEP_ALIVE" }));
-                }
-            }, 28000);
-            socket.send(JSON.stringify({ type: "connection_init" }));
-            socket.send(
-                JSON.stringify({
-                    id: `subscription_${classId}`,
-                    type: "GQL_START",
-                    payload: {
-                        query: SUBSCRIPTION_QUERY,
-                        variables: {
-                            author_id: LOGGED_IN_CONTACT_ID,
-                            id: LOGGED_IN_CONTACT_ID,
-                            class_id: classId,
-                        },
-                    },
-                })
-            );
-        };
-       socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data.type !== "GQL_DATA") return;
-    if (!data.payload || !data.payload.data) {
-      
-        return;
-    }
+    socket.onopen = () => {
+      keepAliveInterval = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ type: "KEEP_ALIVE" }));
+        }
+      }, 28000);
 
-    const result = data.payload.data.subscribeToCalcAnnouncements;
-    if (!result) {
-    
+      socket.send(JSON.stringify({ type: "connection_init" }));
+      socket.send(
+        JSON.stringify({
+          id: `subscription_${classId}`,
+          type: "GQL_START",
+          payload: {
+            query: SUBSCRIPTION_QUERY,
+            variables: {
+              author_id: LOGGED_IN_CONTACT_ID,
+              id: LOGGED_IN_CONTACT_ID,
+              class_id: classId,
+            },
+          },
+        })
+      );
+    };
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type !== "GQL_DATA") return;
+      if (!data.payload || !data.payload.data) {
         return;
-    } 
-    const notifications = Array.isArray(result) ? result : [result];
+      }
+
+      const result = data.payload.data.subscribeToCalcAnnouncements;
+      if (!result) {
+        return;
+      }
+             const notifications = Array.isArray(result) ? result : [result];
         const filteredNotifications = notifications.filter(notification => {
         const postAuthor = notification.Post_Author_ID;
         const commentAuthor = notification.Comment_Author_ID;
@@ -168,25 +174,25 @@ return true;
        
         return;
     }
-    filteredNotifications.forEach(notification => {
+
+
+      filteredNotifications.forEach((notification) => {
         processNotification(notification);
         notificationIDs.add(Number(notification.ID));
         notificationData.push(notification);
-    });
+      });
 
-    updateMarkAllReadVisibility();
-};
+      updateMarkAllReadVisibility();
+    };
+    fetchReadDataForClass(classId);
 
-        fetchReadDataForClass(classId);
-        socket.onclose = () => {
-            clearInterval(keepAliveInterval);
-            setTimeout(() => initializeSocket(), 2000);
-        };
+    socket.onclose = () => {
+      clearInterval(keepAliveInterval);
+      setTimeout(() => initializeSocket(), 2000);
+    };
 
-        socket.onerror = (error) => {
-         
-        };
-    });
+    socket.onerror = (error) => {};
+  });
 }
 function createNotificationCard(notification, isRead) {
 const card = document.createElement("div");
@@ -344,563 +350,706 @@ card.addEventListener("click", async function () {
 
 return card;
 }
-function processNotification(notification) {
-    const container1 = document.getElementById("parentNotificationTemplatesInBody");
-    const container2 = document.getElementById("secondaryNotificationContainer"); 
 
-    const id = Number(notification.ID);
-    if (displayedNotifications.has(id)) return;
-    displayedNotifications.add(id);
-    
-    const isRead = readAnnouncements.has(id);
-    const card = createNotificationCard(notification, isRead);
-    container1.prepend(card);
-    let cardClone = null;
-    if (container2) {
-        cardClone = createNotificationCard(notification, isRead);
-        container2.prepend(cardClone);
-    }
-    cardMap.set(id, { original: card, clone: cardClone });
-    updateNoNotificationMessages(); 
-    updateNoNotificationMessagesSec();
+function processNotification(notification) {
+  const container1 = document.getElementById(
+    "parentNotificationTemplatesInBody"
+  );
+  const container2 = document.getElementById("secondaryNotificationContainer");
+
+  const id = Number(notification.ID);
+  if (displayedNotifications.has(id)) return;
+  displayedNotifications.add(id);
+
+  const isRead = readAnnouncements.has(id);
+  const card = createNotificationCard(notification, isRead);
+  container1.prepend(card);
+
+  let cardClone = null;
+  if (container2) {
+    cardClone = createNotificationCard(notification, isRead);
+    container2.prepend(cardClone);
+  }
+  cardMap.set(id, { original: card, clone: cardClone });
+  updateNoNotificationMessages();
+  updateNoNotificationMessagesSec();
 }
 function updateNotificationReadStatus() {
-    cardMap.forEach((cards, id) => {
-        if (readAnnouncements.has(id)) {
-            [cards.original, cards.clone].forEach((card) => {
-                if (card) {
-                    card.querySelector(".notification-content").classList.remove("bg-unread");
-                    card.querySelector(".notification-content").classList.add("bg-white");
-                }
-            });
+  cardMap.forEach((cards, id) => {
+    if (readAnnouncements.has(id)) {
+      [cards.original, cards.clone].forEach((card) => {
+        if (card) {
+          card
+            .querySelector(".notification-content")
+            .classList.remove("bg-unread");
+          card.querySelector(".notification-content").classList.add("bg-white");
         }
-    });
+      });
+    }
+  });
 }
+
 function updateMarkAllReadVisibility() {
-    let hasUnread = false;
-    cardMap.forEach(({ original }) => {
-        if (original && original.querySelector(".notification-content").classList.contains("bg-unread")) {
-            hasUnread = true;
-        }
-    });
-    const markAllReadElements = document.querySelectorAll(".hideMarkAllReadIfAllRead");
-    const redDot = document.getElementById("redDot");
-    markAllReadElements.forEach(el => {
-        el.classList.toggle("hidden", !hasUnread);
-    });
-    if (redDot) {
-        redDot.classList.toggle("hidden", !hasUnread);
+  let hasUnread = false;
+  cardMap.forEach(({ original }) => {
+    if (
+      original &&
+      original
+        .querySelector(".notification-content")
+        .classList.contains("bg-unread")
+    ) {
+      hasUnread = true;
     }
+  });
+  const markAllReadElements = document.querySelectorAll(
+    ".hideMarkAllReadIfAllRead"
+  );
+  const redDot = document.getElementById("redDot");
+  markAllReadElements.forEach((el) => {
+    el.classList.toggle("hidden", !hasUnread);
+  });
+  if (redDot) {
+    redDot.classList.toggle("hidden", !hasUnread);
+  }
 }
-
 async function markAsRead(announcementId) {
-    if (pendingAnnouncements.has(announcementId) || readAnnouncements.has(announcementId)) return;
-    pendingAnnouncements.add(announcementId);
+  if (
+    pendingAnnouncements.has(announcementId) ||
+    readAnnouncements.has(announcementId)
+  )
+    return;
+  pendingAnnouncements.add(announcementId);
 
-    const variables = {
-        payload: {
-            read_announcement_id: announcementId,
-            read_contact_id: LOGGED_IN_CONTACT_ID,
-        },
-    };
+  const variables = {
+    payload: {
+      read_announcement_id: announcementId,
+      read_contact_id: LOGGED_IN_CONTACT_ID,
+    },
+  };
 
-    try {
-        const response = await fetch(HTTP_ENDPOINT, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Api-Key": APIii_KEY,
-            },
-            body: JSON.stringify({
-                query: MARK_READ_MUTATION,
-                variables: variables,
-            }),
-        });
-
-        const data = await response.json();
-        pendingAnnouncements.delete(announcementId);
-        if (data.data && data.data.createOReadContactReadAnnouncement) {
-            readAnnouncements.add(announcementId);
-            updateNotificationReadStatus();
-            updateMarkAllReadVisibility(); 
-            updateNoNotificationMessages(); 
-            updateNoNotificationMessagesSec();
-        }
-    } catch (error) {
-        pendingAnnouncements.delete(announcementId);
-        
-    }
-}
-
-function markAllAsRead() {
-    let hasUnread = false;
-
-    cardMap.forEach((cards, id) => {
-        if (!readAnnouncements.has(id) && !pendingAnnouncements.has(id)) {
-            hasUnread = true;
-            markAsRead(id);
-        }
+  try {
+    const response = await fetch(HTTP_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Api-Key": APIii_KEY,
+      },
+      body: JSON.stringify({
+        query: MARK_READ_MUTATION,
+        variables: variables,
+      }),
     });
-    updateMarkAllReadVisibility();
-    updateNoNotificationMessages(); 
-    updateNoNotificationMessagesSec();
+
+    const data = await response.json();
+    pendingAnnouncements.delete(announcementId);
+    if (data.data && data.data.createOReadContactReadAnnouncement) {
+      readAnnouncements.add(announcementId);
+
+      updateNotificationReadStatus();
+      updateMarkAllReadVisibility();
+      updateNoNotificationMessages();
+      updateNoNotificationMessagesSec();
+    }
+  } catch (error) {
+    pendingAnnouncements.delete(announcementId);
+  }
 }
+function markAllAsRead() {
+  let hasUnread = false;
+
+  cardMap.forEach((cards, id) => {
+    if (!readAnnouncements.has(id) && !pendingAnnouncements.has(id)) {
+      hasUnread = true;
+      markAsRead(id);
+    }
+  });
+  updateMarkAllReadVisibility();
+  updateNoNotificationMessages();
+  updateNoNotificationMessagesSec();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-const markAllBtn = document.getElementById("markEveryAsRead");
-if (markAllBtn) {
+  const markAllBtn = document.getElementById("markEveryAsRead");
+  if (markAllBtn) {
     markAllBtn.addEventListener("click", markAllAsRead);
-   
-} else {
-  
-}
+  } else {
+  }
 });
-function fetchReadDataForClass(classId) { 
-    fetch(HTTP_ENDPOINT, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Api-Key": APIii_KEY,
-        },
-        body: JSON.stringify({
-            query: READ_QUERY,
-            variables: { class_id: classId }
-        }),
-    })
+function fetchReadDataForClass(classId) {
+  fetch(HTTP_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Api-Key": APIii_KEY,
+    },
+    body: JSON.stringify({
+      query: READ_QUERY,
+      variables: { class_id: classId },
+    }),
+  })
     .then((response) => response.json())
     .then((data) => {
-        if (data.data && data.data.calcOReadContactReadAnnouncements) {
-            const records = Array.isArray(data.data.calcOReadContactReadAnnouncements)
-                ? data.data.calcOReadContactReadAnnouncements
-                : [data.data.calcOReadContactReadAnnouncements];
+      if (data.data && data.data.calcOReadContactReadAnnouncements) {
+        const records = Array.isArray(
+          data.data.calcOReadContactReadAnnouncements
+        )
+          ? data.data.calcOReadContactReadAnnouncements
+          : [data.data.calcOReadContactReadAnnouncements];
 
-            records.forEach((record) => {
-                if (Number(record.Read_Contact_ID) === Number(LOGGED_IN_CONTACT_ID)) {
-                    readAnnouncements.add(Number(record.Read_Announcement_ID));
-                }
-            });
+        records.forEach((record) => {
+          if (Number(record.Read_Contact_ID) === Number(LOGGED_IN_CONTACT_ID)) {
+            readAnnouncements.add(Number(record.Read_Announcement_ID));
+          }
+        });
 
-            updateNotificationReadStatus();
-            updateNoNotificationMessages(); 
-            updateNoNotificationMessagesSec();
-        }
+        updateNotificationReadStatus();
+        updateNoNotificationMessages();
+        updateNoNotificationMessagesSec();
+      }
     })
-    .catch((error) => {
-     
-    });
+    .catch((error) => {});
 }
 
 function updateNoNotificationMessages() {
-    const noAllMessage = document.getElementById("noAllMessage");
-    const noAnnouncementsMessage = document.getElementById("noAnnouncementsMessage");
-    if (!noAllMessage || !noAnnouncementsMessage) return; 
+  const noAllMessage = document.getElementById("noAllMessage");
+  const noAnnouncementsMessage = document.getElementById(
+    "noAnnouncementsMessage"
+  );
+  if (!noAllMessage || !noAnnouncementsMessage) return; 
 
-    const visibleCards = [...cardMap.values()].filter(({ original }) => 
-        original && !original.classList.contains("hidden")
-    );
-    const hasNotifications = visibleCards.length > 0;
-    noAllMessage.classList.toggle("hidden", hasNotifications);
-    noAnnouncementsMessage.classList.add("hidden");
+  const visibleCards = [...cardMap.values()].filter(
+    ({ original }) => original && !original.classList.contains("hidden")
+  );
+  const hasNotifications = visibleCards.length > 0;
+  noAllMessage.classList.toggle("hidden", hasNotifications);
+  noAnnouncementsMessage.classList.add("hidden");
 }
 function updateNoNotificationMessagesSec() {
-    const noAllMessageSec = document.getElementById("noAllMessageSec");
-    const noAnnouncementsMessageSec = document.getElementById("noAnnouncementsMessageSec");
-    if (!noAllMessageSec || !noAnnouncementsMessageSec) return; 
-    const hasVisible = [...cardMap.values()].some(({ clone }) =>  clone && !clone.classList.contains("hidden")
-    );
-    noAllMessageSec.classList.toggle("hidden", hasVisible);
-    noAnnouncementsMessageSec.classList.add("hidden");
+  const noAllMessageSec = document.getElementById("noAllMessageSec");
+  const noAnnouncementsMessageSec = document.getElementById(
+    "noAnnouncementsMessageSec"
+  );
+  if (!noAllMessageSec || !noAnnouncementsMessageSec) return;
+  const hasVisible = [...cardMap.values()].some(
+    ({ clone }) => clone && !clone.classList.contains("hidden")
+  );
+  noAllMessageSec.classList.toggle("hidden", hasVisible);
+  noAnnouncementsMessageSec.classList.add("hidden");
 }
 document.addEventListener("DOMContentLoaded", function () {
-    const onlySeeBtn = document.getElementById("OnlyseeAnnouncements");
-    const noAllMessage = document.getElementById("noAllMessage");
-    const showAllBtn = document.getElementById("allAnnouncements");
-    const noAnnouncementsMessage = document.getElementById("noAnnouncementsMessage");
-    const showUnreadAnnounceBtn = document.getElementById("showUnreadAnnouncement");
-    const showUnreadAllNotification = document.getElementById("showUnreadAllNotification");
+  const onlySeeBtn = document.getElementById("OnlyseeAnnouncements");
+  const noAllMessage = document.getElementById("noAllMessage");
+  const showAllBtn = document.getElementById("allAnnouncements");
+  const noAnnouncementsMessage = document.getElementById(
+    "noAnnouncementsMessage"
+  );
+  const showUnreadAnnounceBtn = document.getElementById(
+    "showUnreadAnnouncement"
+  );
+  const showUnreadAllNotification = document.getElementById(
+    "showUnreadAllNotification"
+  );
 
-    let showUnreadMode = false;
-    let showUnreadAllMode = false;
-   function toggleVisibilityAll() {
+  let showUnreadMode = false;
+  let showUnreadAllMode = false;
+
+  function toggleVisibilityAll() {
     let hasData = false;
 
     showUnreadAllMode = false;
     showUnreadMode = false;
 
     cardMap.forEach(({ original }) => {
-        if (original) {
-            original.classList.remove("hidden");
-            hasData = true; 
-        }
+      if (original) {
+        original.classList.remove("hidden");
+        hasData = true; 
+      }
     });
     noAllMessage.classList.toggle("hidden", hasData);
+    noAnnouncementsMessage.classList.add("hidden"); 
+  }
+
+  function toggleVisibilityByType(type) {
+    let hasAnnouncements = false;
+
+    showUnreadAllMode = false;
+    showUnreadMode = false;
+
+    cardMap.forEach(({ original }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      const shouldShow = notification.Type === type;
+      if (original) {
+        original.classList.toggle("hidden", !shouldShow);
+      }
+
+      if (shouldShow) hasAnnouncements = true;
+    });
+    noAnnouncementsMessage.classList.toggle("hidden", hasAnnouncements);
+    noAllMessage.classList.add("hidden");
+  }
+  function toggleUnreadAnnouncements() {
+    showUnreadMode = !showUnreadMode;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ original }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      if (notification.Type === "Announcement") {
+        const isUnread = original
+          .querySelector(".notification-content")
+          .classList.contains("bg-unread");
+
+        if (original) {
+          original.classList.toggle("hidden", showUnreadMode && !isUnread);
+          if (!original.classList.contains("hidden")) {
+            hasVisible = true;
+          }
+        }
+
+        if (isUnread) hasUnread = true;
+      }
+    });
+
+    noAnnouncementsMessage.classList.toggle("hidden", hasVisible);
+    noAllMessage.classList.add("hidden"); 
+  }
+
+  function toggleUnreadNotifications() {
+    showUnreadAllMode = !showUnreadAllMode;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ original }) => {
+      const isUnread = original
+        .querySelector(".notification-content")
+        .classList.contains("bg-unread");
+
+      if (original) {
+        original.classList.toggle("hidden", showUnreadAllMode && !isUnread);
+        if (!original.classList.contains("hidden")) {
+          hasVisible = true;
+        }
+      }
+
+      if (isUnread) hasUnread = true;
+    });
+    noAllMessage.classList.toggle("hidden", hasVisible);
     noAnnouncementsMessage.classList.add("hidden");
+  }
+
+  onlySeeBtn.addEventListener("click", () =>
+    toggleVisibilityByType("Announcement")
+  );
+  showAllBtn.addEventListener("click", toggleVisibilityAll);
+  showUnreadAnnounceBtn.addEventListener("click", toggleUnreadAnnouncements);
+  showUnreadAllNotification.addEventListener(
+    "click",
+    toggleUnreadNotifications
+  );
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const onlySeeBtnSec = document.getElementById("OnlyseeAnnouncementsSec");
+  const noAllMessageSec = document.getElementById("noAllMessageSec");
+  const showAllBtnSec = document.getElementById("allAnnouncementsSec");
+  const noAnnouncementsMessageSec = document.getElementById(
+    "noAnnouncementsMessageSec"
+  );
+  const showUnreadAnnounceBtnSec = document.getElementById(
+    "showUnreadAnnouncementSec"
+  );
+  const showUnreadAllNotificationSec = document.getElementById(
+    "showUnreadAllNotificationSec"
+  );
+
+  let showUnreadModeSec = false;
+  let showUnreadAllModeSec = false;
+  function toggleVisibilityByTypeSec(type) {
+    let hasAnnouncements = false;
+
+    showUnreadAllModeSec = false;
+    showUnreadModeSec = false;
+
+    cardMap.forEach(({ clone }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      const shouldShow = notification.Type === type;
+      if (clone) {
+        clone.classList.toggle("hidden", !shouldShow);
+      }
+
+      if (shouldShow) hasAnnouncements = true;
+    });
+    noAnnouncementsMessageSec.classList.toggle("hidden", hasAnnouncements);
+    noAllMessageSec.classList.add("hidden"); 
+  }
+
+  function toggleVisibilityAllSec() {
+    let hasData = false;
+
+    showUnreadAllModeSec = false;
+    showUnreadModeSec = false;
+
+    cardMap.forEach(({ clone }) => {
+      if (clone) {
+        clone.classList.remove("hidden");
+        hasData = true;
+      }
+    });
+
+    noAllMessageSec.classList.toggle("hidden", hasData);
+    noAnnouncementsMessageSec.classList.add("hidden"); 
+  }
+
+  function toggleUnreadAnnouncementsSec() {
+    showUnreadModeSec = !showUnreadModeSec;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ clone }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      if (notification.Type === "Announcement") {
+        const isUnread = clone
+          ?.querySelector(".notification-content")
+          ?.classList.contains("bg-unread");
+
+        if (clone) {
+          clone.classList.toggle("hidden", showUnreadModeSec && !isUnread);
+          if (!clone.classList.contains("hidden")) {
+            hasVisible = true;
+          }
+        }
+
+        if (isUnread) hasUnread = true;
+      }
+    });
+
+    noAnnouncementsMessageSec.classList.toggle("hidden", hasVisible);
+    noAllMessageSec.classList.add("hidden"); 
+  }
+  function toggleUnreadNotificationsSec() {
+    showUnreadAllModeSec = !showUnreadAllModeSec;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ clone }) => {
+      const isUnread = clone
+        ?.querySelector(".notification-content")
+        ?.classList.contains("bg-unread");
+
+      if (clone) {
+        clone.classList.toggle("hidden", showUnreadAllModeSec && !isUnread);
+        if (!clone.classList.contains("hidden")) {
+          hasVisible = true;
+        }
+      }
+
+      if (isUnread) hasUnread = true;
+    });
+    noAllMessageSec.classList.toggle("hidden", hasVisible);
+    noAnnouncementsMessageSec.classList.add("hidden");
+  }
+
+  if (onlySeeBtnSec) {
+    onlySeeBtnSec.addEventListener("click", () =>
+      toggleVisibilityByTypeSec("Announcement")
+    );
+  }
+  if (showAllBtnSec) {
+    showAllBtnSec.addEventListener("click", toggleVisibilityAllSec);
+  }
+  if (showUnreadAnnounceBtnSec) {
+    showUnreadAnnounceBtnSec.addEventListener(
+      "click",
+      toggleUnreadAnnouncementsSec
+    );
+  }
+  if (showUnreadAllNotificationSec) {
+    showUnreadAllNotificationSec.addEventListener(
+      "click",
+      toggleUnreadNotificationsSec
+    );
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  updateMarkAllReadVisibility(); 
+  updateNoNotificationMessages();
+  updateNoNotificationMessagesSec();
+});
+function updateNoNotificationMessages() {
+  const noAllMessage = document.getElementById("noAllMessage");
+  const noAnnouncementsMessage = document.getElementById(
+    "noAnnouncementsMessage"
+  );
+  if (!noAllMessage || !noAnnouncementsMessage) return; 
+
+  const visibleCards = [...cardMap.values()].filter(
+    ({ original }) => original && !original.classList.contains("hidden")
+  );
+  const hasNotifications = visibleCards.length > 0;
+  noAllMessage.classList.toggle("hidden", hasNotifications);
+  noAnnouncementsMessage.classList.add("hidden");
 }
-function toggleVisibilityByType(type) {
+
+function updateNoNotificationMessagesSec() {
+  const noAllMessageSec = document.getElementById("noAllMessageSec");
+  const noAnnouncementsMessageSec = document.getElementById(
+    "noAnnouncementsMessageSec"
+  );
+  if (!noAllMessageSec || !noAnnouncementsMessageSec) return; 
+  const hasVisible = [...cardMap.values()].some(
+    ({ clone }) => clone && !clone.classList.contains("hidden")
+  );
+  noAllMessageSec.classList.toggle("hidden", hasVisible);
+  noAnnouncementsMessageSec.classList.add("hidden");
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const onlySeeBtn = document.getElementById("OnlyseeAnnouncements");
+  const noAllMessage = document.getElementById("noAllMessage");
+  const showAllBtn = document.getElementById("allAnnouncements");
+  const noAnnouncementsMessage = document.getElementById(
+    "noAnnouncementsMessage"
+  );
+  const showUnreadAnnounceBtn = document.getElementById(
+    "showUnreadAnnouncement"
+  );
+  const showUnreadAllNotification = document.getElementById(
+    "showUnreadAllNotification"
+  );
+
+  let showUnreadMode = false;
+  let showUnreadAllMode = false;
+  function toggleVisibilityAll() {
+    let hasData = false;
+
+    showUnreadAllMode = false;
+    showUnreadMode = false;
+
+    cardMap.forEach(({ original }) => {
+      if (original) {
+        original.classList.remove("hidden");
+        hasData = true; 
+      }
+    });
+    noAllMessage.classList.toggle("hidden", hasData);
+    noAnnouncementsMessage.classList.add("hidden"); 
+  }
+  function toggleVisibilityByType(type) {
     let hasAnnouncements = false;
     showUnreadAllMode = false;
     showUnreadMode = false;
     cardMap.forEach(({ original }, id) => {
-        const notification = notificationData.find(n => Number(n.ID) === id);
-        if (!notification) return;
-        const shouldShow = notification.Type === type;
-        if (original) {
-            original.classList.toggle("hidden", !shouldShow);
-        }
-        if (shouldShow) hasAnnouncements = true;
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+      const shouldShow = notification.Type === type;
+      if (original) {
+        original.classList.toggle("hidden", !shouldShow);
+      }
+      if (shouldShow) hasAnnouncements = true;
     });
+
     noAnnouncementsMessage.classList.toggle("hidden", hasAnnouncements);
     noAllMessage.classList.add("hidden"); 
-}
-function toggleUnreadAnnouncements() {
+  }
+  function toggleUnreadAnnouncements() {
     showUnreadMode = !showUnreadMode;
     let hasUnread = false;
     let hasVisible = false;
+
     cardMap.forEach(({ original }, id) => {
-        const notification = notificationData.find(n => Number(n.ID) === id);
-        if (!notification) return;
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
 
-        if (notification.Type === "Announcement") {
-            const isUnread = original.querySelector(".notification-content").classList.contains("bg-unread");
+      if (notification.Type === "Announcement") {
+        const isUnread = original
+          .querySelector(".notification-content")
+          .classList.contains("bg-unread");
 
-            if (original) {
-                original.classList.toggle("hidden", showUnreadMode && !isUnread);
-                if (!original.classList.contains("hidden")) {
-                    hasVisible = true;
-                }
-            }
-
-            if (isUnread) hasUnread = true;
+        if (original) {
+          original.classList.toggle("hidden", showUnreadMode && !isUnread);
+          if (!original.classList.contains("hidden")) {
+            hasVisible = true;
+          }
         }
-    });
-    noAnnouncementsMessage.classList.toggle("hidden", hasVisible);
-    noAllMessage.classList.add("hidden");
-}
 
-function toggleUnreadNotifications() {
+        if (isUnread) hasUnread = true;
+      }
+    });
+
+    noAnnouncementsMessage.classList.toggle("hidden", hasVisible);
+    noAllMessage.classList.add("hidden"); 
+  }
+
+  function toggleUnreadNotifications() {
     showUnreadAllMode = !showUnreadAllMode;
     let hasUnread = false;
     let hasVisible = false;
-    cardMap.forEach(({ original }) => {
-        const isUnread = original.querySelector(".notification-content").classList.contains("bg-unread");
 
-        if (original) {
-            original.classList.toggle("hidden", showUnreadAllMode && !isUnread);
-            if (!original.classList.contains("hidden")) {
-                hasVisible = true;
-            }
+    cardMap.forEach(({ original }) => {
+      const isUnread = original
+        .querySelector(".notification-content")
+        .classList.contains("bg-unread");
+
+      if (original) {
+        original.classList.toggle("hidden", showUnreadAllMode && !isUnread);
+        if (!original.classList.contains("hidden")) {
+          hasVisible = true;
         }
-        if (isUnread) hasUnread = true;
+      }
+
+      if (isUnread) hasUnread = true;
     });
+
     noAllMessage.classList.toggle("hidden", hasVisible);
-    noAnnouncementsMessage.classList.add("hidden"); 
-}
-    onlySeeBtn.addEventListener("click", () => toggleVisibilityByType("Announcement"));
-    showAllBtn.addEventListener("click", toggleVisibilityAll);
-    showUnreadAnnounceBtn.addEventListener("click", toggleUnreadAnnouncements);
-    showUnreadAllNotification.addEventListener("click", toggleUnreadNotifications);
-});
-document.addEventListener("DOMContentLoaded", function () {
-    const onlySeeBtnSec = document.getElementById("OnlyseeAnnouncementsSec");
-    const noAllMessageSec = document.getElementById("noAllMessageSec");
-    const showAllBtnSec = document.getElementById("allAnnouncementsSec");
-    const noAnnouncementsMessageSec = document.getElementById("noAnnouncementsMessageSec");
-    const showUnreadAnnounceBtnSec = document.getElementById("showUnreadAnnouncementSec");
-    const showUnreadAllNotificationSec = document.getElementById("showUnreadAllNotificationSec");
-
-    let showUnreadModeSec = false;
-    let showUnreadAllModeSec = false;
-    function toggleVisibilityByTypeSec(type) {
-        let hasAnnouncements = false;
-        showUnreadAllModeSec = false;
-        showUnreadModeSec = false;
-        cardMap.forEach(({ clone }, id) => {
-            const notification = notificationData.find(n => Number(n.ID) === id);
-            if (!notification) return;
-            const shouldShow = notification.Type === type;
-            if (clone) {
-                clone.classList.toggle("hidden", !shouldShow);
-            }
-            if (shouldShow) hasAnnouncements = true;
-        });
-        noAnnouncementsMessageSec.classList.toggle("hidden", hasAnnouncements);
-        noAllMessageSec.classList.add("hidden"); // Hide "No Messages" when viewing announcements
-    }
-    function toggleVisibilityAllSec() {
-        let hasData = false;
-        showUnreadAllModeSec = false;
-        showUnreadModeSec = false;
-        cardMap.forEach(({ clone }) => {
-            if (clone) {
-                clone.classList.remove("hidden");
-                hasData = true;
-            }
-        });
-        noAllMessageSec.classList.toggle("hidden", hasData);
-        noAnnouncementsMessageSec.classList.add("hidden");
-    }
-    function toggleUnreadAnnouncementsSec() {
-        showUnreadModeSec = !showUnreadModeSec;
-        let hasUnread = false;
-        let hasVisible = false;
-        cardMap.forEach(({ clone }, id) => {
-            const notification = notificationData.find(n => Number(n.ID) === id);
-            if (!notification) return;
-
-            if (notification.Type === "Announcement") {
-                const isUnread = clone?.querySelector(".notification-content")?.classList.contains("bg-unread");
-
-                if (clone) {
-                    clone.classList.toggle("hidden", showUnreadModeSec && !isUnread);
-                    if (!clone.classList.contains("hidden")) {
-                        hasVisible = true;
-                    }
-                }
-
-                if (isUnread) hasUnread = true;
-            }
-        });
-        noAnnouncementsMessageSec.classList.toggle("hidden", hasVisible);
-        noAllMessageSec.classList.add("hidden");
-    }
-    function toggleUnreadNotificationsSec() {
-        showUnreadAllModeSec = !showUnreadAllModeSec;
-        let hasUnread = false;
-        let hasVisible = false;
-        cardMap.forEach(({ clone }) => {
-            const isUnread = clone?.querySelector(".notification-content")?.classList.contains("bg-unread");
-            if (clone) {
-                clone.classList.toggle("hidden", showUnreadAllModeSec && !isUnread);
-                if (!clone.classList.contains("hidden")) {
-                    hasVisible = true;
-                }
-            }
-            if (isUnread) hasUnread = true;
-        });
-        noAllMessageSec.classList.toggle("hidden", hasVisible);
-        noAnnouncementsMessageSec.classList.add("hidden"); 
-    }
-if (onlySeeBtnSec) {
-        onlySeeBtnSec.addEventListener("click", () => toggleVisibilityByTypeSec("Announcement"));
-    }
-    if (showAllBtnSec) {
-        showAllBtnSec.addEventListener("click", toggleVisibilityAllSec);
-    }
-    if (showUnreadAnnounceBtnSec) {
-        showUnreadAnnounceBtnSec.addEventListener("click", toggleUnreadAnnouncementsSec);
-    }
-    if (showUnreadAllNotificationSec) {
-        showUnreadAllNotificationSec.addEventListener("click", toggleUnreadNotificationsSec);
-    }
-  
-});
-document.addEventListener("DOMContentLoaded", function () {
-    updateMarkAllReadVisibility();
-    updateNoNotificationMessages(); 
-    updateNoNotificationMessagesSec();
-});
-
-function updateNoNotificationMessages() {
-    const noAllMessage = document.getElementById("noAllMessage");
-    const noAnnouncementsMessage = document.getElementById("noAnnouncementsMessage");
-    if (!noAllMessage || !noAnnouncementsMessage) return; // Ensure elements exist
-
-    const visibleCards = [...cardMap.values()].filter(({ original }) => 
-        original && !original.classList.contains("hidden")
-    );
-    const hasNotifications = visibleCards.length > 0;
-    noAllMessage.classList.toggle("hidden", hasNotifications);
     noAnnouncementsMessage.classList.add("hidden");
-}
+  }
 
-function updateNoNotificationMessagesSec() {
-    const noAllMessageSec = document.getElementById("noAllMessageSec");
-    const noAnnouncementsMessageSec = document.getElementById("noAnnouncementsMessageSec");
-    if (!noAllMessageSec || !noAnnouncementsMessageSec) return; // Ensure elements exist
-    const hasVisible = [...cardMap.values()].some(({ clone }) =>  clone && !clone.classList.contains("hidden")
-    );
-    noAllMessageSec.classList.toggle("hidden", hasVisible);
-    noAnnouncementsMessageSec.classList.add("hidden");
-}
+  onlySeeBtn.addEventListener("click", () =>
+    toggleVisibilityByType("Announcement")
+  );
+  showAllBtn.addEventListener("click", toggleVisibilityAll);
+  showUnreadAnnounceBtn.addEventListener("click", toggleUnreadAnnouncements);
+  showUnreadAllNotification.addEventListener(
+    "click",
+    toggleUnreadNotifications
+  );
+});
 
 document.addEventListener("DOMContentLoaded", function () {
-    const onlySeeBtn = document.getElementById("OnlyseeAnnouncements");
-    const noAllMessage = document.getElementById("noAllMessage");
-    const showAllBtn = document.getElementById("allAnnouncements");
-    const noAnnouncementsMessage = document.getElementById("noAnnouncementsMessage");
-    const showUnreadAnnounceBtn = document.getElementById("showUnreadAnnouncement");
-    const showUnreadAllNotification = document.getElementById("showUnreadAllNotification");
-    let showUnreadMode = false;
-    let showUnreadAllMode = false;
-   function toggleVisibilityAll() {
-    let hasData = false;
-    showUnreadAllMode = false;
-    showUnreadMode = false;
+  const onlySeeBtnSec = document.getElementById("OnlyseeAnnouncementsSec");
+  const noAllMessageSec = document.getElementById("noAllMessageSec");
+  const showAllBtnSec = document.getElementById("allAnnouncementsSec");
+  const noAnnouncementsMessageSec = document.getElementById(
+    "noAnnouncementsMessageSec"
+  );
+  const showUnreadAnnounceBtnSec = document.getElementById(
+    "showUnreadAnnouncementSec"
+  );
+  const showUnreadAllNotificationSec = document.getElementById(
+    "showUnreadAllNotificationSec"
+  );
 
-    cardMap.forEach(({ original }) => {
-        if (original) {
-            original.classList.remove("hidden");
-            hasData = true; 
-        }
-    });
-    noAllMessage.classList.toggle("hidden", hasData);
-    noAnnouncementsMessage.classList.add("hidden");
-}
-function toggleVisibilityByType(type) {
+  let showUnreadModeSec = false;
+  let showUnreadAllModeSec = false;
+  function toggleVisibilityByTypeSec(type) {
     let hasAnnouncements = false;
-    showUnreadAllMode = false;
-    showUnreadMode = false;
-    cardMap.forEach(({ original }, id) => {
-        const notification = notificationData.find(n => Number(n.ID) === id);
-        if (!notification) return;
-        const shouldShow = notification.Type === type;
-        if (original) {
-            original.classList.toggle("hidden", !shouldShow);
-        }
-        if (shouldShow) hasAnnouncements = true;
+
+    showUnreadAllModeSec = false;
+    showUnreadModeSec = false;
+
+    cardMap.forEach(({ clone }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      const shouldShow = notification.Type === type;
+      if (clone) {
+        clone.classList.toggle("hidden", !shouldShow);
+      }
+
+      if (shouldShow) hasAnnouncements = true;
     });
-    noAnnouncementsMessage.classList.toggle("hidden", hasAnnouncements);
-    noAllMessage.classList.add("hidden");
-}
-function toggleUnreadAnnouncements() {
-    showUnreadMode = !showUnreadMode;
+    noAnnouncementsMessageSec.classList.toggle("hidden", hasAnnouncements);
+    noAllMessageSec.classList.add("hidden"); // Hide "No Messages" when viewing announcements
+  }
+  function toggleVisibilityAllSec() {
+    let hasData = false;
+
+    showUnreadAllModeSec = false;
+    showUnreadModeSec = false;
+
+    cardMap.forEach(({ clone }) => {
+      if (clone) {
+        clone.classList.remove("hidden");
+        hasData = true;
+      }
+    });
+    noAllMessageSec.classList.toggle("hidden", hasData);
+    noAnnouncementsMessageSec.classList.add("hidden");
+  }
+  function toggleUnreadAnnouncementsSec() {
+    showUnreadModeSec = !showUnreadModeSec;
     let hasUnread = false;
     let hasVisible = false;
-    cardMap.forEach(({ original }, id) => {
-        const notification = notificationData.find(n => Number(n.ID) === id);
-        if (!notification) return;
-        if (notification.Type === "Announcement") {
-            const isUnread = original.querySelector(".notification-content").classList.contains("bg-unread");
-            if (original) {
-                original.classList.toggle("hidden", showUnreadMode && !isUnread);
-                if (!original.classList.contains("hidden")) {
-                    hasVisible = true;
-                }
-            }
-            if (isUnread) hasUnread = true;
+
+    cardMap.forEach(({ clone }, id) => {
+      const notification = notificationData.find((n) => Number(n.ID) === id);
+      if (!notification) return;
+
+      if (notification.Type === "Announcement") {
+        const isUnread = clone
+          ?.querySelector(".notification-content")
+          ?.classList.contains("bg-unread");
+
+        if (clone) {
+          clone.classList.toggle("hidden", showUnreadModeSec && !isUnread);
+          if (!clone.classList.contains("hidden")) {
+            hasVisible = true;
+          }
         }
-    });
-    noAnnouncementsMessage.classList.toggle("hidden", hasVisible);
-    noAllMessage.classList.add("hidden");
-}
-function toggleUnreadNotifications() {
-    showUnreadAllMode = !showUnreadAllMode;
-    let hasUnread = false;
-    let hasVisible = false;
-    cardMap.forEach(({ original }) => {
-        const isUnread = original.querySelector(".notification-content").classList.contains("bg-unread");
-        if (original) {
-            original.classList.toggle("hidden", showUnreadAllMode && !isUnread);
-            if (!original.classList.contains("hidden")) {
-                hasVisible = true;
-            }
-        }
+
         if (isUnread) hasUnread = true;
+      }
     });
-    noAllMessage.classList.toggle("hidden", hasVisible);
-    noAnnouncementsMessage.classList.add("hidden");
-}
-    onlySeeBtn.addEventListener("click", () => toggleVisibilityByType("Announcement"));
-    showAllBtn.addEventListener("click", toggleVisibilityAll);
-    showUnreadAnnounceBtn.addEventListener("click", toggleUnreadAnnouncements);
-    showUnreadAllNotification.addEventListener("click", toggleUnreadNotifications);
+    noAnnouncementsMessageSec.classList.toggle("hidden", hasVisible);
+    noAllMessageSec.classList.add("hidden");
+  }
+  function toggleUnreadNotificationsSec() {
+    showUnreadAllModeSec = !showUnreadAllModeSec;
+    let hasUnread = false;
+    let hasVisible = false;
+
+    cardMap.forEach(({ clone }) => {
+      const isUnread = clone
+        ?.querySelector(".notification-content")
+        ?.classList.contains("bg-unread");
+
+      if (clone) {
+        clone.classList.toggle("hidden", showUnreadAllModeSec && !isUnread);
+        if (!clone.classList.contains("hidden")) {
+          hasVisible = true;
+        }
+      }
+
+      if (isUnread) hasUnread = true;
+    });
+    noAllMessageSec.classList.toggle("hidden", hasVisible);
+    noAnnouncementsMessageSec.classList.add("hidden"); // Hide "No Announcements" when viewing all
+  }
+  if (onlySeeBtnSec) {
+    onlySeeBtnSec.addEventListener("click", () =>
+      toggleVisibilityByTypeSec("Announcement")
+    );
+  }
+  if (showAllBtnSec) {
+    showAllBtnSec.addEventListener("click", toggleVisibilityAllSec);
+  }
+  if (showUnreadAnnounceBtnSec) {
+    showUnreadAnnounceBtnSec.addEventListener(
+      "click",
+      toggleUnreadAnnouncementsSec
+    );
+  }
+  if (showUnreadAllNotificationSec) {
+    showUnreadAllNotificationSec.addEventListener(
+      "click",
+      toggleUnreadNotificationsSec
+    );
+  }
 });
+
 document.addEventListener("DOMContentLoaded", function () {
-    const onlySeeBtnSec = document.getElementById("OnlyseeAnnouncementsSec");
-    const noAllMessageSec = document.getElementById("noAllMessageSec");
-    const showAllBtnSec = document.getElementById("allAnnouncementsSec");
-    const noAnnouncementsMessageSec = document.getElementById("noAnnouncementsMessageSec");
-    const showUnreadAnnounceBtnSec = document.getElementById("showUnreadAnnouncementSec");
-    const showUnreadAllNotificationSec = document.getElementById("showUnreadAllNotificationSec");
-
-    let showUnreadModeSec = false;
-    let showUnreadAllModeSec = false;
-    function toggleVisibilityByTypeSec(type) {
-        let hasAnnouncements = false;
-
-        showUnreadAllModeSec = false;
-        showUnreadModeSec = false;
-
-        cardMap.forEach(({ clone }, id) => {
-            const notification = notificationData.find(n => Number(n.ID) === id);
-            if (!notification) return;
-
-            const shouldShow = notification.Type === type;
-            if (clone) {
-                clone.classList.toggle("hidden", !shouldShow);
-            }
-
-            if (shouldShow) hasAnnouncements = true;
-        });
-        noAnnouncementsMessageSec.classList.toggle("hidden", hasAnnouncements);
-        noAllMessageSec.classList.add("hidden"); 
-    }
-    function toggleVisibilityAllSec() {
-        let hasData = false;
-        showUnreadAllModeSec = false;
-        showUnreadModeSec = false;
-        cardMap.forEach(({ clone }) => {
-            if (clone) {
-                clone.classList.remove("hidden");
-                hasData = true;
-            }
-        });
-        noAllMessageSec.classList.toggle("hidden", hasData);
-        noAnnouncementsMessageSec.classList.add("hidden"); 
-    }
-    function toggleUnreadAnnouncementsSec() {
-        showUnreadModeSec = !showUnreadModeSec;
-        let hasUnread = false;
-        let hasVisible = false;
-        cardMap.forEach(({ clone }, id) => {
-            const notification = notificationData.find(n => Number(n.ID) === id);
-            if (!notification) return;
-            if (notification.Type === "Announcement") {
-                const isUnread = clone?.querySelector(".notification-content")?.classList.contains("bg-unread");
-                if (clone) {
-                    clone.classList.toggle("hidden", showUnreadModeSec && !isUnread);
-                    if (!clone.classList.contains("hidden")) {
-                        hasVisible = true;
-                    }
-                }
-                if (isUnread) hasUnread = true;
-            }
-        });
-        noAnnouncementsMessageSec.classList.toggle("hidden", hasVisible);
-        noAllMessageSec.classList.add("hidden"); 
-    }
-    function toggleUnreadNotificationsSec() {
-        showUnreadAllModeSec = !showUnreadAllModeSec;
-        let hasUnread = false;
-        let hasVisible = false;
-        cardMap.forEach(({ clone }) => {
-            const isUnread = clone?.querySelector(".notification-content")?.classList.contains("bg-unread");
-            if (clone) {
-                clone.classList.toggle("hidden", showUnreadAllModeSec && !isUnread);
-                if (!clone.classList.contains("hidden")) {
-                    hasVisible = true;
-                }
-            }
-            if (isUnread) hasUnread = true;
-        });
-        noAllMessageSec.classList.toggle("hidden", hasVisible);
-        noAnnouncementsMessageSec.classList.add("hidden");
-    }
-if (onlySeeBtnSec) {
-        onlySeeBtnSec.addEventListener("click", () => toggleVisibilityByTypeSec("Announcement"));
-    }
-    if (showAllBtnSec) {
-        showAllBtnSec.addEventListener("click", toggleVisibilityAllSec);
-    }
-    if (showUnreadAnnounceBtnSec) {
-        showUnreadAnnounceBtnSec.addEventListener("click", toggleUnreadAnnouncementsSec);
-    }
-    if (showUnreadAllNotificationSec) {
-        showUnreadAllNotificationSec.addEventListener("click", toggleUnreadNotificationsSec);
-    }
+  updateMarkAllReadVisibility();
+  updateNoNotificationMessages();
+  updateNoNotificationMessagesSec();
 });
-document.addEventListener("DOMContentLoaded", function () {
-    updateMarkAllReadVisibility();
-    updateNoNotificationMessages(); 
-    updateNoNotificationMessagesSec();
-});
+
 initializeSocket();
