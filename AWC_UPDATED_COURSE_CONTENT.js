@@ -60,7 +60,8 @@ announcementsElements.forEach((announcementsElement) => {
   announcementsElement.setAttribute('role', 'tabpanel');
   announcementsElement.setAttribute('aria-label', 'announcements');
 });
-const urlParams = new URLSearchParams(new URL(url).search);
+const courseContenturl = window.location.href;
+const urlParams = new URLSearchParams(window.location.search);
 const studentseid = urlParams.get("eid");
 async function fetchGraphQL(query) {
           try {
