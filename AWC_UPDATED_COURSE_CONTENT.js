@@ -60,7 +60,8 @@ announcementsElements.forEach((announcementsElement) => {
   announcementsElement.setAttribute('role', 'tabpanel');
   announcementsElement.setAttribute('aria-label', 'announcements');
 });
-
+const urlParams = new URLSearchParams(new URL(url).search);
+const studentseid = urlParams.get("eid");
 async function fetchGraphQL(query) {
           try {
               const response = await fetch(
@@ -188,7 +189,7 @@ async function fetchGraphQL(query) {
       const lmsQuery = `
         query LMSQuery {
 LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
-  Enrolments_As_Course(query: [{ where: {id: ${eid}} }]) { 
+  Enrolments_As_Course(query: [{ where: {id: ${studentseid}} }]) { 
     resume_lesson_unique_id           
     id
     date_completion
