@@ -35,10 +35,11 @@ function timeAgo(unixTimestamp) {
 async function fetchClassIds() {
   const query = `
 query calcClasses {
-  calcClasses{
+  calcClasses(query: [{ where: { teacher_id: ${CONTACTss_ID} } }]) {
     ID: field(arg: ["id"])
   }
 }
+
 `;
 
   try {
