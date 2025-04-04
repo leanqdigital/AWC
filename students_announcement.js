@@ -454,7 +454,7 @@ async function renderAnnouncements(announcements) {
                       ID: id
                       author_id
                       comment
-                      parent_announcement_id
+                      reply_to_comment_id
                           Mentions {
                                     id
                     }
@@ -464,7 +464,7 @@ async function renderAnnouncements(announcements) {
         const payload = {
             comment,
             author_id: LOGGED_IN_USER_ID,
-            parent_announcement_id: announcementID,
+            reply_to_comment_id: announcementID,
             Mentions:mentions
         };
 
