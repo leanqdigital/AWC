@@ -413,7 +413,7 @@ async function renderAnnouncements(announcements) {
                           query: [
                           {
                               where: {
-                              reply_to_comment_id: $parent_announcement_id
+                              reply_to_comment_id: $reply_to_comment_id
                               }
                           }
                           ]
@@ -435,7 +435,7 @@ async function renderAnnouncements(announcements) {
                 headers: { "Content-Type": "application/json", "Api-Key": apiKey },
                 body: JSON.stringify({
                     query,
-                    variables: { parent_announcement_id: announcementID },
+                    variables: { reply_to_comment_id: announcementID },
                 }),
             });
             if (!response.ok) throw new Error("Failed to fetch replies.");
