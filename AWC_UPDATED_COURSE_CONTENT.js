@@ -268,7 +268,7 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
       assessment_due_end_of_week
       assessment__due__date
       Lesson_Enrolment_in_Progresses(
-        query: [{ where: {id: ${eid}} }]
+        query: [{ where: {id: ${studentseid}} }]
       ) {
         id
       Lesson_In_Progresses{
@@ -276,7 +276,7 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
         }
       }
       Enrolment_Lesson_Completions(
-        query: [{ where: {id: ${eid}} }]
+        query: [{ where: {id: ${studentseid}} }]
       ) {
         id
               Lesson_Completions{
