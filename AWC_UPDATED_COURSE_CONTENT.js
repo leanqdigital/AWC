@@ -306,9 +306,7 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
       async function fetchLmsUnifiedData() {
           try {
               const response = await fetchGraphQL(lmsQuery);
-              console.log(response);
               if (!response || !response.LMSQuery || !response.LMSQuery.length) {
-                  console.error("No course data returned");
                   return null;
               }
               const course = response.LMSQuery[0];
@@ -370,7 +368,6 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
               };
               return mappedData;
           } catch (error) {
-              console.error(error);
               return null;
           }
       }
