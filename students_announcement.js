@@ -406,14 +406,14 @@ async function renderAnnouncements(announcements) {
     async function fetchRepliesForAnnouncement(announcementID) {
         const query = `
                       query calcForumComments(
-                      $reply_to_comment_id: AwcAnnouncementID
+                      $parent_announcement_id: AwcAnnouncementID
                       ) {
                       calcForumComments(
                           orderBy: [{ path: ["created_at"], type: asc }]
                           query: [
                           {
                               where: {
-                              reply_to_comment_id: $reply_to_comment_id
+                              parent_announcement_id: $parent_announcement_id
                               }
                           }
                           ]
@@ -435,7 +435,7 @@ async function renderAnnouncements(announcements) {
                 headers: { "Content-Type": "application/json", "Api-Key": apiKey },
                 body: JSON.stringify({
                     query,
-                    variables: { reply_to_comment_id: announcementID },
+                    variables: { parent_announcement_id: announcementID },
                 }),
             });
             if (!response.ok) throw new Error("Failed to fetch replies.");
