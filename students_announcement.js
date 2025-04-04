@@ -406,14 +406,14 @@ async function renderAnnouncements(announcements) {
     async function fetchRepliesForAnnouncement(announcementID) {
         const query = `
                       query calcForumComments(
-                      $parent_announcement_id: AwcAnnouncementID
+                      $reply_to_comment_id: AwcAnnouncementID
                       ) {
                       calcForumComments(
                           orderBy: [{ path: ["created_at"], type: asc }]
                           query: [
                           {
                               where: {
-                              parent_announcement_id: $parent_announcement_id
+                              reply_to_comment_id: $parent_announcement_id
                               }
                           }
                           ]
