@@ -167,8 +167,20 @@
     }
 
     // Register helper functions with JsRender
-    $.views.helpers({ relativeTime, getDisplayName, getProfileImage, countLikes, hasVoted });
-
+   // $.views.helpers({ relativeTime, getDisplayName, getProfileImage, countLikes, hasVoted });
+  // Register helper functions with JsRender
+    $.views.helpers({
+      elapsedAnnouncementTime: relativeTime,
+      relativeTime,
+      getDisplayName,
+      elapseddisplayName: getDisplayName,
+      getProfileImage,
+      elapsedprofileImage: getProfileImage,
+      countLikes,
+      elapsedlikeCount: countLikes,
+      hasVoted,
+      elapsedvoted: hasVoted
+    });
     async function fetchAnnouncements() {
          $("#announcementsContainer").html(`
         <div class="skeleton-container w-full">
