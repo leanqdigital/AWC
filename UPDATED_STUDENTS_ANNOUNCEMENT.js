@@ -61,7 +61,68 @@
   `;
 
     // For Unix timestamps in seconds, multiply by 1000.
- 
+     // Helper function to return relative time or Australian date format (dd/mm/yyyy)
+     function parseUnix(dateInput) {
+      return new Date(dateInput * 1000);
+    }
+    function relativeTime(unixTimestamp) {
+      const now = new Date();
+      const past = parseUnix(unixTimestamp);
+      const diffMs = now - past;
+      const diffSec = diffMs / 1000;
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 1) return "just now";
+      if (diffMin < 60) return diffMin + " min ago";
+      const diffHrs = Math.floor(diffMin / 60);
+      if (diffHrs < 24) return diffHrs + " hrs ago";
+      const diffDays = Math.floor(diffHrs / 24);
+      if (diffDays < 5) return diffDays + " day ago";
+      // If 5 days or older, return date in dd/mm/yyyy format (Australian)
+      const day = past.getDate().toString().padStart(2, "0");
+      const month = (past.getMonth() + 1).toString().padStart(2, "0");
+      const year = past.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+   // Helper function to get a display name from an author object
+    function getDisplayName(author, type) {
+      if (type === "comment") {
+        if (author.commentsAuthorDisplayName) return author.commentsAuthorDisplayName;
+        if (author.commentsAuthorFirstName || author.commentsAuthorLastName)
+          return (author.commentsAuthorFirstName || "") + " " + (author.commentsAuthorLastName || "");
+      } else if (type === "reply") {
+        if (author.repliesAuthorDisplayName) return author.repliesAuthorDisplayName;
+        if (author.repliesAuthorFirstName || author.repliesAuthorLastName)
+          return (author.repliesAuthorFirstName || "") + " " + (author.repliesAuthorLastName || "");
+      }
+      return "Anamolous";
+    }
+
+    function getProfileImage(imageUrl) {
+      const unwantedUrl = "https://i.ontraport.com/abc.jpg";
+      const defaultUrl = "https://files.ontraport.com/media/b0456fe87439430680b173369cc54cea.php03bzcx?Expires=4895186056&Signature=fw-mkSjms67rj5eIsiDF9QfHb4EAe29jfz~yn3XT0--8jLdK4OGkxWBZR9YHSh26ZAp5EHj~6g5CUUncgjztHHKU9c9ymvZYfSbPO9JGht~ZJnr2Gwmp6vsvIpYvE1pEywTeoigeyClFm1dHrS7VakQk9uYac4Sw0suU4MpRGYQPFB6w3HUw-eO5TvaOLabtuSlgdyGRie6Ve0R7kzU76uXDvlhhWGMZ7alNCTdS7txSgUOT8oL9pJP832UsasK4~M~Na0ku1oY-8a7GcvvVv6j7yE0V0COB9OP0FbC8z7eSdZ8r7avFK~f9Wl0SEfS6MkPQR2YwWjr55bbJJhZnZA__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA";
+      if (!imageUrl || imageUrl.trim() === "" || imageUrl === unwantedUrl) {
+        return defaultUrl;
+      }
+      return imageUrl;
+    }
+
+    // Helper function to count likes in an array
+    function countLikes(likesArray) {
+      return likesArray && likesArray.length ? likesArray.length : 0;
+    }
+
+    function hasVoted(likesArray, type) {
+      let contactId = 78;
+      if (!likesArray || !likesArray.length) return false;
+      if (type === "announcement") {
+        return likesArray.some(like => like.likesInAnnouncementContactId == contactId);
+      } else if (type === "comment") {
+        return likesArray.some(like => like.likesInCommentContactId == contactId);
+      } else if (type === "reply") {
+        return likesArray.some(like => like.likesInReplyContactId == contactId);
+      }
+      return false;
+    }
 
 
 
@@ -106,7 +167,7 @@
     }
 
     // Register helper functions with JsRender
-   // $.views.helpers({ relativeTime, getDisplayName, getProfileImage, countLikes, hasVoted });
+    $.views.helpers({ relativeTime, getDisplayName, getProfileImage, countLikes, hasVoted });
 
     async function fetchAnnouncements() {
          $("#announcementsContainer").html(`
