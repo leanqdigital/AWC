@@ -194,9 +194,7 @@
       $("#announcementsContainer").html(htmlOutput);
     }
 
-    $(document).ready(function () {
-      fetchAnnouncements();
-    });
+
 
   // Function to fetch a comment by its ID using the provided GraphQL query
     async function fetchCommentById(commentId) {
