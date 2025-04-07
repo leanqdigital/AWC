@@ -1046,10 +1046,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-  updateMarkAllReadVisibility();
-  updateNoNotificationMessages();
-  updateNoNotificationMessagesSec();
-});
+// document.addEventListener("DOMContentLoaded", function () {
+//   updateMarkAllReadVisibility();
+//   updateNoNotificationMessages();
+//   updateNoNotificationMessagesSec();
+// });
 
-initializeSocket();
+// initializeSocket();
