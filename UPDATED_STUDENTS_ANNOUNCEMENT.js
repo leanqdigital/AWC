@@ -169,6 +169,12 @@
     $.views.helpers({ relativeTime, getDisplayName, getProfileImage, countLikes, hasVoted });
 
     async function fetchAnnouncements() {
+         $("#announcementsContainer").html(`
+        <div class="skeleton-container w-full">
+  <div class="skeleton-card skeleton-shimmer"></div>
+  <div class="skeleton-card skeleton-shimmer"></div>
+  <div class="skeleton-card skeleton-shimmer"></div>
+</div>`);
       try {
         const response = await fetch(apiUrlForAnouncement, {
           method: "POST",
