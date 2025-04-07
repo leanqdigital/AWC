@@ -291,7 +291,7 @@
       const newComment = await fetchCommentById(newCommentId);
       if (parentCommentID === null) {
         // Top-level comment: Use commentTemplate and append to announcement's replies container.
-        const commentTemplate = $.templates("#commentTemplate");
+        const commentTemplate = $.templates("#commentAnnouncementTemplate");
         const commentHtml = commentTemplate.render(newComment);
         const announcementEl = document.querySelector(`[data-announcement-template-id="${parentAnnouncementId}"]`);
         if (announcementEl) {
@@ -301,7 +301,7 @@
           }
         }
       } else {
-        const replyTemplate = $.templates("#replyTemplate");
+        const replyTemplate = $.templates("#replyAnnouncementTemplate");
         const replyHtml = replyTemplate.render(newComment);
        const parentCommentEl = document.querySelector(`[data-reply-id="${parentCommentID}"]`);
         if (parentCommentEl) {
