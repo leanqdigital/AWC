@@ -198,7 +198,7 @@
           body: JSON.stringify({ query })
         });
         const jsonData = await response.json();
-        let announcements = jsonData.data.getAnnouncements;
+        let announcements = jsonData.data.getAnnouncements || [] ;
         // Sanitize the data to avoid null errors
         announcements = sanitizeAnnouncements(announcements);
         renderAnnouncements(announcements);
