@@ -1,13 +1,3 @@
-const apiAccessKey = "mMzQezxyIwbtSc85rFPs3";
-const graphqlApiEndpoint = "https://awc.vitalstats.app/api/v1/graphql";
-let currentClassID = 5;
-let classId = 5;
-const visitorContactID = 78;
-let isContactAdmin = false;
-let iscontactInstructor = false;
-const awsParam = "ee037b98f52d6f86c4d3a4cc4522de1e";
-const awsParamUrl = "https://courses.writerscentre.com.au/s/aws";
-
 class MentionManager {
   static allContacts = [];
   static initContacts() {
