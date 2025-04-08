@@ -1,5 +1,10 @@
 function buildSchedfuled(createdAnnouncementID) {
-let statusFilter ='';
+let statusFilter ='{
+        andWhereGroup: [
+          { where: { status: "Published" } }
+          { orWhere: { instructor_id: ${currentPageUserID} } }
+        ]
+      }';
   if(createdAnnouncementID){
        statusFilter = `{ andWhere: { id: ${createdAnnouncementID} } }`;
   }
@@ -13,7 +18,7 @@ let statusFilter ='';
     `;
         }else{
           statusFilter = ` {
-        whereGroup: [
+        andWhereGroup: [
           { where: { status: "Published" } }
           { orWhere: { instructor_id: ${currentPageUserID} } }
         ]
