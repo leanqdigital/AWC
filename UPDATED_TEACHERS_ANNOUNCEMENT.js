@@ -31,6 +31,7 @@ return  `
         anouncementInstructorID: instructor_id
         anouncementDisableComments: disable_comments
         anouncementStatus: status
+        anouncementFileAttachement:attachment
         anouncementPostLaterDateTime: post_later_date_time
         anouncementAttachment: attachment
         Instructor {
