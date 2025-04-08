@@ -1,4 +1,4 @@
-function buildSchedfuled() {
+function buildSchedfuled(createdAnnouncementID) {
 let statusFilter = `{ andWhere: { status: "Published" } }`;
 
 if (
