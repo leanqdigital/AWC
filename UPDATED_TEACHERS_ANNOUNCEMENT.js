@@ -1,9 +1,11 @@
-    const query = `
+
+const query = `
     query getAnnouncements {
       getAnnouncements(
         query: [
           
-          { where: { class_id: ${currentPageClassID} } }            
+          { where: { class_id: ${currentPageClassID} } } 
+          ${announcementTypeFetch}
         ]
       ) {
         anouncementID: id
