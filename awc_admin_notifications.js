@@ -34,8 +34,6 @@ let socketConnections = new Map();
 
 async function initializeSocket() {
   if (document.hidden) return;
-
-    if (socketConnections.has(classId)) return;
     const socket = new WebSocket(WS_ENDPOINT, "vitalstats");
     let keepAliveInterval;
     socket.onopen = () => {
