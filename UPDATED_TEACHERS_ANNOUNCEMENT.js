@@ -1,12 +1,11 @@
 function buildSchedfuled() {
-let statusFilter = ''
+let statusFilter = `{ andWhere: { status: "Published" } }`;
 
 if (
   document.getElementById("scheduledTabs") &&
   document.getElementById("scheduledTabs").classList.contains("activeTab")
 ) {
   statusFilter = ` { andWhere: { status: "Draft" } }`;
-  console.log('statusFilter',statusFilter);
 }
 return  `
     query getAnnouncements {
