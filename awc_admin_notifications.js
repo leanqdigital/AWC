@@ -29,44 +29,12 @@ function timeAgo(unixTimestamp) {
   return "Just now";
 }
 
-let cachedClassIds = null;
 let socketConnections = new Map();
 
-async function fetchClassIds() {
-  if (cachedClassIds !== null) return cachedClassIds;
-  const query = `
-query calcClasses {
-  calcClasses {
-    ID: field(arg: ["id"])
-  }
-}
-`;
-  try {
-    const response = await fetch(HTTP_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Api-Key": APIii_KEY,
-      },
-      body: JSON.stringify({ query }),
-    });
-    const result = await response.json();
-    if (result.data && result.data.calcClasses) {
-        return result.data.calcClasses.map((cls) => cls.ID);
-      }
-    return [];
-  } catch (error) {
-    return [];
-  }
-}
 
 async function initializeSocket() {
   if (document.hidden) return;
-  const classIds = await fetchClassIds();
-  if (!classIds || classIds.length === 0) {
-    return;
-  }
-  classIds.forEach((classId) => {
+
     if (socketConnections.has(classId)) return;
     const socket = new WebSocket(WS_ENDPOINT, "vitalstats");
     let keepAliveInterval;
@@ -85,7 +53,6 @@ async function initializeSocket() {
           variables: {
             author_id: LOGGED_IN_CONTACT_ID,
             id: LOGGED_IN_CONTACT_ID,
-            class_id: classId,
             created_at: createdAt,
           },
         },
@@ -166,7 +133,7 @@ async function initializeSocket() {
       }
     };
     socketConnections.set(classId, { socket, keepAliveInterval });
-  });
+
 }
 
 document.addEventListener("visibilitychange", () => {
