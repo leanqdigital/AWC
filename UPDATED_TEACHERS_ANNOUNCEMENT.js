@@ -1,14 +1,20 @@
 function buildSchedfuled(createdAnnouncementID) {
-let statusFilter = `{ andWhere: { status: "Published" } }`;
-
-if (
-  document.getElementById("scheduledTabs") &&
-  document.getElementById("scheduledTabs").classList.contains("activeTab")
-) {
-  statusFilter = ` { andWhere: { status: "Draft" } }
-                    { andWhere: { instructor_id: ${currentPageUserID} } }
-                  `;
-}
+let statusFilter ='';
+  if(createdAnnouncementID){
+       statusFilter = `{ andWhere: { id: ${createdAnnouncementID} } }`;
+  }
+  else{
+        if (
+          document.getElementById("scheduledTabs") &&
+          document.getElementById("scheduledTabs").classList.contains("activeTab")
+        ) {
+          statusFilter = ` { andWhere: { status: "Draft" } }
+    { andWhere: { instructor_id: ${currentPageUserID} } }
+    `;
+        }else{
+          statusFilter = `{ andWhere: { status: "Published" } }`;
+        }
+  }
 return  `
     query getAnnouncements {
       getAnnouncements(
