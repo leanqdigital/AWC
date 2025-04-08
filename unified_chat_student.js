@@ -496,10 +496,6 @@ mutation createForumPost($payload: ForumPostCreateInput!) {
     id 
     Mentions { id } 
     post_status
-    Author {
-        is_admin
-        is_instructor
-    }
     class_id
   }
 }
@@ -885,10 +881,6 @@ $(document).ready(function () {
       author_id: visitorContactID,
       Mentions: mentionedIds.map((id) => ({ id: id })),
       post_status: "Published - Not flagged",
-      Author: {
-        is_admin: false,
-        is_instructor: false,
-      },
       class_id: classId,
     };
     let uploadedFileInfo = null;
