@@ -1,11 +1,17 @@
+let statusFilter = ''
 
+if (
+  document.getElementById("scheduledTabs") &&
+  document.getElementById("scheduledTabs").classList.contains("activeTab")
+) {
+  statusFilter = ` { andWhere: { status: "Draft" } }`
+}
 const query = `
     query getAnnouncements {
       getAnnouncements(
         query: [
-          
           { where: { class_id: ${currentPageClassID} } } 
-          ${announcementTypeFetch}
+          ${statusFilter}
         ]
       ) {
         anouncementID: id
