@@ -51,7 +51,6 @@ async function initializeSocket() {
           variables: {
             author_id: LOGGED_IN_CONTACT_ID,
             id: LOGGED_IN_CONTACT_ID,
-            created_at: createdAt,
           },
         },
       })
