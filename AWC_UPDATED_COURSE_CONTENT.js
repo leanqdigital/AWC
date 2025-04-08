@@ -306,10 +306,15 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
       async function fetchLmsUnifiedData() {
           try {
               const response = await fetchGraphQL(lmsQuery);
+              console.log("Resposne is", response);
+            
               if (!response || !response.LMSQuery || !response.LMSQuery.length) {
-                  return null;
+                console.log("No data");
+                return null;
               }
-              const course = response.LMSQuery[0];
+            
+            const course = response.LMSQuery[0];
+              console.log("course", course);
               const mappedData = {
                   courseName: course.course_name,
                   courseAccessType: course.course_access_type,
@@ -366,8 +371,10 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
                       })),
                   })),
               };
+            console.log("mappedData", mappedData);
               return mappedData;
           } catch (error) {
+            console.log("Error is", error);
               return null;
           }
       }
