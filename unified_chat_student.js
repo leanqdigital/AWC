@@ -455,6 +455,7 @@ const ForumAPI = (function () {
     });
     return tree;
   }
+
   function assignCommentLevels(comments, level) {
     comments.forEach((comment) => {
       comment.level = level;
@@ -462,6 +463,7 @@ const ForumAPI = (function () {
         assignCommentLevels(comment.children, level + 1);
     });
   }
+
   function attachForumPostIdToComments(comments, forumPostId) {
     comments.forEach((comment) => {
       comment.forum_post_id = forumPostId;
@@ -502,6 +504,7 @@ mutation createForumPost($payload: ForumPostCreateInput!) {
   }
 }
 `;
+
   function createPost(payload) {
     return apiCall(createPostMutation, { payload }).then((data) => {
       if (data.data && data.data.createForumPost)
@@ -509,6 +512,7 @@ mutation createForumPost($payload: ForumPostCreateInput!) {
       else throw new Error("Error creating post");
     });
   }
+
   const deletePostMutation = `
 mutation deleteForumPost($postId: AwcForumPostID!) {
   deleteForumPost(query: [{ where: { id: $postId } }]) { id }
@@ -521,11 +525,13 @@ mutation deleteForumPost($postId: AwcForumPostID!) {
       else throw new Error("Error deleting post");
     });
   }
+
   const deleteCommentMutation = `
 mutation deleteForumComment($id: AwcForumCommentID) {
   deleteForumComment(query: [{ where: { id: $id } }]) { id }
 }
 `;
+
   function deleteComment(commentId) {
     return apiCall(deleteCommentMutation, { id: commentId }).then((data) => {
       if (data.data && data.data.deleteForumComment)
@@ -567,6 +573,7 @@ mutation createForumComment($payload: ForumCommentCreateInput = null) {
         }
     }
 `;
+
   function fetchPostById(postId) {
     return apiCall(singlePostQuery, { id: postId }).then((data) => {
       let posts = data.data.getForumPosts || [];
@@ -588,6 +595,7 @@ mutation createMemberPostUpvotesPostUpvotes($payload: MemberPostUpvotesPostUpvot
   createMemberPostUpvotesPostUpvotes(payload: $payload) { member_post_upvote_id post_upvote_id id }
 }
 `;
+
   function createPostVote(payload) {
     return apiCall(createPostVoteMutation, { payload }).then((data) => {
       if (data.data && data.data.createMemberPostUpvotesPostUpvotes)
@@ -595,11 +603,13 @@ mutation createMemberPostUpvotesPostUpvotes($payload: MemberPostUpvotesPostUpvot
       else throw new Error("Error creating post vote");
     });
   }
+
   const deletePostVoteMutation = `
 mutation deleteMemberPostUpvotesPostUpvotes($id: AwcMemberPostUpvotesPostUpvotesID) {
   deleteMemberPostUpvotesPostUpvotes(query: [{ where: { id: $id } }]) { id }
 }
 `;
+
   function deletePostVote(voteId) {
     return apiCall(deletePostVoteMutation, { id: voteId }).then((data) => {
       if (data.data && data.data.deleteMemberPostUpvotesPostUpvotes)
@@ -607,11 +617,13 @@ mutation deleteMemberPostUpvotesPostUpvotes($id: AwcMemberPostUpvotesPostUpvotes
       else throw new Error("Error deleting post vote");
     });
   }
+
   const createCommentVoteMutation = `
 mutation createMemberCommentUpvotesForumCommentUpvotes($payload: MemberCommentUpvotesForumCommentUpvotesCreateInput = null) {
   createMemberCommentUpvotesForumCommentUpvotes(payload: $payload) { forum_comment_upvote_id member_comment_upvote_id id }
 }
 `;
+
   function createCommentVote(payload) {
     return apiCall(createCommentVoteMutation, { payload }).then((data) => {
       if (data.data && data.data.createMemberCommentUpvotesForumCommentUpvotes)
@@ -619,11 +631,13 @@ mutation createMemberCommentUpvotesForumCommentUpvotes($payload: MemberCommentUp
       else throw new Error("Error creating comment vote");
     });
   }
+
   const deleteCommentVoteMutation = `
 mutation deleteMemberCommentUpvotesForumCommentUpvotes($id: AwcMemberCommentUpvotesForumCommentUpvotesID) {
   deleteMemberCommentUpvotesForumCommentUpvotes(query: [{ where: { id: $id } }]) { id }
 }
 `;
+
   function deleteCommentVote(voteId) {
     return apiCall(deleteCommentVoteMutation, { id: voteId }).then((data) => {
       if (data.data && data.data.deleteMemberCommentUpvotesForumCommentUpvotes)
@@ -631,6 +645,7 @@ mutation deleteMemberCommentUpvotesForumCommentUpvotes($id: AwcMemberCommentUpvo
       else throw new Error("Error deleting comment vote");
     });
   }
+
   return {
     fetchPosts,
     createPost,
@@ -760,6 +775,7 @@ function renderPosts(posts) {
   $("#forumContainer").html(htmlOutput);
   $(".comment-editor").each(function () {
     MentionManager.initEditor(this);
+    $(this).attr("contenteditable", true);
   });
   applyLinkPreviewsAndLinkify();
 }
@@ -916,7 +932,10 @@ $(document).ready(function () {
     if (fileInput.files && fileInput.files[0]) {
       const filesToUpload = [{ file: fileInput.files[0], fieldName: "file" }];
       FileUploader.processFileFields(
-        payload, filesToUpload, awsParam, awsParamUrl
+        payload,
+        filesToUpload,
+        awsParam,
+        awsParamUrl
       )
         .then((updatedPayload) => submitNewPost(updatedPayload))
         .catch((error) => {
@@ -1060,6 +1079,10 @@ $(document).on("submit", ".commentForm", function (event) {
           newCommentsHtml = template.render(post.children);
         }
         $("#comments-" + forumPostId).html(newCommentsHtml);
+        $("#comments-" + forumPostId + " .comment-editor").each(function () {
+          MentionManager.initEditor(this);
+          $(this).attr("contenteditable", true);
+        });
       })
       .catch((error) => {
         console.error("Error creating comment:", error);
@@ -1078,7 +1101,10 @@ $(document).on("submit", ".commentForm", function (event) {
   if (fileInput.files && fileInput.files[0]) {
     const filesToUpload = [{ file: fileInput.files[0], fieldName: "file" }];
     FileUploader.processFileFields(
-      payload, filesToUpload, awsParam, awsParamUrl
+      payload,
+      filesToUpload,
+      awsParam,
+      awsParamUrl
     )
       .then((updatedPayload) => submitComment(updatedPayload))
       .catch((error) => {
