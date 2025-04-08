@@ -5,6 +5,7 @@ const pendingAnnouncements = new Set();
 const cardMap = new Map();
 const notificationIDs = new Set();
 const notificationData = [];
+const newId = Date.now();
 
 function getQueryParamss(param) {
   const urlParams = new URLSearchParams(window.location.search);
@@ -44,7 +45,7 @@ async function initializeSocket() {
       }, 28000);
       socket.send(JSON.stringify({ type: "connection_init" }));
       socket.send(JSON.stringify({
-        id: `subscription_${classId}`,
+        id: `subscription_${newId}`,
         type: "GQL_START",
         payload: {
           query: SUBSCRIPTION_QUERY,
