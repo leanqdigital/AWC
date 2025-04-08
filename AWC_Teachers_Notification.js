@@ -6,11 +6,6 @@ const cardMap = new Map();
 const notificationIDs = new Set();
 const notificationData = [];
 
-function getQueryParamss(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}
-const enrollID = getQueryParamss('eid');
 
 function timeAgo(unixTimestamp) {
   const now = new Date();
@@ -86,7 +81,6 @@ async function initializeSocket() {
             author_id: LOGGED_IN_CONTACT_ID,
             id: LOGGED_IN_CONTACT_ID,
             class_id: classId,
-            created_at: createdAt,
           },
         },
       }));
