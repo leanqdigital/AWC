@@ -1,3 +1,13 @@
+const apiAccessKey = "mMzQezxyIwbtSc85rFPs3";
+const graphqlApiEndpoint = "https://awc.vitalstats.app/api/v1/graphql";
+let currentClassID = 5;
+let classId = 5;
+const visitorContactID = 78;
+let isContactAdmin = false;
+let iscontactInstructor = false;
+const awsParam = "ee037b98f52d6f86c4d3a4cc4522de1e";
+const awsParamUrl = "https://courses.writerscentre.com.au/s/aws";
+
 class MentionManager {
   static allContacts = [];
   static initContacts() {
@@ -44,11 +54,15 @@ class MentionManager {
           (contact) =>
             contact.Display_Name && contact.Display_Name.trim() !== ""
         );
+
         MentionManager.allContacts = validContacts.map((contact) => ({
           key: contact.Display_Name,
           value: contact.Display_Name,
+          name: contact.Display_Name,
           id: contact.Contact_ID,
           profileImage: contact.Profile_Image,
+          isAdmin: contact.Is_Admin, // add admin flag
+          isInstructor: contact.Is_Instructor, // add instructor flag
         }));
       })
       .catch((error) =>
@@ -78,13 +92,29 @@ class MentionManager {
 
   static mentionTemplate(item) {
     return `<div class="flex items-center gap-3 px-3 py-2">
-        <img src="${item.original.profileImage}" class="w-8 h-8 rounded-full object-cover" onerror="this.src='https://files.ontraport.com/media/default-profile.png'">
-        <div class="text-primary">${item.original.name}</div>
+            <img class="w-6 h-6 rounded-full border border-[#d3d3d3]" 
+              src="${
+                item.original.profileImage &&
+                item.original.profileImage !== "https://i.ontraport.com/abc.jpg"
+                  ? item.original.profileImage
+                  : "https://files.ontraport.com/media/b0456fe87439430680b173369cc54cea.php03bzcx?Expires=4895186056&Signature=fw-mkSjms67rj5eIsiDF9QfHb4EAe29jfz~yn3XT0--8jLdK4OGkxWBZR9YHSh26ZAp5EHj~6g5CUUncgjztHHKU9c9ymvZYfSbPO9JGht~ZJnr2Gwmp6vsvIpYvE1pEywTeoigeyClFm1dHrS7VakQk9uYac4Sw0suU4MpRGYQPFB6w3HUw-eO5TvaOLabtuSlgdyGRie6Ve0R7kzU76uXDvlhhWGMZ7alNCTdS7txSgUOT8oL9pJP832UsasK4~M~Na0ku1oY-8a7GcvvVv6j7yE0V0COB9OP0FbC8z7eSdZ8r7avFK~f9Wl0SEfS6MkPQR2YwWjr55bbJJhZnZA__&Key-Pair-Id=APKAJVAAMVW6XQYWSTNA"
+              }" 
+              alt="${item.original.name}'s Profile Image" />
+        <div class="text-primary">
+          ${item.original.name}
+          ${
+            item.original.isAdmin
+              ? " (Admin)"
+              : item.original.isInstructor
+              ? " (Teacher)"
+              : ""
+          }
+        </div>
       </div>`;
   }
 
   static selectTemplate(item) {
-    return `<span class="mention" data-contact-id="${item.original.id}">@${item.original.name}</span>`;
+    return `<span class="mention" data-contact-id="${item.original.id}">@${item.original.value}</span>`;
   }
 }
 
@@ -826,11 +856,13 @@ $(document).ready(function () {
   $("#submit-post").on("click", function (event) {
     event.preventDefault();
     const postEditor = document.getElementById("post-editor");
+    const postOuterWrapper = document.getElementById("postOuterWrapper");
     const htmlContent = postEditor.innerHTML.trim();
     const fileInput = $("#postFile")[0];
     const responseMessage = $("#responseMessage");
     const submitButton = $(this);
     submitButton.prop("disabled", true);
+    postOuterWrapper.classList.add("state-disabled");
     $("#post-editor").attr("contenteditable", false);
     responseMessage.removeClass("hidden");
     responseMessage.text("Creating post...");
@@ -886,6 +918,7 @@ $(document).ready(function () {
         })
         .finally(() => {
           submitButton.prop("disabled", false);
+          postOuterWrapper.classList.remove("state-disabled");
           $("#post-editor").attr("contenteditable", true);
           setTimeout(() => responseMessage.addClass("hidden"), 500);
         });
@@ -966,11 +999,14 @@ $(document).on("submit", ".commentForm", function (event) {
   const parentType = form.data("parent-type");
   const forumPostId = form.data("forum-post-id");
   const submitButton = form.find("button[type='submit']");
+
+  form.addClass("state-disabled");
   submitButton.prop("disabled", true);
   editor.setAttribute("contenteditable", false);
   const responseMessage = $("#responseMessage");
   responseMessage.removeClass("hidden");
   responseMessage.text("Creating comment...");
+
   const tempContainer = document.createElement("div");
   tempContainer.innerHTML = htmlContent;
   const mentionedIds = [];
@@ -978,27 +1014,36 @@ $(document).on("submit", ".commentForm", function (event) {
     const id = mention.dataset.contactId;
     if (id && !mentionedIds.includes(Number(id))) mentionedIds.push(Number(id));
   });
+
   let payload = {
     comment: htmlContent,
     author_id: visitorContactID,
     Mentions: mentionedIds.map((id) => ({ id: id })),
   };
-  if (parentType === "post") payload.forum_post_id = parentId;
-  else payload.reply_to_comment_id = parentId;
+  if (parentType === "post") {
+    payload.forum_post_id = parentId;
+  } else {
+    payload.reply_to_comment_id = parentId;
+  }
+
   let uploadedFileInfo = null;
   if (fileInput.files && fileInput.files[0]) {
     const file = fileInput.files[0];
     uploadedFileInfo = { name: file.name, type: file.type };
   }
   let createdCommentId = null;
+
   function submitComment(finalPayload) {
     ForumAPI.createComment(finalPayload)
       .then((data) => {
         responseMessage.text("Comment created successfully!");
+        form.removeClass("state-disabled");
         createdCommentId = data.id;
+        // Fetch only the updated post data for the specific forum post
         return ForumAPI.fetchPostById(forumPostId);
       })
       .then((post) => {
+        // Update file info for the new comment if applicable
         if (uploadedFileInfo) {
           function findComment(comments) {
             for (let comment of comments) {
@@ -1021,7 +1066,13 @@ $(document).on("submit", ".commentForm", function (event) {
             });
           }
         }
-        loadPosts();
+        // Re-render only the comment section for this post
+        const template = $.templates("#forumTemplate");
+        let newCommentsHtml = "";
+        if (post.children && post.children.length) {
+          newCommentsHtml = template.render(post.children);
+        }
+        $("#comments-" + forumPostId).html(newCommentsHtml);
       })
       .catch((error) => {
         console.error("Error creating comment:", error);
@@ -1036,8 +1087,9 @@ $(document).on("submit", ".commentForm", function (event) {
         setTimeout(() => responseMessage.addClass("hidden"), 500);
       });
   }
+
   if (fileInput.files && fileInput.files[0]) {
-    var filesToUpload = [{ file: fileInput.files[0], fieldName: "file" }];
+    const filesToUpload = [{ file: fileInput.files[0], fieldName: "file" }];
     FileUploader.processFileFields(
       payload,
       filesToUpload,
@@ -1061,74 +1113,82 @@ function handleVote(button) {
   var recordId = $btn.data("id");
   var type = $btn.data("type");
   var voteId = $btn.data("vote-id");
-  var currentUserId = visitorContactID;
-  const responseMessage = $("#responseMessage");
+  var currentUserId = visitorContactID; // defined globally
 
-  // Show the message container if hidden
-  responseMessage.removeClass("hidden");
+  // Show temporary UI feedback if desired
+  $btn.addClass("state-disabled");
 
   if (type === "post") {
     if (voteId) {
-      // Removing Post Vote
-      responseMessage.text("Removing Post vote...");
+      // Vote removal: delete the vote and update the count locally.
       ForumAPI.deletePostVote(voteId)
         .then(() => {
-          loadPosts();
-          responseMessage.text("Vote removed successfully.");
-          setTimeout(() => responseMessage.addClass("hidden"), 500);
+          let $voteCount = $btn.find(".vote-count");
+          let count = parseInt($voteCount.text(), 10);
+          $voteCount.text(count - 1);
+          $btn.data("vote-id", "");
+          $btn.removeClass("upVoted").removeClass("state-disabled");
         })
         .catch((error) => {
           console.error("Error removing post vote:", error);
+          $btn.removeClass("state-disabled");
           alert("Error removing vote.");
         });
     } else {
-      // Voting Post
-      responseMessage.text("Voting Post...");
+      // Vote addition: create a vote and update the UI.
       var payload = {
         member_post_upvote_id: currentUserId,
         post_upvote_id: recordId,
       };
       ForumAPI.createPostVote(payload)
-        .then(() => {
-          loadPosts();
-          responseMessage.text("Post voted successfully.");
-          setTimeout(() => responseMessage.addClass("hidden"), 500);
+        .then((data) => {
+          let $voteCount = $btn.find(".vote-count");
+          let count = parseInt($voteCount.text(), 10);
+          $voteCount.text(count + 1);
+          $btn.data("vote-id", data.id);
+          $btn.addClass("upVoted").removeClass("state-disabled");
         })
         .catch((error) => {
           console.error("Error creating post vote:", error);
-          alert("Error creating vote.");
+          $btn.removeClass("state-disabled");
+          alert("Error casting vote.");
         });
     }
   } else if (type === "comment") {
+    // Similar logic for comment votes can be applied here.
     if (voteId) {
-      // Removing Comment Vote
-      responseMessage.text("Removing Comment vote...");
+      // Removing comment vote
       ForumAPI.deleteCommentVote(voteId)
         .then(() => {
-          loadPosts();
-          responseMessage.text("Vote removed successfully.");
-          setTimeout(() => responseMessage.addClass("hidden"), 500);
+          let $voteCount = $btn.find(".vote-count");
+          let count = parseInt($voteCount.text(), 10);
+          $voteCount.text(count - 1);
+          $btn.data("vote-id", "");
+          $btn.removeClass("upVoted").removeClass("state-disabled");
         })
         .catch((error) => {
           console.error("Error removing comment vote:", error);
+          $btn.removeClass("state-disabled");
           alert("Error removing vote.");
         });
     } else {
-      // Voting Comment
-      responseMessage.text("Voting Comment...");
+      // Creating comment vote
       var payload = {
         member_comment_upvote_id: currentUserId,
         forum_comment_upvote_id: recordId,
       };
       ForumAPI.createCommentVote(payload)
-        .then(() => {
-          loadPosts();
-          responseMessage.text("Comment voted successfully.");
-          setTimeout(() => responseMessage.addClass("hidden"), 500);
+        .then((data) => {
+          let $voteCount = $btn.find(".vote-count");
+          let count = parseInt($voteCount.text(), 10);
+          $voteCount.text(count + 1);
+          $btn.data("vote-id", data.id);
+          $btn.addClass("upVoted").removeClass("state-disabled");
         })
         .catch((error) => {
           console.error("Error creating comment vote:", error);
-          alert("Error creating vote.");
+          $btn.removeClass("state-disabled");
+          alert("Error casting vote.");
         });
     }
   }
