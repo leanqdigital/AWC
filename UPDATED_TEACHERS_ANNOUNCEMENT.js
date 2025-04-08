@@ -12,7 +12,7 @@ let statusFilter ='';
     { andWhere: { instructor_id: ${currentPageUserID} } }
     `;
         }else{
-          statusFilter = `{ andWhere: { status: "Published" } }`;
+          statusFilter = ``;
         }
   }
 return  `
