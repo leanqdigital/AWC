@@ -1,3 +1,4 @@
+function buildSchedfuled() {
 let statusFilter = ''
 
 if (
@@ -7,7 +8,7 @@ if (
   statusFilter = ` { andWhere: { status: "Draft" } }`;
   console.log('statusFilter',statusFilter);
 }
-const query = `
+return  `
     query getAnnouncements {
       getAnnouncements(
         query: [
@@ -65,8 +66,8 @@ const query = `
         }
       }
     }
-  `;
-
+  `
+}
     // For Unix timestamps in seconds, multiply by 1000.
      // Helper function to return relative time or Australian date format (dd/mm/yyyy)
      function parseUnix(dateInput) {
@@ -195,6 +196,7 @@ const query = `
   <div class="skeleton-card skeleton-shimmer"></div>
   <div class="skeleton-card skeleton-shimmer"></div>
 </div>`);
+      const query = buildSchedfuled();
       try {
         const response = await fetch(apiUrlForAnouncement, {
           method: "POST",
