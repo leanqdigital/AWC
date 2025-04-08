@@ -110,7 +110,7 @@
     }
 
     function hasVoted(likesArray, type) {
-      let contactId = 78;
+      let contactId = currentPageUserID;
       if (!likesArray || !likesArray.length) return false;
       if (type === "announcement") {
         return likesArray.some(like => like.likesInAnnouncementContactId == contactId);
