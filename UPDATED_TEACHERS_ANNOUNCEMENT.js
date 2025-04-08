@@ -5,7 +5,9 @@ if (
   document.getElementById("scheduledTabs") &&
   document.getElementById("scheduledTabs").classList.contains("activeTab")
 ) {
-  statusFilter = ` { andWhere: { status: "Draft" } }`;
+  statusFilter = ` { andWhere: { status: "Draft" } }
+                    { andWhere: { instructor_id: ${currentPageUserID} } }
+                  `;
 }
 return  `
     query getAnnouncements {
