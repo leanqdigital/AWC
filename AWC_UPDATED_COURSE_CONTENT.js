@@ -376,6 +376,8 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
       async function combineUnifiedData() {
           const data = await fetchLmsUnifiedData();
 
+          console.log("data is", data);
+
           if (!data) return null;
           const enrolments = (data.enrolments || []).map((enr) => ({
               id: enr.id,
@@ -383,14 +385,16 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
               dateCompletion: enr.dateCompletion,
               certificateLink: enr.certificateLink,
               completedLessons: enr.completedLessons,
-              classInfo: enr.classInfo
-                  ? {
-                      startDate: enr.classInfo.startDate,
-                      endDate: enr.classInfo.endDate,
-                  }
-                  : null,
+              // classInfo: enr.classInfo
+              //     ? {
+              //         startDate: enr.classInfo.startDate,
+              //         endDate: enr.classInfo.endDate,
+              //     }
+                  // : null,
           }));
 
+          console.log("enrolments is", enrolments);
+          
           
 
           // Use class start date from enrolments (fallback to current time)
@@ -512,7 +516,9 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
           $("#modulesContainer").html(skeletonHTML);
           // $("#progressModulesContainer").html(skeletonHTML);
           const unifiedData = await combineUnifiedData();
+        
           console.log("Unified data is", unifiedData);
+        
           if (!unifiedData || !Array.isArray(unifiedData.modules)) {
               console.error("No modules data available");
               return;
