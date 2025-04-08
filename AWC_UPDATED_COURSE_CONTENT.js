@@ -318,7 +318,7 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
               const mappedData = {
                   courseName: course.course_name,
                   courseAccessType: course.course_access_type,
-                  enrolments: course.Enrolments_As_Course.map((enr) => ({
+                  enrolments: (course.Enrolments_As_Course ?? []).map((enr) => ({
                       id: enr.id,
                       resumeLessonUniqueId: enr.resume_lesson_unique_id,
                       dateCompletion: enr.date_completion,
@@ -331,7 +331,7 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
                           }
                           : null,
                   })),
-                  modules: course.Modules.map((mod) => ({
+                  modules: (course.Modules ?? []).map((mod) => ({
                       id: mod.id,
                       uniqueId: mod.unique_id,
                       order: mod.order,
@@ -347,7 +347,7 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
                       lessonCountVisible: mod.lesson__count__visible,
                       lessonCountProgress: mod.lesson__count__progress,
                       customisations: mod.ClassCustomisations,
-                      lessons: mod.Lessons.map((les) => ({
+                      lessons: (mod.Lessons ?? []).map((les) => ({
                           id: les.id,
                           uniqueId: les.unique_id,
                           orderInModule: les.order_in_module,
@@ -371,7 +371,7 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
                       })),
                   })),
               };
-            console.log("mappedData", mappedData);
+              console.log("mappedData", mappedData);
               return mappedData;
           } catch (error) {
             console.log("Error is", error);
@@ -392,12 +392,12 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
               dateCompletion: enr.dateCompletion,
               certificateLink: enr.certificateLink,
               completedLessons: enr.completedLessons,
-              // classInfo: enr.classInfo
-              //     ? {
-              //         startDate: enr.classInfo.startDate,
-              //         endDate: enr.classInfo.endDate,
-              //     }
-                  // : null,
+              classInfo: enr.classInfo
+                  ? {
+                      startDate: enr.classInfo.startDate,
+                      endDate: enr.classInfo.endDate,
+                  }
+                  : null,
           }));
 
           console.log("enrolments is", enrolments);
