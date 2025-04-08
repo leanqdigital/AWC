@@ -512,6 +512,7 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
           $("#modulesContainer").html(skeletonHTML);
           // $("#progressModulesContainer").html(skeletonHTML);
           const unifiedData = await combineUnifiedData();
+          console.log("Unified data is", unifiedData);
           if (!unifiedData || !Array.isArray(unifiedData.modules)) {
               console.error("No modules data available");
               return;
