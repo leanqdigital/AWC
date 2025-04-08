@@ -12,7 +12,12 @@ let statusFilter ='';
     { andWhere: { instructor_id: ${currentPageUserID} } }
     `;
         }else{
-          statusFilter = ``;
+          statusFilter = ` {
+        whereGroup: [
+          { where: { status: "Published" } }
+          { orWhere: { instructor_id: ${currentPageUserID} } }
+        ]
+      }`;
         }
   }
 return  `
