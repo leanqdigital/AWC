@@ -856,8 +856,8 @@ $(document).ready(function () {
     $("#all-posts-tab").removeClass("activePostTab");
   });
 
-  // Initially load all posts
-  loadPosts("all");
+
+  
 
   $("#submit-post").on("click", function (event) {
     event.preventDefault();
