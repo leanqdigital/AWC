@@ -729,7 +729,7 @@ const FileUploader = (function () {
     if (!awsParamHash) awsParam = window.awsParam;
     else if (typeof awsParamHash === "string")
       awsParam = encodeAwsParam(awsParamHash);
-    return getS3UploadParams("ee037b98f52d6f86c4d3a4cc4522de1e", "https://courses.writerscentre.com.au/s/aws").then((s3Params) => {
+    return getS3UploadParams(awsParam, awsParamUrl).then((s3Params) => {
       if (!s3Params) {
         const e = new Error("Failed to retrieve S3 upload parameters.");
         e.failures = filesToUpload;
@@ -916,10 +916,7 @@ $(document).ready(function () {
     if (fileInput.files && fileInput.files[0]) {
       const filesToUpload = [{ file: fileInput.files[0], fieldName: "file" }];
       FileUploader.processFileFields(
-        payload,
-        filesToUpload,
-        "awsParam",
-        "awsParamUrl"
+        payload, filesToUpload, awsParam, awsParamUrl
       )
         .then((updatedPayload) => submitNewPost(updatedPayload))
         .catch((error) => {
@@ -1081,10 +1078,7 @@ $(document).on("submit", ".commentForm", function (event) {
   if (fileInput.files && fileInput.files[0]) {
     const filesToUpload = [{ file: fileInput.files[0], fieldName: "file" }];
     FileUploader.processFileFields(
-      payload,
-      filesToUpload,
-      "awsParam",
-      "awsParamUrl"
+      payload, filesToUpload, awsParam, awsParamUrl
     )
       .then((updatedPayload) => submitComment(updatedPayload))
       .catch((error) => {
