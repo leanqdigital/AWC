@@ -1,6 +1,3 @@
-const courseContenturl = window.location.href;
-    const urlParams = new URLSearchParams(window.location.search);
-    const studentseid = urlParams.get("eid");
     async function fetchGraphQL(query) {
         try {
             const response = await fetch(
@@ -127,7 +124,7 @@ const courseContenturl = window.location.href;
     const lmsQuery = `
         query LMSQuery {
 LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
-  Enrolments_As_Course(query: [{ where: {id: ${studentseid}} }]) { 
+  Enrolments_As_Course(query: [{ where: {id: ''} }]) { 
     resume_lesson_unique_id           
     id
     date_completion
