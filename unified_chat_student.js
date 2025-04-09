@@ -112,13 +112,17 @@ $(".comment-editor").each(function () {
   MentionManager.initEditor(this);
 });
 
-$("#announcementContent").each(function () {
-  MentionManager.initEditor(this);
-});
+if ($("#announcementContent").length > 0) {
+  $("#announcementContent").each(function () {
+    MentionManager.initEditor(this);
+  });
+}
 
-$(".replyContent").each(function () {
-  MentionManager.initEditor(this);
-});
+if ($(".replyContent").length > 0) {
+  $(".replyContent").each(function () {
+    MentionManager.initEditor(this);
+  });
+}
 
 function renderAudioPlayer(link) {
   return `
