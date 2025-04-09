@@ -112,6 +112,14 @@ $(".comment-editor").each(function () {
   MentionManager.initEditor(this);
 });
 
+$("#announcementContent").each(function () {
+  MentionManager.initEditor(this);
+});
+
+$(".replyContent").each(function () {
+  MentionManager.initEditor(this);
+});
+
 function renderAudioPlayer(link) {
   return `
               <div class="flex flex-col gap-y-4 mt-2 mb-4 p-4 bg-[#ebf6f6]" x-init="initPlayer()" x-data="audioPlayer();">
