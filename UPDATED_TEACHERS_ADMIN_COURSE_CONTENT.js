@@ -166,7 +166,16 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
       days_to_offset
       specific_date
     }
-    Lessons {
+    Lessons (
+    query: [
+      {
+        where: {
+          type: "Download Certificate"
+          _OPERATOR_: neq
+        }
+      }
+    ]
+  ) {
       id
       unique_id
       order_in_module
