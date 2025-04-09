@@ -1,4 +1,4 @@
-class MentionManager { 
+class MentionManager {
   static allContacts = [];
   static initContacts() {
     const query = `
