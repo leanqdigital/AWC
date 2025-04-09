@@ -118,11 +118,6 @@ if ($("#announcementContent").length > 0) {
   });
 }
 
-if ($(".replyContent").length > 0) {
-  $(".replyContent").each(function () {
-    MentionManager.initEditor(this);
-  });
-}
 
 function renderAudioPlayer(link) {
   return `
