@@ -124,7 +124,7 @@
     const lmsQuery = `
         query LMSQuery {
 LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
-  Enrolments_As_Course(query: [{ where: {id: ''} }]) { 
+  Enrolments_As_Course{ 
     resume_lesson_unique_id           
     id
     date_completion
@@ -192,17 +192,13 @@ LMSQuery: getCourses(query: [{ where: { id: ${COURSE_ID} } }]) {
       }
       assessment_due_end_of_week
       assessment__due__date
-      Lesson_Enrolment_in_Progresses(
-        query: [{ where: {id: ''} }]
-      ) {
+      Lesson_Enrolment_in_Progresses{
         id
       Lesson_In_Progresses{
           id
         }
       }
-      Enrolment_Lesson_Completions(
-        query: [{ where: {id: ''} }]
-      ) {
+      Enrolment_Lesson_Completions {
         id
               Lesson_Completions{
           id
